@@ -53,8 +53,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,0,0,1
- PRODUCTVERSION 0,0,0,1
+ FILEVERSION 0,0,0,2
+ PRODUCTVERSION 0,0,0,2
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x29L
@@ -69,10 +69,10 @@ BEGIN
     BEGIN
         BLOCK "041104b0"
         BEGIN
-            VALUE "Comments", "Osaki #1"
+            VALUE "Comments", "Osaki #2"
             VALUE "CompanyName", "B.G-STATION"
-            VALUE "FileDescription", "Osaki #1"
-            VALUE "FileVersion", "0, 0, 0, 1"
+            VALUE "FileDescription", "Osaki #2"
+            VALUE "FileVersion", "0, 0, 0, 2"
             VALUE "InternalName", "Aoi32"
             VALUE "LegalCopyright", "Copyright (C) 2005-2017 B.G-STATION, All rights reserved."
             VALUE "LegalTrademarks", "B.G-STATION"
@@ -86,6 +86,21 @@ BEGIN
     BLOCK "VarFileInfo"
     BEGIN
         VALUE "Translation", 0x411, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU1 MENU 
+BEGIN
+    POPUP "ファイル(&F)"
+    BEGIN
+        MENUITEM "開く(&O)...",                   ID_FILE_OPEN
+        MENUITEM "名前を付けて保存(&A)...",             ID_FILE_SAVE_AS
     END
 END
 
