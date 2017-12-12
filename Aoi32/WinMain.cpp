@@ -112,6 +112,30 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
 			// 既定の処理へ向かう.
 			break;	// breakで抜けて, 既定の処理(DefWindowProc)へ向かう.
 
+		// ウィンドウのサイズが変更された時.
+		case WM_SIZE:
+
+			// WM_SIZEブロック
+			{
+
+				// 変数の宣言
+				int iWidth;		// クライアント領域の幅iWidth.
+				int iHeight;	// クライアント領域の高さiHeight.
+				HWND hEdit;		// エディットコントロールのウィンドウハンドルhEdit.
+
+				// クライアント領域の変更後のサイズを取得.
+				iWidth = LOWORD(lParam);	// LOWORD(lParam)でクライアント領域の幅を取得し, iWidthに格納.
+				iHeight = HIWORD(lParam);	// HIWORD(lParam)でクライアント領域の高さを取得し, iHeightに格納.
+
+				// エディットコントロールのサイズ調整.
+				hEdit = GetDlgItem(hwnd, (WM_APP + 1));	// GetDlgItemで(WM_APP + 1)を指定してhEditを取得.
+				MoveWindow(hEdit, 0, 0, iWidth, iHeight, TRUE);	// MoveWindowでhEditのサイズを(iWidth, iHeight)にする.
+
+			}
+
+			// 既定の処理へ向かう.
+			break;	// breakで抜けて, 既定の処理(DefWindowProc)へ向かう.
+
 		// コマンドが発生した時.
 		case WM_COMMAND:
 
