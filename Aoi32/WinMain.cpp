@@ -180,12 +180,18 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
 									// ファイルサイズの取得.
 									if (_stat(path, &st) == 0){	// _statでファイルサイズを取得.
 										unsigned int filesize = st.st_size;	// filesizeをst.st_sizeで初期化.
+										// ファイルの内容を読み込む.
 										char *buf = (char *)malloc(sizeof(char) * (filesize + 1));	// mallocでbufを確保.
 										memset(buf, 0, filesize + 1);	// memsetでbufを0で埋める.
 										fread(buf, sizeof(char), filesize, fp);	// freadでfpをbufに読み込む.
-										MessageBoxA(NULL, buf, "Aoi", MB_OK | MB_ICONASTERISK);	// MessageBoxAでbufを表示.
+										// エディットコントロールにファイルの内容をセット.
+										HWND hEdit;		// エディットコントロールのウィンドウハンドルhEdit.
+										hEdit = GetDlgItem(hwnd, (WM_APP + 1));	// GetDlgItemで(WM_APP + 1)を指定してhEditを取得.
+										SetWindowTextA(hEdit, buf);	// SetWindowTextAでhEditにbufをセット.
+										// バッファを解放.
 										free(buf);	// freeでbufを解放.
 									}
+									// ファイルを閉じる.
 									fclose(fp);	// fcloseでfpを閉じる.
 								}
 								// ファイル名のバッファを解放.
