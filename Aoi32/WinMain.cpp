@@ -174,7 +174,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
 								// TCHARからマルチバイトへの変換.
 								wcstombs(path, tszPath, _MAX_PATH);	// wcstombsでTCHARからマルチバイトへ変換.
 								// ファイルを開く.
-								FILE *fp = fopen(path, "r");	// fopenでpathを読み取り専用("r")で開く.
+								FILE *fp = fopen(path, "rb");	// fopenでpathをバイナリ読み込み("rb")で開く.
 								if (fp != NULL){	// fpがNULLでない時.
 									struct _stat st = {0};	// _stat構造体stを{0}で初期化.
 									// ファイルサイズの取得.
