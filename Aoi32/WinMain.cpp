@@ -80,6 +80,16 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
 			// WM_CREATEブロック
 			{
 
+				// 変数の宣言
+				HWND hEdit;	// エディットコントロールのウィンドウハンドルhEdit.
+				LPCREATESTRUCT lpCS;	// CreateStruct構造体ポインタlpCS.
+
+				// lpCSの取得.
+				lpCS = (LPCREATESTRUCT)lParam;	// lParamをLPCREATESTRUCTにキャストして, lpCSに格納.
+
+				// エディットコントロールの作成
+				hEdit = CreateWindow(_T("Edit"), _T(""), WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOHSCROLL | ES_AUTOVSCROLL, 0, 0, 640, 480, hwnd, (HMENU)(WM_APP + 1), lpCS->hInstance, NULL);	// CreateWindowでエディットコントロールhEditを作成.
+
 				// 常にウィンドウ作成に成功するものとする.
 				return 0;	// 0を返すと, ウィンドウ作成に成功したということになる.
 
