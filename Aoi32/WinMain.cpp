@@ -1,5 +1,9 @@
 // ヘッダのインクルード
 // 既定のヘッダ
+#include <stdio.h>		// C標準入出力
+#include <string.h>		// C文字列処理
+#include <stdlib.h>		// C標準ユーティリティ
+#include <sys/stat.h>	// ファイル状態
 #include <tchar.h>		// TCHAR型
 #include <windows.h>	// 標準WindowsAPI
 // 独自のヘッダ
@@ -127,8 +131,32 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
 							// "開く"ファイルダイアログの表示.
 							BOOL bRet = GetOpenFileName(&ofn);	// GetOpenFileNameでファイルダイアログを表示し, 選択されたファイル名を取得する.(戻り値をbRetに格納.)
 							if (bRet){	// 正常に選択された.
-								// 選択されたファイル名を表示.
-								MessageBox(hwnd, tszPath, _T("Aoi"), MB_OK | MB_ICONASTERISK);	// MessageBoxでtszPathを表示.
+								
+								// ファイルの読み込み.
+								// ファイル名をマルチバイト文字列に変換した時に必要なバッファサイズを計算.
+								size_t filename_len = wcstombs(NULL, tszPath, _MAX_PATH);	// wcstombsで長さfilename_lenを求める.(filename_lenにNULL文字は含まれない.)
+								// ファイル名のバッファを確保.
+								char *path = (char *)malloc(sizeof(char) * (filename_len + 1));	// mallocで動的配列を確保し, アドレスをpathに格納.
+								// TCHARからマルチバイトへの変換.
+								wcstombs(path, tszPath, _MAX_PATH);	// wcstombsでTCHARからマルチバイトへ変換.
+								// ファイルを開く.
+								FILE *fp = fopen(path, "r");	// fopenでpathを読み取り専用("r")で開く.
+								if (fp != NULL){	// fpがNULLでない時.
+									struct _stat st = {0};	// _stat構造体stを{0}で初期化.
+									// ファイルサイズの取得.
+									if (_stat(path, &st) == 0){	// _statでファイルサイズを取得.
+										unsigned int filesize = st.st_size;	// filesizeをst.st_sizeで初期化.
+										char *buf = (char *)malloc(sizeof(char) * (filesize + 1));	// mallocでbufを確保.
+										memset(buf, 0, filesize + 1);	// memsetでbufを0で埋める.
+										fread(buf, sizeof(char), filesize, fp);	// freadでfpをbufに読み込む.
+										MessageBoxA(NULL, buf, "Aoi", MB_OK | MB_ICONASTERISK);	// MessageBoxAでbufを表示.
+										free(buf);	// freeでbufを解放.
+									}
+									fclose(fp);	// fcloseでfpを閉じる.
+								}
+								// ファイル名のバッファを解放.
+								free(path);	// freeでpathを解放.
+								
 							}
 
 						}
