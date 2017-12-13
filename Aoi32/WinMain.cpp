@@ -238,7 +238,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
 								char *path = (char *)malloc(sizeof(char) * (filename_len + 1));	// mallocで動的配列を確保し, アドレスをpathに格納.
 								wcstombs(path, tszPath, _MAX_PATH);	// wcstombsでTCHARからマルチバイトへ変換.
 								// ファイルを開く.
-								FILE *fp = fopen(path, "w");	// fopenでpathを書き込みモードで開く.
+								FILE *fp = fopen(path, "wb");	// fopenでpathをバイナリ書き込み("wb")で開く.
 								if (fp != NULL){	// fpがNULLでない時.
 									fwrite(buf, sizeof(char), iLen, fp);	// fwriteでbufをfpに書き込む.
 									fclose(fp);	// fcloseでfpを閉じる.
