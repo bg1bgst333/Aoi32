@@ -224,8 +224,15 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
 							// "名前を付けて保存"ファイルダイアログの表示.
 							BOOL bRet = GetSaveFileName(&ofn);	// GetSaveFileNameでファイルダイアログを表示し, 選択されたファイル名を取得する.(戻り値をbRetに格納.)
 							if (bRet){	// 正常に選択された.
-								// 選択されたファイル名を表示.
-								MessageBox(hwnd, tszPath, _T("Aoi"), MB_OK | MB_ICONASTERISK);	// MessageBoxでtszPathを表示.
+								// エディットコントロールから保存するテキスト内容を取得.
+								HWND hEdit;		// エディットコントロールのウィンドウハンドルhEdit.
+								hEdit = GetDlgItem(hwnd, (WM_APP + 1));	// GetDlgItemで(WM_APP + 1)を指定してhEditを取得.
+								int iLen = GetWindowTextLengthA(hEdit);	// GetWindowTextLengthAでテキストの長さを取得.
+								char *buf = (char *)malloc(sizeof(char) * (iLen + 1));	// mallocでbufを確保.
+								memset(buf, 0, sizeof(char) * (iLen + 1));	// memsetでbufを0で埋める.
+								GetWindowTextA(hEdit, buf, iLen + 1);	// GetWindowTextでテキストをbufに格納.
+								MessageBoxA(NULL, buf, "Aoi", MB_OK | MB_ICONASTERISK);	// MessageBoxAでbufを表示.
+								free(buf);	// freeでbufを解放.
 							}
 
 						}
