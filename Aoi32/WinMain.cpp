@@ -224,6 +224,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
 							// "名前を付けて保存"ファイルダイアログの表示.
 							BOOL bRet = GetSaveFileName(&ofn);	// GetSaveFileNameでファイルダイアログを表示し, 選択されたファイル名を取得する.(戻り値をbRetに格納.)
 							if (bRet){	// 正常に選択された.
+
+								// ファイルの書き込み.
 								// エディットコントロールから保存するテキスト内容を取得.
 								HWND hEdit;		// エディットコントロールのウィンドウハンドルhEdit.
 								hEdit = GetDlgItem(hwnd, (WM_APP + 1));	// GetDlgItemで(WM_APP + 1)を指定してhEditを取得.
@@ -231,8 +233,19 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
 								char *buf = (char *)malloc(sizeof(char) * (iLen + 1));	// mallocでbufを確保.
 								memset(buf, 0, sizeof(char) * (iLen + 1));	// memsetでbufを0で埋める.
 								GetWindowTextA(hEdit, buf, iLen + 1);	// GetWindowTextでテキストをbufに格納.
-								MessageBoxA(NULL, buf, "Aoi", MB_OK | MB_ICONASTERISK);	// MessageBoxAでbufを表示.
+								// ファイル名をマルチバイト文字列に変換.
+								size_t filename_len = wcstombs(NULL, tszPath, _MAX_PATH);	// wcstombsで長さfilename_lenを求める.(filename_lenにNULL文字は含まれない.)
+								char *path = (char *)malloc(sizeof(char) * (filename_len + 1));	// mallocで動的配列を確保し, アドレスをpathに格納.
+								wcstombs(path, tszPath, _MAX_PATH);	// wcstombsでTCHARからマルチバイトへ変換.
+								// ファイルを開く.
+								FILE *fp = fopen(path, "w");	// fopenでpathを書き込みモードで開く.
+								if (fp != NULL){	// fpがNULLでない時.
+									fwrite(buf, sizeof(char), iLen, fp);	// fwriteでbufをfpに書き込む.
+									fclose(fp);	// fcloseでfpを閉じる.
+								}
+								free(path);	// freeでpathを解放.
 								free(buf);	// freeでbufを解放.
+
 							}
 
 						}
