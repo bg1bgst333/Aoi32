@@ -16,6 +16,9 @@ size_t get_file_size(const char *path);	// ファイルサイズの取得.
 int read_file_cstdio(const char *path, char *buf, size_t file_size);	// C標準入出力によるファイルの読み込み.
 void SetTextA(HWND hWnd, LPCSTR lpcszText);	// エディットコントロールにテキストをセット.
 BOOL ShowOpenFileDialog(HWND hWnd, LPTSTR lptszFileName, DWORD dwMaxPath);	// "開く"ファイルダイアログの表示.
+int GetTextLengthA(HWND hWnd);	// エディットコントロールのテキストの長さを取得.
+int GetTextA(HWND hWnd, LPSTR lpszText, int iLen);	// エディットコントロールのテキストを取得.
+BOOL ShowSaveFileDialog(HWND hWnd, LPTSTR lptszFileName, DWORD dwMaxPath);	// "名前を付けて保存"ファイルダイアログの表示.
 
 // _tWinMain関数の定義
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nShowCmd){
@@ -198,28 +201,18 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
 						{
 
 							// "名前を付けて保存"するファイルの選択.
-							// 構造体・配列の初期化.
-							OPENFILENAME ofn = {0};	// OPENFILENAME構造体ofnを{0}で初期化.
+							// 配列の初期化.
 							TCHAR tszPath[_MAX_PATH] = {0};	// ファイルパスtszPathを{0}で初期化.
-							// パラメータのセット.
-							ofn.lStructSize = sizeof(OPENFILENAME);	// sizeofでOPENFILENAME構造体のサイズをセット.
-							ofn.hwndOwner = hwnd;	// hwndをセット.
-							ofn.lpstrFilter = _T("テキスト文書(*.txt)\0*.txt\0すべてのファイル(*.*)\0*.*\0\0");
-							ofn.lpstrFile = tszPath;	// tszPathをセット.
-							ofn.nMaxFile = _MAX_PATH;	// _MAX_PATHをセット.
-							ofn.Flags = OFN_OVERWRITEPROMPT;	// 既にファイルがある時, 上書きするかの確認を表示.
-							// "名前を付けて保存"ファイルダイアログの表示.
-							BOOL bRet = GetSaveFileName(&ofn);	// GetSaveFileNameでファイルダイアログを表示し, 選択されたファイル名を取得する.(戻り値をbRetに格納.)
-							if (bRet){	// 正常に選択された.
+							BOOL bRet = ShowSaveFileDialog(hwnd, tszPath, _MAX_PATH);	// ShowSaveFileDialogで"名前を付けて保存"ファイルダイアログの表示.
+							if (bRet){	// 選択されたら.
 
 								// ファイルの書き込み.
-								// エディットコントロールから保存するテキスト内容を取得.
-								HWND hEdit;		// エディットコントロールのウィンドウハンドルhEdit.
-								hEdit = GetDlgItem(hwnd, (WM_APP + 1));	// GetDlgItemで(WM_APP + 1)を指定してhEditを取得.
-								int iLen = GetWindowTextLengthA(hEdit);	// GetWindowTextLengthAでテキストの長さを取得.
-								char *buf = (char *)malloc(sizeof(char) * (iLen + 1));	// mallocでbufを確保.
-								memset(buf, 0, sizeof(char) * (iLen + 1));	// memsetでbufを0で埋める.
-								GetWindowTextA(hEdit, buf, iLen + 1);	// GetWindowTextでテキストをbufに格納.
+								// テキストの長さを取得.
+								int iLen = GetTextLengthA(hwnd);	// GetTextLengthAで長さを取得し, iLenに格納.
+								// バッファの確保.
+								char *buf = (char *)calloc(iLen + 1, sizeof(char));	// callocでbufを確保.
+								// テキストの取得.
+								GetTextA(hwnd, buf, iLen);	// GetTextAでテキストを取得し, bufに格納.
 								// 日本語ロケールのセット.
 								setlocale(LC_ALL, "Japanese");	// setlocaleで"Japanese"をセット.
 								// ファイル名をマルチバイト文字列に変換.
@@ -333,5 +326,49 @@ BOOL ShowOpenFileDialog(HWND hWnd, LPTSTR lptszFileName, DWORD dwMaxPath){
 
 	// "開く"ファイルダイアログの表示.
 	return GetOpenFileName(&ofn);	// GetOpenFileNameで"開く"ファイルダイアログを表示し, 戻り値はそのまま返す.
+
+}
+
+// エディットコントロールのテキストの長さを取得.
+int GetTextLengthA(HWND hWnd){
+
+	// 変数の宣言.
+	HWND hEdit;		// エディットコントロールのウィンドウハンドルhEdit.
+
+	// テキストの長さを取得.
+	hEdit = GetDlgItem(hWnd, (WM_APP + 1));	// GetDlgItemで(WM_APP + 1)を指定してhEditを取得.
+	return GetWindowTextLengthA(hEdit);	// GetWindowTextLengthAで長さを取得し, それを返す.
+
+}
+
+// エディットコントロールのテキストを取得.
+int GetTextA(HWND hWnd, LPSTR lpszText, int iLen){
+
+	// 変数の宣言.
+	HWND hEdit;		// エディットコントロールのウィンドウハンドルhEdit.
+
+	// テキストの長さを取得.
+	hEdit = GetDlgItem(hWnd, (WM_APP + 1));	// GetDlgItemで(WM_APP + 1)を指定してhEditを取得.
+	return GetWindowTextA(hEdit, lpszText, iLen + 1);	// GetWindowTextAでテキストを取得し, lpszTextに格納.(戻り値をそのまま返す.)
+
+}
+
+// "名前を付けて保存"ファイルダイアログの表示.
+BOOL ShowSaveFileDialog(HWND hWnd, LPTSTR lptszFileName, DWORD dwMaxPath){
+
+
+	// 構造体の初期化.
+	OPENFILENAME ofn = {0};	// OPENFILENAME構造体ofnを{0}で初期化.
+
+	// パラメータのセット.
+	ofn.lStructSize = sizeof(OPENFILENAME);	// sizeofでOPENFILENAME構造体のサイズをセット.
+	ofn.hwndOwner = hWnd;	// hWndをセット.
+	ofn.lpstrFilter = _T("テキスト文書(*.txt)\0*.txt\0すべてのファイル(*.*)\0*.*\0\0");
+	ofn.lpstrFile = lptszFileName;	// lptszFileNameをセット.
+	ofn.nMaxFile = dwMaxPath;	// dwMaxPathをセット.
+	ofn.Flags = OFN_OVERWRITEPROMPT;	// 既にファイルがある時, 上書きするかの確認を表示.
+
+	// "名前を付けて保存"ファイルダイアログの表示.
+	return GetSaveFileName(&ofn);	// GetSaveFileNameで"名前を付けて保存"ファイルダイアログを表示し, 戻り値はそのまま返す.
 
 }
