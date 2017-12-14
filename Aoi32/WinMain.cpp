@@ -14,6 +14,8 @@
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);	// ウィンドウプロシージャWindowProc
 size_t get_file_size(const char *path);	// ファイルサイズの取得.
 int read_file_cstdio(const char *path, char *buf, size_t file_size);	// C標準入出力によるファイルの読み込み.
+void SetTextA(HWND hWnd, LPCSTR lpcszText);	// エディットコントロールにテキストをセット.
+BOOL ShowOpenFileDialog(HWND hWnd, LPTSTR lptszFileName, DWORD dwMaxPath);	// "開く"ファイルダイアログの表示.
 
 // _tWinMain関数の定義
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nShowCmd){
@@ -155,19 +157,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
 						{
 
 							// "開く"ファイルの選択.
-							// 構造体・配列の初期化.
-							OPENFILENAME ofn = {0};	// OPENFILENAME構造体ofnを{0}で初期化.
+							// 配列の初期化.
 							TCHAR tszPath[_MAX_PATH] = {0};	// ファイルパスtszPathを{0}で初期化.
-							// パラメータのセット.
-							ofn.lStructSize = sizeof(OPENFILENAME);	// sizeofでOPENFILENAME構造体のサイズをセット.
-							ofn.hwndOwner = hwnd;	// hwndをセット.
-							ofn.lpstrFilter = _T("テキスト文書(*.txt)\0*.txt\0すべてのファイル(*.*)\0*.*\0\0");	// テキスト文書とすべてのファイルのフィルタをセット.
-							ofn.lpstrFile = tszPath;	// tszPathをセット.
-							ofn.nMaxFile = _MAX_PATH;	// _MAX_PATHをセット.
-							ofn.Flags = OFN_FILEMUSTEXIST;	// ファイルが存在しないと抜けられない.
-							// "開く"ファイルダイアログの表示.
-							BOOL bRet = GetOpenFileName(&ofn);	// GetOpenFileNameでファイルダイアログを表示し, 選択されたファイル名を取得する.(戻り値をbRetに格納.)
-							if (bRet){	// 正常に選択された.
+							BOOL bRet = ShowOpenFileDialog(hwnd, tszPath, _MAX_PATH);	// ShowOpenFileDialogで"開く"ファイルダイアログの表示.
+							if (bRet){	// 選択されたら.
 								
 								// 日本語ロケールのセット.
 								setlocale(LC_ALL, "Japanese");	// setlocaleで"Japanese"をセット.
@@ -184,10 +177,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
 								char *buf = (char *)calloc(file_size + 1, sizeof(char));	// callocでbufを確保.
 								// ファイル読み込み.
 								read_file_cstdio(path, buf, file_size);	// read_file_cstdioで読み込み.
-								// エディットコントロールにファイルの内容をセット.
-								HWND hEdit;		// エディットコントロールのウィンドウハンドルhEdit.
-								hEdit = GetDlgItem(hwnd, (WM_APP + 1));	// GetDlgItemで(WM_APP + 1)を指定してhEditを取得.
-								SetWindowTextA(hEdit, buf);	// SetWindowTextAでhEditにbufをセット.
+								// エディットコントロールにテキストのセット.
+								SetTextA(hwnd, buf);	// SetTextAでbufをセット.
 								// bufの解放.
 								free(buf);	// freeでbufを解放.
 								// pathの解放.
@@ -311,5 +302,36 @@ int read_file_cstdio(const char *path, char *buf, size_t file_size){
 
 	// 読み込めなかったので, -1を返す.
 	return -1;	// returnで-1を返す.
+
+}
+
+// エディットコントロールにテキストをセット.
+void SetTextA(HWND hWnd, LPCSTR lpcszText){
+
+	// 変数の宣言.
+	HWND hEdit;		// エディットコントロールのウィンドウハンドルhEdit.
+
+	// テキストのセット.
+	hEdit = GetDlgItem(hWnd, (WM_APP + 1));	// GetDlgItemで(WM_APP + 1)を指定してhEditを取得.
+	SetWindowTextA(hEdit, lpcszText);	// SetWindowTextAでhEditにlpcszTextをセット.
+
+}
+
+// "開く"ファイルダイアログの表示.
+BOOL ShowOpenFileDialog(HWND hWnd, LPTSTR lptszFileName, DWORD dwMaxPath){
+
+	// 構造体の初期化.
+	OPENFILENAME ofn = {0};	// OPENFILENAME構造体ofnを{0}で初期化.
+
+	// パラメータのセット.
+	ofn.lStructSize = sizeof(OPENFILENAME);	// sizeofでOPENFILENAME構造体のサイズをセット.
+	ofn.hwndOwner = hWnd;	// hWndをセット.
+	ofn.lpstrFilter = _T("テキスト文書(*.txt)\0*.txt\0すべてのファイル(*.*)\0*.*\0\0");	// テキスト文書とすべてのファイルのフィルタをセット.
+	ofn.lpstrFile = lptszFileName;	// lptszFileNameをセット.
+	ofn.nMaxFile = dwMaxPath;	// dwMaxPathをセット.
+	ofn.Flags = OFN_FILEMUSTEXIST;	// ファイルが存在しないと抜けられない.
+
+	// "開く"ファイルダイアログの表示.
+	return GetOpenFileName(&ofn);	// GetOpenFileNameで"開く"ファイルダイアログを表示し, 戻り値はそのまま返す.
 
 }
