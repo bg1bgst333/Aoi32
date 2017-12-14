@@ -12,6 +12,8 @@
 
 // 関数のプロトタイプ宣言
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);	// ウィンドウプロシージャWindowProc
+size_t get_file_size(const char *path);	// ファイルサイズの取得.
+int read_file_cstdio(const char *path, char *buf, size_t file_size);	// C標準入出力によるファイルの読み込み.
 
 // _tWinMain関数の定義
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nShowCmd){
@@ -167,7 +169,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
 							BOOL bRet = GetOpenFileName(&ofn);	// GetOpenFileNameでファイルダイアログを表示し, 選択されたファイル名を取得する.(戻り値をbRetに格納.)
 							if (bRet){	// 正常に選択された.
 								
-								// ファイルの読み込み.
 								// 日本語ロケールのセット.
 								setlocale(LC_ALL, "Japanese");	// setlocaleで"Japanese"をセット.
 								// ファイル名をマルチバイト文字列に変換した時に必要なバッファサイズを計算.
@@ -176,28 +177,20 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
 								char *path = (char *)malloc(sizeof(char) * (filename_len + 1));	// mallocで動的配列を確保し, アドレスをpathに格納.
 								// TCHARからマルチバイトへの変換.
 								wcstombs(path, tszPath, _MAX_PATH);	// wcstombsでTCHARからマルチバイトへ変換.
-								// ファイルを開く.
-								FILE *fp = fopen(path, "rb");	// fopenでpathをバイナリ読み込み("rb")で開く.
-								if (fp != NULL){	// fpがNULLでない時.
-									struct _stat st = {0};	// _stat構造体stを{0}で初期化.
-									// ファイルサイズの取得.
-									if (_stat(path, &st) == 0){	// _statでファイルサイズを取得.
-										unsigned int filesize = st.st_size;	// filesizeをst.st_sizeで初期化.
-										// ファイルの内容を読み込む.
-										char *buf = (char *)malloc(sizeof(char) * (filesize + 1));	// mallocでbufを確保.
-										memset(buf, 0, filesize + 1);	// memsetでbufを0で埋める.
-										fread(buf, sizeof(char), filesize, fp);	// freadでfpをbufに読み込む.
-										// エディットコントロールにファイルの内容をセット.
-										HWND hEdit;		// エディットコントロールのウィンドウハンドルhEdit.
-										hEdit = GetDlgItem(hwnd, (WM_APP + 1));	// GetDlgItemで(WM_APP + 1)を指定してhEditを取得.
-										SetWindowTextA(hEdit, buf);	// SetWindowTextAでhEditにbufをセット.
-										// バッファを解放.
-										free(buf);	// freeでbufを解放.
-									}
-									// ファイルを閉じる.
-									fclose(fp);	// fcloseでfpを閉じる.
-								}
-								// ファイル名のバッファを解放.
+								
+								// ファイルサイズの取得.
+								size_t file_size = get_file_size(path);	// get_file_sizeでファイルサイズを取得し, file_sizeに格納.
+								// バッファを生成.
+								char *buf = (char *)calloc(file_size + 1, sizeof(char));	// callocでbufを確保.
+								// ファイル読み込み.
+								read_file_cstdio(path, buf, file_size);	// read_file_cstdioで読み込み.
+								// エディットコントロールにファイルの内容をセット.
+								HWND hEdit;		// エディットコントロールのウィンドウハンドルhEdit.
+								hEdit = GetDlgItem(hwnd, (WM_APP + 1));	// GetDlgItemで(WM_APP + 1)を指定してhEditを取得.
+								SetWindowTextA(hEdit, buf);	// SetWindowTextAでhEditにbufをセット.
+								// bufの解放.
+								free(buf);	// freeでbufを解放.
+								// pathの解放.
 								free(path);	// freeでpathを解放.
 								
 							}
@@ -281,5 +274,42 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
 
 	// あとは既定の処理に任せる.
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);	// 戻り値も含めてDefWindowProcに既定の処理を任せる.
+
+}
+
+// ファイルサイズの取得.
+size_t get_file_size(const char *path){
+
+	// 構造体の初期化.
+	struct _stat st = {0};	// _stat構造体stを{0}で初期化.
+
+	// ファイル情報の取得.
+	_stat(path, &st);	// _statでpathで示されたファイルの情報をstに格納.
+
+	// ファイルサイズを返す.
+	return st.st_size;	// returnでst.st_sizeを返す.
+
+}
+
+// C標準入出力によるファイルの読み込み.
+int read_file_cstdio(const char *path, char *buf, size_t file_size){
+
+	// 変数・構造体の初期化.
+	FILE *fp = NULL;	// fpをNULLで初期化.
+	int len = 0;	// 読み込んだバイト数lenを0に初期化.
+
+	// ファイルを開く.
+	fp = fopen(path, "rb");	// fopenでバイナリ読み込みで開く.
+	if (fp != NULL){	// fpがNULLでない時.
+
+		// ファイルの読み込み.
+		len = fread(buf, sizeof(char), file_size, fp);	// freadでfpを読み込み, bufに格納し, 読み込んだ長さはlenに格納.
+		fclose(fp);	// fcloseでfpを閉じる.
+		return len;	// lenを返す.
+
+	}
+
+	// 読み込めなかったので, -1を返す.
+	return -1;	// returnで-1を返す.
 
 }
