@@ -19,6 +19,7 @@ BOOL ShowOpenFileDialog(HWND hWnd, LPTSTR lptszFileName, DWORD dwMaxPath);	// "Š
 int GetTextLengthA(HWND hWnd);	// ƒGƒfƒBƒbƒgƒRƒ“ƒgƒ[ƒ‹‚ÌƒeƒLƒXƒg‚Ì’·‚³‚ğæ“¾.
 int GetTextA(HWND hWnd, LPSTR lpszText, int iLen);	// ƒGƒfƒBƒbƒgƒRƒ“ƒgƒ[ƒ‹‚ÌƒeƒLƒXƒg‚ğæ“¾.
 BOOL ShowSaveFileDialog(HWND hWnd, LPTSTR lptszFileName, DWORD dwMaxPath);	// "–¼‘O‚ğ•t‚¯‚Ä•Û‘¶"ƒtƒ@ƒCƒ‹ƒ_ƒCƒAƒƒO‚Ì•\¦.
+int write_file_cstdio(const char *path, const char *buf, size_t file_size);	// C•W€“üo—Í‚É‚æ‚éƒtƒ@ƒCƒ‹‚Ì‘‚«‚İ.
 
 // _tWinMainŠÖ”‚Ì’è‹`
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nShowCmd){
@@ -219,13 +220,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
 								size_t filename_len = wcstombs(NULL, tszPath, _MAX_PATH);	// wcstombs‚Å’·‚³filename_len‚ğ‹‚ß‚é.(filename_len‚ÉNULL•¶š‚ÍŠÜ‚Ü‚ê‚È‚¢.)
 								char *path = (char *)malloc(sizeof(char) * (filename_len + 1));	// malloc‚Å“®“I”z—ñ‚ğŠm•Û‚µ, ƒAƒhƒŒƒX‚ğpath‚ÉŠi”[.
 								wcstombs(path, tszPath, _MAX_PATH);	// wcstombs‚ÅTCHAR‚©‚çƒ}ƒ‹ƒ`ƒoƒCƒg‚Ö•ÏŠ·.
-								// ƒtƒ@ƒCƒ‹‚ğŠJ‚­.
-								FILE *fp = fopen(path, "wb");	// fopen‚Åpath‚ğƒoƒCƒiƒŠ‘‚«‚İ("wb")‚ÅŠJ‚­.
-								if (fp != NULL){	// fp‚ªNULL‚Å‚È‚¢.
-									fwrite(buf, sizeof(char), iLen, fp);	// fwrite‚Åbuf‚ğfp‚É‘‚«‚Ş.
-									fclose(fp);	// fclose‚Åfp‚ğ•Â‚¶‚é.
-								}
+								// ƒtƒ@ƒCƒ‹‘‚«‚İ.
+								write_file_cstdio(path, buf, iLen);	// write_file_cstdio‚Å‘‚«‚İ.
+								// path‚Ì‰ğ•ú.
 								free(path);	// free‚Åpath‚ğ‰ğ•ú.
+								// buf‚Ì‰ğ•ú.
 								free(buf);	// free‚Åbuf‚ğ‰ğ•ú.
 
 							}
@@ -370,5 +369,28 @@ BOOL ShowSaveFileDialog(HWND hWnd, LPTSTR lptszFileName, DWORD dwMaxPath){
 
 	// "–¼‘O‚ğ•t‚¯‚Ä•Û‘¶"ƒtƒ@ƒCƒ‹ƒ_ƒCƒAƒƒO‚Ì•\¦.
 	return GetSaveFileName(&ofn);	// GetSaveFileName‚Å"–¼‘O‚ğ•t‚¯‚Ä•Û‘¶"ƒtƒ@ƒCƒ‹ƒ_ƒCƒAƒƒO‚ğ•\¦‚µ, –ß‚è’l‚Í‚»‚Ì‚Ü‚Ü•Ô‚·.
+
+}
+
+// C•W€“üo—Í‚É‚æ‚éƒtƒ@ƒCƒ‹‚Ì‘‚«‚İ.
+int write_file_cstdio(const char *path, const char *buf, size_t file_size){
+
+	// •Ï”E\‘¢‘Ì‚Ì‰Šú‰».
+	FILE *fp = NULL;	// fp‚ğNULL‚Å‰Šú‰».
+	int len = 0;	// ‘‚«‚ñ‚¾ƒoƒCƒg”len‚ğ0‚É‰Šú‰».
+
+	// ƒtƒ@ƒCƒ‹‚ğŠJ‚­.
+	fp = fopen(path, "wb");	// fopen‚ÅƒoƒCƒiƒŠ‘‚«‚İ‚ÅŠJ‚­.
+	if (fp != NULL){	// fp‚ªNULL‚Å‚È‚¢.
+
+		// ƒtƒ@ƒCƒ‹‚Ì‘‚«‚İ.
+		len = fwrite(buf, sizeof(char), file_size, fp);	// frite‚Åbuf‚ğfp‚É‘‚«‚İ, ‘‚«‚ñ‚¾’·‚³‚Ílen‚ÉŠi”[.
+		fclose(fp);	// fclose‚Åfp‚ğ•Â‚¶‚é.
+		return len;	// len‚ğ•Ô‚·.
+
+	}
+
+	// ‘‚«‚ß‚È‚©‚Á‚½‚Ì‚Å, -1‚ğ•Ô‚·.
+	return -1;	// return‚Å-1‚ğ•Ô‚·.
 
 }
