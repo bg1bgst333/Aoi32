@@ -4,6 +4,7 @@
 #include <string.h>		// C文字列処理
 #include <stdlib.h>		// C標準ユーティリティ
 #include <sys/stat.h>	// ファイル状態
+#include <locale.h>		// ロケール
 #include <tchar.h>		// TCHAR型
 #include <windows.h>	// 標準WindowsAPI
 // 独自のヘッダ
@@ -167,6 +168,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
 							if (bRet){	// 正常に選択された.
 								
 								// ファイルの読み込み.
+								// 日本語ロケールのセット.
+								setlocale(LC_ALL, "Japanese");	// setlocaleで"Japanese"をセット.
 								// ファイル名をマルチバイト文字列に変換した時に必要なバッファサイズを計算.
 								size_t filename_len = wcstombs(NULL, tszPath, _MAX_PATH);	// wcstombsで長さfilename_lenを求める.(filename_lenにNULL文字は含まれない.)
 								// ファイル名のバッファを確保.
@@ -233,6 +236,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
 								char *buf = (char *)malloc(sizeof(char) * (iLen + 1));	// mallocでbufを確保.
 								memset(buf, 0, sizeof(char) * (iLen + 1));	// memsetでbufを0で埋める.
 								GetWindowTextA(hEdit, buf, iLen + 1);	// GetWindowTextでテキストをbufに格納.
+								// 日本語ロケールのセット.
+								setlocale(LC_ALL, "Japanese");	// setlocaleで"Japanese"をセット.
 								// ファイル名をマルチバイト文字列に変換.
 								size_t filename_len = wcstombs(NULL, tszPath, _MAX_PATH);	// wcstombsで長さfilename_lenを求める.(filename_lenにNULL文字は含まれない.)
 								char *path = (char *)malloc(sizeof(char) * (filename_len + 1));	// mallocで動的配列を確保し, アドレスをpathに格納.
