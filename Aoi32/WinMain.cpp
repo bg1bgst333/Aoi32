@@ -11,6 +11,9 @@
 #include "resource.h"	// リソース
 
 // 関数のプロトタイプ宣言
+BOOL InitInstance(HINSTANCE hInstance, LPTSTR lpCmdLine, int nShowCmd);	// インスタンス初期化.
+int Run();	// メッセージループ.
+int ExitInstance();	// インスタンス終了処理.
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);	// ウィンドウプロシージャWindowProc
 size_t get_file_size(const char *path);	// ファイルサイズの取得.
 int read_file_cstdio(const char *path, char *buf, size_t file_size);	// C標準入出力によるファイルの読み込み.
@@ -30,9 +33,28 @@ BOOL OnFileSaveAs(HWND hwnd);	// "名前を付けて保存"が選択された時.
 // _tWinMain関数の定義
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nShowCmd){
 
+	// インスタンスの初期化.
+	if (!InitInstance(hInstance, lpCmdLine, nShowCmd)){	// InitInstanceがFALSEの場合.
+
+		// 異常終了.
+		ExitInstance();	// 終了処理を実行.
+		return -1;	// returnで-1を返して異常終了.
+
+	}
+
+	// メッセージループ.
+	int iRet = Run();	// メッセージループRunの戻り値をiRetに格納.
+
+	// 正常終了.
+	return iRet;	// iRetを返す.
+
+}
+
+// インスタンス初期化.
+BOOL InitInstance(HINSTANCE hInstance, LPTSTR lpCmdLine, int nShowCmd){
+
 	// 変数・構造体の宣言
 	HWND hWnd;		// HWND型ウィンドウハンドルhWnd
-	MSG msg;		// MSG型メッセージ構造体msg
 	WNDCLASS wc;	// WNDCLASS型ウィンドウクラス構造体wc
 
 	// ウィンドウクラス構造体wcにパラメータをセット.
@@ -52,7 +74,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 
 		// 戻り値が0なら登録失敗なのでエラー処理.
 		MessageBox(NULL, _T("予期せぬエラーが発生しました!(-1)"), _T("Aoi"), MB_OK | MB_ICONHAND);	// MessageBoxで"予期せぬエラーが発生しました!(-1)"と表示.
-		return -1;	// returnで-1を返して異常終了.
+		return FALSE;	// returnでFALSEを返して異常終了.
 
 	}
 
@@ -62,13 +84,24 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 
 		// エラー処理
 		MessageBox(NULL, _T("予期せぬエラーが発生しました!(-2)"), _T("Aoi"), MB_OK | MB_ICONHAND);	// MessageBoxで"予期せぬエラーが発生しました!(-2)"と表示.
-		return -2;	// returnで-2を返して異常終了.
+		return FALSE;	// returnでFALSEを返して異常終了.
 
 	}
 
 	// ウィンドウの表示
 	ShowWindow(hWnd, SW_SHOW);	// ShowWindowでウィンドウを表示.
 
+	// TRUEを返す.
+	return TRUE;	// returnでTRUEを返す.
+
+}
+
+// メッセージループ.
+int Run(){
+
+	// 構造体の宣言.
+	MSG msg;	// MSG型メッセージ構造体msg
+	
 	// メッセージループの処理
 	while (GetMessage(&msg, NULL, 0, 0) > 0){	// GetMessageでウィンドウメッセージを取得し, msgに格納.(0以下なら, ここを抜ける.)
 
@@ -78,8 +111,16 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 
 	}
 
-	// プログラムの終了
-	return (int)msg.wParam;	// 終了コード(msg.wParam)を戻り値として返す.
+	// ExitInstanceの値を返す.
+	return ExitInstance();	// returnでExitInstanceを返す.
+
+}
+
+// インスタンス終了処理.
+int ExitInstance(){
+
+	// 今回は常に0を返す.
+	return 0;	// returnで0を返す.
 
 }
 
