@@ -31,7 +31,7 @@ BOOL CWindow::RegisterClass(HINSTANCE hInstance, LPCTSTR lpctszClassName){
 	// ウィンドウクラス構造体wcにパラメータをセット.
 	wc.lpszClassName = lpctszClassName;	// ウィンドウクラス名にlpctszClassNameを指定する.
 	wc.style = CS_HREDRAW | CS_VREDRAW;	// スタイルはとりあえずCS_HREDRAW | CS_VREDRAWにする.
-	wc.lpfnWndProc = WindowProc;	// ウィンドウプロシージャには下で定義するWindowProcを指定する.
+	wc.lpfnWndProc = StaticWindowProc;	// ウィンドウプロシージャには下で定義するStaticWindowProcを指定する.
 	wc.hInstance = hInstance;	// アプリケーションインスタンスハンドルは引数のhInstanceを使う.
 	wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);	// LoadIconでアプリケーション既定のアイコンをロード.(第1引数はNULL.)
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);	// LoadCursorでアプリケーション既定のカーソルをロード.(第1引数はNULL.)
@@ -53,34 +53,8 @@ BOOL CWindow::RegisterClass(HINSTANCE hInstance, LPCTSTR lpctszClassName){
 
 }
 
-// ウィンドウ作成関数Create.
-BOOL CWindow::Create(LPCTSTR lpctszClassName, LPCTSTR lpctszWindowName, DWORD dwStyle, int x, int y, int iWidth, int iHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance){
-
-	// ウィンドウの作成.
-	m_hWnd = CreateWindow(lpctszClassName, lpctszWindowName, dwStyle, x, y, iWidth, iHeight, hWndParent, hMenu, hInstance, NULL);	// CreateWindowでウィンドウを作成し, ハンドルをm_hWndに格納.(最後の引数はとりあえずNULL.)
-	if (m_hWnd == NULL){	// m_hWndがNULLなら失敗.
-
-		// 失敗ならFALSEを返す.
-		MessageBox(NULL, _T("予期せぬエラーが発生しました!"), _T("Aoi"), MB_OK | MB_ICONHAND);	// MessageBoxで"予期せぬエラーが発生しました!"と表示.
-		return FALSE;	// FALSEを返す.
-
-	}
-
-	// 成功ならTRUE.
-	return TRUE;	// 成功なのでTRUEを返す.
-
-}
-
-// ウィンドウ表示関数ShowWindow.
-BOOL CWindow::ShowWindow(int nCmdShow){
-
-	// ウィンドウの表示.
-	return ::ShowWindow(m_hWnd, nCmdShow);	// WindowsAPIのShowWindowでm_hWndを表示.
-
-}
-
-// ウィンドウプロシージャWindowProcの定義
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
+// スタティックウィンドウプロシージャStaticWindowProcの定義
+LRESULT CALLBACK CWindow::StaticWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
 
 	// ウィンドウメッセージの処理.
 	switch (uMsg){	// uMsgの値ごとに処理を振り分ける.
@@ -156,6 +130,193 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
 
 	// あとは既定の処理に任せる.
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);	// 戻り値も含めてDefWindowProcに既定の処理を任せる.
+
+}
+
+// ウィンドウの作成が開始された時.
+int CWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct){
+
+	// 変数の宣言
+	HWND hEdit;	// エディットコントロールのウィンドウハンドルhEdit.
+
+	// エディットコントロールの作成
+	hEdit = CreateWindow(_T("Edit"), _T(""), WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOHSCROLL | ES_AUTOVSCROLL, 0, 0, 640, 480, hwnd, (HMENU)(WM_APP + 1), lpCreateStruct->hInstance, NULL);	// CreateWindowでエディットコントロールhEditを作成.
+
+	// 常にウィンドウ作成に成功するものとする.
+	return 0;	// 0を返すと, ウィンドウ作成に成功したということになる.
+
+}
+
+// ウィンドウが破棄された時.
+void CWindow::OnDestroy(){
+
+	// 終了メッセージの送信.
+	PostQuitMessage(0);	// PostQuitMessageで終了コードを0としてWM_QUITメッセージを送信.
+
+}
+
+// ウィンドウのサイズが変更された時.
+void CWindow::OnSize(HWND hwnd, UINT nType, int cx, int cy){
+
+	// 変数の宣言
+	HWND hEdit;		// エディットコントロールのウィンドウハンドルhEdit.
+
+	// エディットコントロールのサイズ調整.
+	hEdit = GetDlgItem(hwnd, (WM_APP + 1));	// GetDlgItemで(WM_APP + 1)を指定してhEditを取得.
+	MoveWindow(hEdit, 0, 0, cx, cy, TRUE);	// MoveWindowでhEditのサイズを(cx, cy)にする.
+
+}
+
+// コマンドが発生した時.
+BOOL CWindow::OnCommand(HWND hwnd, WPARAM wParam, LPARAM lParam){
+
+	// コマンドの処理.
+	switch (LOWORD(wParam)){	// LOWORD(wParam)でリソースIDがわかるので, その値ごとに処理を振り分ける.
+
+		// "開く(&O)..."
+		case ID_FILE_OPEN:
+
+			// ID_FILE_OPENブロック
+			{
+
+				// OnFileOpenに任せる.
+				return OnFileOpen(hwnd);	// OnFileOpenの値を返す.
+
+			}
+
+			// 抜ける.
+			break;	// breakで抜ける.
+
+		// "名前を付けて保存(&A)..."
+		case ID_FILE_SAVE_AS:
+
+			// ID_FILE_SAVE_ASブロック
+			{
+
+				// OnFileSaveAsに任せる.
+				return OnFileSaveAs(hwnd);	// OnFileSaveAsの値を返す.
+
+			}
+					
+			// 抜ける.
+			break;	// breakで抜ける.
+
+		// それ以外.
+		default:
+
+			// 抜ける.
+			break;	// breakで抜ける.
+
+	}
+
+	// 処理していないのでFALSE.
+	return FALSE;	// returnでFALSEを返す.
+
+}
+
+// "開く"が選択された時.
+BOOL CWindow::OnFileOpen(HWND hwnd){
+
+	// "開く"ファイルの選択.
+	// 配列の初期化.
+	TCHAR tszPath[_MAX_PATH] = {0};	// ファイルパスtszPathを{0}で初期化.
+	BOOL bRet = ShowOpenFileDialog(hwnd, tszPath, _MAX_PATH);	// ShowOpenFileDialogで"開く"ファイルダイアログの表示.
+	if (bRet){	// 選択されたら.
+					
+		// 日本語ロケールのセット.
+		setlocale(LC_ALL, "Japanese");	// setlocaleで"Japanese"をセット.
+		// ファイル名をマルチバイト文字列に変換した時に必要なバッファサイズを計算.
+		size_t filename_len = wcstombs(NULL, tszPath, _MAX_PATH);	// wcstombsで長さfilename_lenを求める.(filename_lenにNULL文字は含まれない.)
+		// ファイル名のバッファを確保.
+		char *path = (char *)malloc(sizeof(char) * (filename_len + 1));	// mallocで動的配列を確保し, アドレスをpathに格納.
+		// TCHARからマルチバイトへの変換.
+		wcstombs(path, tszPath, _MAX_PATH);	// wcstombsでTCHARからマルチバイトへ変換.
+					
+		// ファイルサイズの取得.
+		size_t file_size = get_file_size(path);	// get_file_sizeでファイルサイズを取得し, file_sizeに格納.
+		// バッファを生成.
+		char *buf = (char *)calloc(file_size + 1, sizeof(char));	// callocでbufを確保.
+		// ファイル読み込み.
+		read_file_cstdio(path, buf, file_size);	// read_file_cstdioで読み込み.
+		// エディットコントロールにテキストのセット.
+		SetTextA(hwnd, buf);	// SetTextAでbufをセット.
+		// bufの解放.
+		free(buf);	// freeでbufを解放.
+		// pathの解放.
+		free(path);	// freeでpathを解放.
+
+		// 処理したのでTRUE.
+		return TRUE;	// returnでTRUEを返す.
+					
+	}
+
+	// 処理していないのでFALSE.
+	return FALSE;	// returnでFALSEを返す.
+
+}
+
+// "名前を付けて保存"が選択された時.
+BOOL CWindow::OnFileSaveAs(HWND hwnd){
+
+	// "名前を付けて保存"するファイルの選択.
+	// 配列の初期化.
+	TCHAR tszPath[_MAX_PATH] = {0};	// ファイルパスtszPathを{0}で初期化.
+	BOOL bRet = ShowSaveFileDialog(hwnd, tszPath, _MAX_PATH);	// ShowSaveFileDialogで"名前を付けて保存"ファイルダイアログの表示.
+	if (bRet){	// 選択されたら.
+
+		// ファイルの書き込み.
+		// テキストの長さを取得.
+		int iLen = GetTextLengthA(hwnd);	// GetTextLengthAで長さを取得し, iLenに格納.
+		// バッファの確保.
+		char *buf = (char *)calloc(iLen + 1, sizeof(char));	// callocでbufを確保.
+		// テキストの取得.
+		GetTextA(hwnd, buf, iLen);	// GetTextAでテキストを取得し, bufに格納.
+		// 日本語ロケールのセット.
+		setlocale(LC_ALL, "Japanese");	// setlocaleで"Japanese"をセット.
+		// ファイル名をマルチバイト文字列に変換.
+		size_t filename_len = wcstombs(NULL, tszPath, _MAX_PATH);	// wcstombsで長さfilename_lenを求める.(filename_lenにNULL文字は含まれない.)
+		char *path = (char *)malloc(sizeof(char) * (filename_len + 1));	// mallocで動的配列を確保し, アドレスをpathに格納.
+		wcstombs(path, tszPath, _MAX_PATH);	// wcstombsでTCHARからマルチバイトへ変換.
+		// ファイル書き込み.
+		write_file_cstdio(path, buf, iLen);	// write_file_cstdioで書き込み.
+		// pathの解放.
+		free(path);	// freeでpathを解放.
+		// bufの解放.
+		free(buf);	// freeでbufを解放.
+
+		// 処理したのでTRUE.
+		return TRUE;	// returnでTRUEを返す.
+
+	}
+
+	// 処理していないのでFALSE.
+	return FALSE;	// returnでFALSEを返す.
+
+}
+
+// ウィンドウ作成関数Create.
+BOOL CWindow::Create(LPCTSTR lpctszClassName, LPCTSTR lpctszWindowName, DWORD dwStyle, int x, int y, int iWidth, int iHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance){
+
+	// ウィンドウの作成.
+	m_hWnd = CreateWindow(lpctszClassName, lpctszWindowName, dwStyle, x, y, iWidth, iHeight, hWndParent, hMenu, hInstance, NULL);	// CreateWindowでウィンドウを作成し, ハンドルをm_hWndに格納.(最後の引数はとりあえずNULL.)
+	if (m_hWnd == NULL){	// m_hWndがNULLなら失敗.
+
+		// 失敗ならFALSEを返す.
+		MessageBox(NULL, _T("予期せぬエラーが発生しました!"), _T("Aoi"), MB_OK | MB_ICONHAND);	// MessageBoxで"予期せぬエラーが発生しました!"と表示.
+		return FALSE;	// FALSEを返す.
+
+	}
+
+	// 成功ならTRUE.
+	return TRUE;	// 成功なのでTRUEを返す.
+
+}
+
+// ウィンドウ表示関数ShowWindow.
+BOOL CWindow::ShowWindow(int nCmdShow){
+
+	// ウィンドウの表示.
+	return ::ShowWindow(m_hWnd, nCmdShow);	// WindowsAPIのShowWindowでm_hWndを表示.
 
 }
 
@@ -291,166 +452,5 @@ int write_file_cstdio(const char *path, const char *buf, size_t file_size){
 
 	// 書き込めなかったので, -1を返す.
 	return -1;	// returnで-1を返す.
-
-}
-
-// ウィンドウの作成が開始された時.
-int OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct){
-
-	// 変数の宣言
-	HWND hEdit;	// エディットコントロールのウィンドウハンドルhEdit.
-
-	// エディットコントロールの作成
-	hEdit = CreateWindow(_T("Edit"), _T(""), WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOHSCROLL | ES_AUTOVSCROLL, 0, 0, 640, 480, hwnd, (HMENU)(WM_APP + 1), lpCreateStruct->hInstance, NULL);	// CreateWindowでエディットコントロールhEditを作成.
-
-	// 常にウィンドウ作成に成功するものとする.
-	return 0;	// 0を返すと, ウィンドウ作成に成功したということになる.
-
-}
-
-// ウィンドウが破棄された時.
-void OnDestroy(){
-
-	// 終了メッセージの送信.
-	PostQuitMessage(0);	// PostQuitMessageで終了コードを0としてWM_QUITメッセージを送信.
-
-}
-
-// ウィンドウのサイズが変更された時.
-void OnSize(HWND hwnd, UINT nType, int cx, int cy){
-
-	// 変数の宣言
-	HWND hEdit;		// エディットコントロールのウィンドウハンドルhEdit.
-
-	// エディットコントロールのサイズ調整.
-	hEdit = GetDlgItem(hwnd, (WM_APP + 1));	// GetDlgItemで(WM_APP + 1)を指定してhEditを取得.
-	MoveWindow(hEdit, 0, 0, cx, cy, TRUE);	// MoveWindowでhEditのサイズを(cx, cy)にする.
-
-}
-
-// コマンドが発生した時.
-BOOL OnCommand(HWND hwnd, WPARAM wParam, LPARAM lParam){
-
-	// コマンドの処理.
-	switch (LOWORD(wParam)){	// LOWORD(wParam)でリソースIDがわかるので, その値ごとに処理を振り分ける.
-
-		// "開く(&O)..."
-		case ID_FILE_OPEN:
-
-			// ID_FILE_OPENブロック
-			{
-
-				// OnFileOpenに任せる.
-				return OnFileOpen(hwnd);	// OnFileOpenの値を返す.
-
-			}
-
-			// 抜ける.
-			break;	// breakで抜ける.
-
-		// "名前を付けて保存(&A)..."
-		case ID_FILE_SAVE_AS:
-
-			// ID_FILE_SAVE_ASブロック
-			{
-
-				// OnFileSaveAsに任せる.
-				return OnFileSaveAs(hwnd);	// OnFileSaveAsの値を返す.
-
-			}
-					
-			// 抜ける.
-			break;	// breakで抜ける.
-
-		// それ以外.
-		default:
-
-			// 抜ける.
-			break;	// breakで抜ける.
-
-	}
-
-	// 処理していないのでFALSE.
-	return FALSE;	// returnでFALSEを返す.
-
-}
-
-// "開く"が選択された時.
-BOOL OnFileOpen(HWND hwnd){
-
-	// "開く"ファイルの選択.
-	// 配列の初期化.
-	TCHAR tszPath[_MAX_PATH] = {0};	// ファイルパスtszPathを{0}で初期化.
-	BOOL bRet = ShowOpenFileDialog(hwnd, tszPath, _MAX_PATH);	// ShowOpenFileDialogで"開く"ファイルダイアログの表示.
-	if (bRet){	// 選択されたら.
-					
-		// 日本語ロケールのセット.
-		setlocale(LC_ALL, "Japanese");	// setlocaleで"Japanese"をセット.
-		// ファイル名をマルチバイト文字列に変換した時に必要なバッファサイズを計算.
-		size_t filename_len = wcstombs(NULL, tszPath, _MAX_PATH);	// wcstombsで長さfilename_lenを求める.(filename_lenにNULL文字は含まれない.)
-		// ファイル名のバッファを確保.
-		char *path = (char *)malloc(sizeof(char) * (filename_len + 1));	// mallocで動的配列を確保し, アドレスをpathに格納.
-		// TCHARからマルチバイトへの変換.
-		wcstombs(path, tszPath, _MAX_PATH);	// wcstombsでTCHARからマルチバイトへ変換.
-					
-		// ファイルサイズの取得.
-		size_t file_size = get_file_size(path);	// get_file_sizeでファイルサイズを取得し, file_sizeに格納.
-		// バッファを生成.
-		char *buf = (char *)calloc(file_size + 1, sizeof(char));	// callocでbufを確保.
-		// ファイル読み込み.
-		read_file_cstdio(path, buf, file_size);	// read_file_cstdioで読み込み.
-		// エディットコントロールにテキストのセット.
-		SetTextA(hwnd, buf);	// SetTextAでbufをセット.
-		// bufの解放.
-		free(buf);	// freeでbufを解放.
-		// pathの解放.
-		free(path);	// freeでpathを解放.
-
-		// 処理したのでTRUE.
-		return TRUE;	// returnでTRUEを返す.
-					
-	}
-
-	// 処理していないのでFALSE.
-	return FALSE;	// returnでFALSEを返す.
-
-}
-
-// "名前を付けて保存"が選択された時.
-BOOL OnFileSaveAs(HWND hwnd){
-
-	// "名前を付けて保存"するファイルの選択.
-	// 配列の初期化.
-	TCHAR tszPath[_MAX_PATH] = {0};	// ファイルパスtszPathを{0}で初期化.
-	BOOL bRet = ShowSaveFileDialog(hwnd, tszPath, _MAX_PATH);	// ShowSaveFileDialogで"名前を付けて保存"ファイルダイアログの表示.
-	if (bRet){	// 選択されたら.
-
-		// ファイルの書き込み.
-		// テキストの長さを取得.
-		int iLen = GetTextLengthA(hwnd);	// GetTextLengthAで長さを取得し, iLenに格納.
-		// バッファの確保.
-		char *buf = (char *)calloc(iLen + 1, sizeof(char));	// callocでbufを確保.
-		// テキストの取得.
-		GetTextA(hwnd, buf, iLen);	// GetTextAでテキストを取得し, bufに格納.
-		// 日本語ロケールのセット.
-		setlocale(LC_ALL, "Japanese");	// setlocaleで"Japanese"をセット.
-		// ファイル名をマルチバイト文字列に変換.
-		size_t filename_len = wcstombs(NULL, tszPath, _MAX_PATH);	// wcstombsで長さfilename_lenを求める.(filename_lenにNULL文字は含まれない.)
-		char *path = (char *)malloc(sizeof(char) * (filename_len + 1));	// mallocで動的配列を確保し, アドレスをpathに格納.
-		wcstombs(path, tszPath, _MAX_PATH);	// wcstombsでTCHARからマルチバイトへ変換.
-		// ファイル書き込み.
-		write_file_cstdio(path, buf, iLen);	// write_file_cstdioで書き込み.
-		// pathの解放.
-		free(path);	// freeでpathを解放.
-		// bufの解放.
-		free(buf);	// freeでbufを解放.
-
-		// 処理したのでTRUE.
-		return TRUE;	// returnでTRUEを返す.
-
-	}
-
-	// 処理していないのでFALSE.
-	return FALSE;	// returnでFALSEを返す.
 
 }
