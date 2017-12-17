@@ -3,6 +3,12 @@
 #define __MAIN_WINDOW_H__
 
 // ヘッダのインクルード
+// 既定のヘッダ
+#include <stdio.h>		// C標準入出力
+#include <string.h>		// C文字列処理
+#include <stdlib.h>		// C標準ユーティリティ
+#include <sys/stat.h>	// ファイル状態
+#include <locale.h>		// ロケール
 // 独自のヘッダ
 #include "Window.h"	// CWindow
 
@@ -14,14 +20,13 @@ class CMainWindow : public CWindow{
 
 		// staticメンバ関数
 		static BOOL RegisterClass(HINSTANCE hInstance);	// ウィンドウクラス登録関数RegisterClass.
-		static LRESULT CALLBACK StaticWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);	// スタティックウィンドウプロシージャStaticWindowProc.
-		static int OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);	// ウィンドウの作成が開始された時.
-		static void OnSize(HWND hwnd, UINT nType, int cx, int cy);	// ウィンドウのサイズが変更された時.
-		static BOOL OnCommand(HWND hwnd, WPARAM wParam, LPARAM lParam);	// コマンドが発生した時.
-		static BOOL OnFileOpen(HWND hwnd);	// "開く"が選択された時.
-		static BOOL OnFileSaveAs(HWND hwnd);	// "名前を付けて保存"が選択された時.
 		// メンバ関数
 		virtual BOOL Create(LPCTSTR lpctszWindowName, DWORD dwStyle, int x, int y, int iWidth, int iHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance);	// ウィンドウ作成関数Create.(ウィンドウクラス名省略バージョン.)
+		int OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);	// ウィンドウの作成が開始された時.
+		void OnSize(HWND hwnd, UINT nType, int cx, int cy);	// ウィンドウのサイズが変更された時.
+		BOOL OnCommand(HWND hwnd, WPARAM wParam, LPARAM lParam);	// コマンドが発生した時.
+		BOOL OnFileOpen(HWND hwnd);	// "開く"が選択された時.
+		BOOL OnFileSaveAs(HWND hwnd);	// "名前を付けて保存"が選択された時.
 
 };
 

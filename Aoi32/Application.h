@@ -16,9 +16,13 @@ class CApplication{
 	public:
 
 		// publicメンバ変数
-		CWindow m_mainWnd;	// メインウィンドウm_mainWnd.
+		//CWindow m_mainWnd;	// メインウィンドウm_mainWnd.
+		CWindow *m_pMainWnd;	// メインウィンドウポインタm_pMainWnd.
 
 		// publicメンバ関数
+		// コンストラクタ
+		CApplication();	// コンストラクタCApplication
+		// メンバ関数.
 		virtual BOOL InitInstance(HINSTANCE hInstance, LPTSTR lpCmdLine, int nShowCmd) = 0;	// インスタンス初期化関数InitInstance.(純粋仮想関数)
 		virtual int Run();	// メッセージループ処理関数Run.
 		virtual int ExitInstance();	// 終了処理関数ExitInstance.

@@ -6,88 +6,16 @@
 // ウィンドウクラス登録関数RegisterClass.
 BOOL CMainWindow::RegisterClass(HINSTANCE hInstance){
 
-	// ウィンドウプロシージャにはこのクラスのモノを使い, メニューはIDR_MENU1を使う.
-	return CWindow::RegisterClass(hInstance, _T("CMainWindow"), StaticWindowProc, MAKEINTRESOURCE(IDR_MENU1));	// CWindow::RegisterClassで登録.
+	// ウィンドウプロシージャにはCWindow::StaticWndowProc, メニューはIDR_MENU1を使う.
+	return CWindow::RegisterClass(hInstance, _T("CMainWindow"), MAKEINTRESOURCE(IDR_MENU1));	// CWindow::RegisterClassで登録.
 
 }
 
-// スタティックウィンドウプロシージャStaticWindowProcの定義
-LRESULT CALLBACK CMainWindow::StaticWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
+// ウィンドウ作成関数Create.(ウィンドウクラス名省略バージョン.)
+BOOL CMainWindow::Create(LPCTSTR lpctszWindowName, DWORD dwStyle, int x, int y, int iWidth, int iHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance){// ウィンドウ作成関数Create.(ウィンドウクラス名省略バージョン.)
 
-	// ウィンドウメッセージの処理.
-	switch (uMsg){	// uMsgの値ごとに処理を振り分ける.
-
-		// ウィンドウの作成が開始された時.
-		case WM_CREATE:
-
-			// WM_CREATEブロック
-			{
-
-				// OnCreateに任せる.
-				return OnCreate(hwnd, (LPCREATESTRUCT)lParam);	// hwndとlParamをOnCreateに渡し, あとは任せる.
-
-			}
-
-			// 既定の処理へ向かう.
-			break;	// breakで抜けて, 既定の処理(DefWindowProc)へ向かう.
-
-		// ウィンドウが破棄された時.
-		case WM_DESTROY:
-
-			// WM_DESTROYブロック
-			{
-
-				// OnDestroyに任せる.
-				OnDestroy();	// OnDestroyを呼ぶ.
-				
-			}
-
-			// 既定の処理へ向かう.
-			break;	// breakで抜けて, 既定の処理(DefWindowProc)へ向かう.
-
-		// ウィンドウのサイズが変更された時.
-		case WM_SIZE:
-
-			// WM_SIZEブロック
-			{
-
-				// 変数の初期化
-				UINT nType = (UINT)wParam;	// UINT型nTypeにwParamをセット.
-				int cx = LOWORD(lParam);	// int型cxにLOWORD(lParam)をセット.
-				int cy = HIWORD(lParam);	// int型cyにHIWORD(lParam)をセット.
-
-				// OnSizeに任せる.
-				OnSize(hwnd, nType, cx, cy);	// OnSizeにhwnd, nType, cx, cyを渡す.
-
-			}
-
-			// 既定の処理へ向かう.
-			break;	// breakで抜けて, 既定の処理(DefWindowProc)へ向かう.
-
-		// コマンドが発生した時.
-		case WM_COMMAND:
-
-			// WM_COMMANDブロック
-			{
-
-				// OnCommandに任せる.
-				return OnCommand(hwnd, wParam, lParam) ? 0 : 1;
-
-			}
-
-			// 既定の処理へ向かう.
-			break;	// breakで抜けて, 既定の処理(DefWindowProc)へ向かう.
-
-		// 上記以外の時.
-		default:
-
-			// 既定の処理へ向かう.
-			break;	// breakで抜けて, 既定の処理(DefWindowProc)へ向かう.
-
-	}
-
-	// あとは既定の処理に任せる.
-	return DefWindowProc(hwnd, uMsg, wParam, lParam);	// 戻り値も含めてDefWindowProcに既定の処理を任せる.
+	// ウィンドウクラス名は"CMainWindow".
+	return CWindow::Create(_T("CMainWindow"), lpctszWindowName, dwStyle, x, y, iWidth, iHeight, hWndParent, hMenu, hInstance);	// CWindow::Createにウィンドウクラス名"CMainWindow"を指定.
 
 }
 
@@ -241,14 +169,6 @@ BOOL CMainWindow::OnFileSaveAs(HWND hwnd){
 
 	// 処理していないのでFALSE.
 	return FALSE;	// returnでFALSEを返す.
-
-}
-
-// ウィンドウ作成関数Create.(ウィンドウクラス名省略バージョン.)
-BOOL CMainWindow::Create(LPCTSTR lpctszWindowName, DWORD dwStyle, int x, int y, int iWidth, int iHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance){// ウィンドウ作成関数Create.(ウィンドウクラス名省略バージョン.)
-
-	// ウィンドウクラス名は"CMainWindow".
-	return CWindow::Create(_T("CMainWindow"), lpctszWindowName, dwStyle, x, y, iWidth, iHeight, hWndParent, hMenu, hInstance);	// CWindow::Createにウィンドウクラス名"CWindow"を指定.
 
 }
 

@@ -9,8 +9,12 @@ BOOL CMainApplication::InitInstance(HINSTANCE hInstance, LPTSTR lpCmdLine, int n
 	//CWindow::RegisterClass(hInstance);	// CWindow::RegisterClassでウィンドウクラス"CWindow"を登録.
 	CMainWindow::RegisterClass(hInstance);	// CMainWindow::RegisterClassでウィンドウクラス名"CMainWindow"を登録.
 
+	// CMainWindowオブジェクトの作成.
+	//m_pMainWnd = new CWindow();	// CWindowオブジェクトを作成し, m_pMainWndに格納.
+	m_pMainWnd = new CMainWindow();	// CMainWindowオブジェクトを作成し, m_pMainWndに格納.
+
 	// ウィンドウの作成.
-	if (!m_mainWnd.Create(_T("Aoi"), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance)){	// m_mainWnd.Createでウィンドウ作成し, 失敗した場合.
+	if (!m_pMainWnd->Create(_T("Aoi"), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance)){	// m_pMainWnd->Createでウィンドウ作成し, 失敗した場合.
 
 		// エラー処理
 		return FALSE;	// returnでFALSEを返して異常終了.
@@ -18,7 +22,7 @@ BOOL CMainApplication::InitInstance(HINSTANCE hInstance, LPTSTR lpCmdLine, int n
 	}
 
 	// ウィンドウの表示.
-	m_mainWnd.ShowWindow(SW_SHOW);	// m_mainWnd.ShowWindowで表示.
+	m_pMainWnd->ShowWindow(SW_SHOW);	// m_pMainWnd->ShowWindowで表示.
 
 	// TRUEを返す.
 	return TRUE;	// returnでTRUEを返す.
