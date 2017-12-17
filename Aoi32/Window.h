@@ -27,28 +27,20 @@ class CWindow{
 		~CWindow();	// デストラクタ~CWindow()
 
 		// staticメンバ関数
+		static BOOL RegisterClass(HINSTANCE hInstance);	// ウィンドウクラス登録関数RegisterClass.(ウィンドウクラス名省略バージョン.)
 		static BOOL RegisterClass(HINSTANCE hInstance, LPCTSTR lpctszClassName);	// ウィンドウクラス登録関数RegisterClass.
+		static BOOL RegisterClass(HINSTANCE hInstance, LPCTSTR lpctszClassName, WNDPROC lpfnWndProc);	// ウィンドウクラス登録関数RegisterClass.(ウィンドウプロシージャ指定バージョン.)
+		static BOOL RegisterClass(HINSTANCE hInstance, LPCTSTR lpctszClassName, WNDPROC lpfnWndProc, LPCTSTR lpszMenuName);	// ウィンドウクラス登録関数RegisterClass.(メニュー名指定バージョン.)
 		static LRESULT CALLBACK StaticWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);	// スタティックウィンドウプロシージャStaticWindowProc.
 		static int OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);	// ウィンドウの作成が開始された時.
 		static void OnDestroy();	// ウィンドウが破棄された時.
 		static void OnSize(HWND hwnd, UINT nType, int cx, int cy);	// ウィンドウのサイズが変更された時.
 		static BOOL OnCommand(HWND hwnd, WPARAM wParam, LPARAM lParam);	// コマンドが発生した時.
-		static BOOL OnFileOpen(HWND hwnd);	// "開く"が選択された時.
-		static BOOL OnFileSaveAs(HWND hwnd);	// "名前を付けて保存"が選択された時.
 		// メンバ関数
+		virtual BOOL Create(LPCTSTR lpctszWindowName, DWORD dwStyle, int x, int y, int iWidth, int iHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance);	// ウィンドウ作成関数Create.(ウィンドウクラス名省略バージョン.)
 		virtual BOOL Create(LPCTSTR lpctszClassName, LPCTSTR lpctszWindowName, DWORD dwStyle, int x, int y, int iWidth, int iHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance);	// ウィンドウ作成関数Create.
 		virtual BOOL ShowWindow(int nCmdShow);	// ウィンドウ表示関数ShowWindow.
 
 };
-
-// 関数のプロトタイプ宣言.
-size_t get_file_size(const char *path);	// ファイルサイズの取得.
-int read_file_cstdio(const char *path, char *buf, size_t file_size);	// C標準入出力によるファイルの読み込み.
-void SetTextA(HWND hWnd, LPCSTR lpcszText);	// エディットコントロールにテキストをセット.
-BOOL ShowOpenFileDialog(HWND hWnd, LPTSTR lptszFileName, DWORD dwMaxPath);	// "開く"ファイルダイアログの表示.
-int GetTextLengthA(HWND hWnd);	// エディットコントロールのテキストの長さを取得.
-int GetTextA(HWND hWnd, LPSTR lpszText, int iLen);	// エディットコントロールのテキストを取得.
-BOOL ShowSaveFileDialog(HWND hWnd, LPTSTR lptszFileName, DWORD dwMaxPath);	// "名前を付けて保存"ファイルダイアログの表示.
-int write_file_cstdio(const char *path, const char *buf, size_t file_size);	// C標準入出力によるファイルの書き込み.
 
 #endif
