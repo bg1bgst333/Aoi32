@@ -3,6 +3,25 @@
 #include "MainWindow.h"	// CMainWindow
 #include "resource.h"		// リソース
 
+// コンストラクタCMainWindow()
+CMainWindow::CMainWindow() : CWindow(){
+
+	// メンバの初期化.
+	m_pEdit = NULL;	// m_pEditをNULLで初期化.
+
+}
+
+// デストラクタ~CMainWindow()
+CMainWindow::~CMainWindow(){
+
+	// メンバの終了処理
+	if (m_pEdit != NULL){	// m_pEditがNULLでなければ.
+		delete m_pEdit;	// deleteでm_pEditを解放.
+		m_pEdit = NULL;	// m_pEditにNULLをセット.
+	}
+
+}
+
 // ウィンドウクラス登録関数RegisterClass.
 BOOL CMainWindow::RegisterClass(HINSTANCE hInstance){
 
@@ -22,11 +41,11 @@ BOOL CMainWindow::Create(LPCTSTR lpctszWindowName, DWORD dwStyle, int x, int y, 
 // ウィンドウの作成が開始された時.
 int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct){
 
-	// 変数の宣言
-	HWND hEdit;	// エディットコントロールのウィンドウハンドルhEdit.
+	// エディットコントロールオブジェクトの作成
+	m_pEdit = new CEdit();	// CEditオブジェクトを作成し, ポインタをm_pEditに格納.
 
 	// エディットコントロールの作成
-	hEdit = CreateWindow(_T("Edit"), _T(""), WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOHSCROLL | ES_AUTOVSCROLL, 0, 0, 640, 480, hwnd, (HMENU)(WM_APP + 1), lpCreateStruct->hInstance, NULL);	// CreateWindowでエディットコントロールhEditを作成.
+	m_pEdit->Create(_T(""), WS_HSCROLL | WS_VSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOHSCROLL | ES_AUTOVSCROLL, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, hwnd, (HMENU)(WM_APP + 1), lpCreateStruct->hInstance);	// m_pEdit->Createでエディットコントロールを作成.
 
 	// 常にウィンドウ作成に成功するものとする.
 	return 0;	// 0を返すと, ウィンドウ作成に成功したということになる.

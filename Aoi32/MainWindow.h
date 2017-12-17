@@ -10,7 +10,7 @@
 #include <sys/stat.h>	// ファイル状態
 #include <locale.h>		// ロケール
 // 独自のヘッダ
-#include "Window.h"	// CWindow
+#include "Edit.h"	// CEdit
 
 // メインウィンドウクラスCMainWindow
 class CMainWindow : public CWindow{
@@ -18,6 +18,13 @@ class CMainWindow : public CWindow{
 	// publicメンバ
 	public:
 
+		// publicメンバ変数
+		CEdit *m_pEdit;	// CEditオブジェクトポインタm_pEdit
+
+		// publicメンバ関数
+		// コンストラクタ・デストラクタ
+		CMainWindow();	// コンストラクタCMainWindow()
+		virtual ~CMainWindow();	// デストラクタ~CMainWindow()
 		// staticメンバ関数
 		static BOOL RegisterClass(HINSTANCE hInstance);	// ウィンドウクラス登録関数RegisterClass.
 		// メンバ関数

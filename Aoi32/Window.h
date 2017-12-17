@@ -20,10 +20,9 @@ class CWindow{
 		static std::map<HWND, CWindow *>m_mapWindowMap;	// ウィンドウハンドルをキー, CWindowオブジェクトポインタを値とするマップm_mapWindowMap.
 
 		// publicメンバ関数
-		// コンストラクタ
+		// コンストラクタ・デストラクタ
 		CWindow();	// コンストラクタCWindow()
 		virtual ~CWindow();	// デストラクタ~CWindow()
-
 		// staticメンバ関数
 		static BOOL RegisterClass(HINSTANCE hInstance);	// ウィンドウクラス登録関数RegisterClass.(ウィンドウクラス名省略バージョン.)
 		static BOOL RegisterClass(HINSTANCE hInstance, LPCTSTR lpctszClassName);	// ウィンドウクラス登録関数RegisterClass.
