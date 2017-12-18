@@ -1,6 +1,8 @@
 // ヘッダのインクルード
 // 独自のヘッダ
 #include "MainWindow.h"	// CMainWindow
+#include "c_stdio_utility.h"	// class_c_stdio_utility
+#include "cpp_string_utility.h"	// class_cpp_string_utility
 #include "resource.h"		// リソース
 
 // コンストラクタCMainWindow()
@@ -53,19 +55,19 @@ int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct){
 }
 
 // ウィンドウのサイズが変更された時.
-void CMainWindow::OnSize(HWND hwnd, UINT nType, int cx, int cy){
+void CMainWindow::OnSize(UINT nType, int cx, int cy){
 
 	// 変数の宣言
 	HWND hEdit;		// エディットコントロールのウィンドウハンドルhEdit.
 
 	// エディットコントロールのサイズ調整.
-	hEdit = GetDlgItem(hwnd, (WM_APP + 1));	// GetDlgItemで(WM_APP + 1)を指定してhEditを取得.
+	hEdit = GetDlgItem(m_hWnd, (WM_APP + 1));	// GetDlgItemで(WM_APP + 1)を指定してhEditを取得.
 	MoveWindow(hEdit, 0, 0, cx, cy, TRUE);	// MoveWindowでhEditのサイズを(cx, cy)にする.
 
 }
 
 // コマンドが発生した時.
-BOOL CMainWindow::OnCommand(HWND hwnd, WPARAM wParam, LPARAM lParam){
+BOOL CMainWindow::OnCommand(WPARAM wParam, LPARAM lParam){
 
 	// コマンドの処理.
 	switch (LOWORD(wParam)){	// LOWORD(wParam)でリソースIDがわかるので, その値ごとに処理を振り分ける.
@@ -77,7 +79,7 @@ BOOL CMainWindow::OnCommand(HWND hwnd, WPARAM wParam, LPARAM lParam){
 			{
 
 				// OnFileOpenに任せる.
-				return OnFileOpen(hwnd);	// OnFileOpenの値を返す.
+				return OnFileOpen();	// OnFileOpenの値を返す.
 
 			}
 
@@ -91,7 +93,7 @@ BOOL CMainWindow::OnCommand(HWND hwnd, WPARAM wParam, LPARAM lParam){
 			{
 
 				// OnFileSaveAsに任せる.
-				return OnFileSaveAs(hwnd);	// OnFileSaveAsの値を返す.
+				return OnFileSaveAs();	// OnFileSaveAsの値を返す.
 
 			}
 					
@@ -112,35 +114,25 @@ BOOL CMainWindow::OnCommand(HWND hwnd, WPARAM wParam, LPARAM lParam){
 }
 
 // "開く"が選択された時.
-BOOL CMainWindow::OnFileOpen(HWND hwnd){
+BOOL CMainWindow::OnFileOpen(){
 
 	// "開く"ファイルの選択.
 	// 配列の初期化.
 	TCHAR tszPath[_MAX_PATH] = {0};	// ファイルパスtszPathを{0}で初期化.
-	BOOL bRet = ShowOpenFileDialog(hwnd, tszPath, _MAX_PATH);	// ShowOpenFileDialogで"開く"ファイルダイアログの表示.
+	BOOL bRet = ShowOpenFileDialog(m_hWnd, tszPath, _MAX_PATH);	// ShowOpenFileDialogで"開く"ファイルダイアログの表示.
 	if (bRet){	// 選択されたら.
-					
-		// 日本語ロケールのセット.
-		setlocale(LC_ALL, "Japanese");	// setlocaleで"Japanese"をセット.
-		// ファイル名をマルチバイト文字列に変換した時に必要なバッファサイズを計算.
-		size_t filename_len = wcstombs(NULL, tszPath, _MAX_PATH);	// wcstombsで長さfilename_lenを求める.(filename_lenにNULL文字は含まれない.)
-		// ファイル名のバッファを確保.
-		char *path = (char *)malloc(sizeof(char) * (filename_len + 1));	// mallocで動的配列を確保し, アドレスをpathに格納.
-		// TCHARからマルチバイトへの変換.
-		wcstombs(path, tszPath, _MAX_PATH);	// wcstombsでTCHARからマルチバイトへ変換.
-					
-		// ファイルサイズの取得.
-		size_t file_size = get_file_size(path);	// get_file_sizeでファイルサイズを取得し, file_sizeに格納.
-		// バッファを生成.
-		char *buf = (char *)calloc(file_size + 1, sizeof(char));	// callocでbufを確保.
-		// ファイル読み込み.
-		read_file_cstdio(path, buf, file_size);	// read_file_cstdioで読み込み.
+
+		// 取得したパスをワイド文字列からマルチバイト文字列へ変換.
+		std::string path = class_cpp_string_utility::encode_wstring_to_string(tszPath);	// ワイド文字列のtszPathをマルチバイト文字列のpathに変換.
+
+		// ファイルの読み込み.
+		std::string text_str = class_c_stdio_utility::read_text_file_cstdio(path.c_str());	// テキストファイルを読み込み, 内容をtext_strに格納.
+
+		// マルチバイト文字列からワイド文字に変換.
+		std::wstring text_wstr = class_cpp_string_utility::decode_string_to_wstring(text_str);	// マルチバイト文字列のtext_strをワイド文字列のtext_wstrに変換.
+
 		// エディットコントロールにテキストのセット.
-		SetTextA(hwnd, buf);	// SetTextAでbufをセット.
-		// bufの解放.
-		free(buf);	// freeでbufを解放.
-		// pathの解放.
-		free(path);	// freeでpathを解放.
+		m_pEdit->SetText(text_wstr.c_str());	// m_pEdit->SetTextでtext_wstrをセット.
 
 		// 処理したのでTRUE.
 		return TRUE;	// returnでTRUEを返す.
@@ -153,21 +145,21 @@ BOOL CMainWindow::OnFileOpen(HWND hwnd){
 }
 
 // "名前を付けて保存"が選択された時.
-BOOL CMainWindow::OnFileSaveAs(HWND hwnd){
+BOOL CMainWindow::OnFileSaveAs(){
 
 	// "名前を付けて保存"するファイルの選択.
 	// 配列の初期化.
 	TCHAR tszPath[_MAX_PATH] = {0};	// ファイルパスtszPathを{0}で初期化.
-	BOOL bRet = ShowSaveFileDialog(hwnd, tszPath, _MAX_PATH);	// ShowSaveFileDialogで"名前を付けて保存"ファイルダイアログの表示.
+	BOOL bRet = ShowSaveFileDialog(m_hWnd, tszPath, _MAX_PATH);	// ShowSaveFileDialogで"名前を付けて保存"ファイルダイアログの表示.
 	if (bRet){	// 選択されたら.
 
 		// ファイルの書き込み.
 		// テキストの長さを取得.
-		int iLen = GetTextLengthA(hwnd);	// GetTextLengthAで長さを取得し, iLenに格納.
+		int iLen = GetTextLengthA(m_hWnd);	// GetTextLengthAで長さを取得し, iLenに格納.
 		// バッファの確保.
 		char *buf = (char *)calloc(iLen + 1, sizeof(char));	// callocでbufを確保.
 		// テキストの取得.
-		GetTextA(hwnd, buf, iLen);	// GetTextAでテキストを取得し, bufに格納.
+		GetTextA(m_hWnd, buf, iLen);	// GetTextAでテキストを取得し, bufに格納.
 		// 日本語ロケールのセット.
 		setlocale(LC_ALL, "Japanese");	// setlocaleで"Japanese"をセット.
 		// ファイル名をマルチバイト文字列に変換.
@@ -188,55 +180,6 @@ BOOL CMainWindow::OnFileSaveAs(HWND hwnd){
 
 	// 処理していないのでFALSE.
 	return FALSE;	// returnでFALSEを返す.
-
-}
-
-// ファイルサイズの取得.
-size_t get_file_size(const char *path){
-
-	// 構造体の初期化.
-	struct _stat st = {0};	// _stat構造体stを{0}で初期化.
-
-	// ファイル情報の取得.
-	_stat(path, &st);	// _statでpathで示されたファイルの情報をstに格納.
-
-	// ファイルサイズを返す.
-	return st.st_size;	// returnでst.st_sizeを返す.
-
-}
-
-// C標準入出力によるファイルの読み込み.
-int read_file_cstdio(const char *path, char *buf, size_t file_size){
-
-	// 変数・構造体の初期化.
-	FILE *fp = NULL;	// fpをNULLで初期化.
-	int len = 0;	// 読み込んだバイト数lenを0に初期化.
-
-	// ファイルを開く.
-	fp = fopen(path, "rb");	// fopenでバイナリ読み込みで開く.
-	if (fp != NULL){	// fpがNULLでない時.
-
-		// ファイルの読み込み.
-		len = fread(buf, sizeof(char), file_size, fp);	// freadでfpを読み込み, bufに格納し, 読み込んだ長さはlenに格納.
-		fclose(fp);	// fcloseでfpを閉じる.
-		return len;	// lenを返す.
-
-	}
-
-	// 読み込めなかったので, -1を返す.
-	return -1;	// returnで-1を返す.
-
-}
-
-// エディットコントロールにテキストをセット.
-void SetTextA(HWND hWnd, LPCSTR lpcszText){
-
-	// 変数の宣言.
-	HWND hEdit;		// エディットコントロールのウィンドウハンドルhEdit.
-
-	// テキストのセット.
-	hEdit = GetDlgItem(hWnd, (WM_APP + 1));	// GetDlgItemで(WM_APP + 1)を指定してhEditを取得.
-	SetWindowTextA(hEdit, lpcszText);	// SetWindowTextAでhEditにlpcszTextをセット.
 
 }
 

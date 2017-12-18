@@ -179,6 +179,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\c_stdio_utility.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\cpp_string_utility.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\CustomControl.cpp"
 				>
 			</File>
@@ -210,6 +218,14 @@
 			>
 			<File
 				RelativePath=".\Application.h"
+				>
+			</File>
+			<File
+				RelativePath=".\c_stdio_utility.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cpp_string_utility.h"
 				>
 			</File>
 			<File

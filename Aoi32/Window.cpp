@@ -185,6 +185,14 @@ BOOL CWindow::ShowWindow(int nCmdShow){
 
 }
 
+// テキストセット関数SetText.
+void CWindow::SetText(LPCTSTR lpctszText){
+
+	// テキストのセット.
+	SetWindowText(m_hWnd, lpctszText);	// SetWindowTextでlpctszTextのセット.
+
+}
+
 // ダイナミックウィンドウプロシージャDynamicWindowProc.
 LRESULT CWindow::DynamicWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
 
@@ -231,7 +239,7 @@ LRESULT CWindow::DynamicWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 				int cy = HIWORD(lParam);	// int型cyにHIWORD(lParam)をセット.
 
 				// OnSizeに任せる.
-				OnSize(hwnd, nType, cx, cy);	// OnSizeにhwnd, nType, cx, cyを渡す.
+				OnSize(nType, cx, cy);	// OnSizeにnType, cx, cyを渡す.
 
 			}
 
@@ -245,7 +253,7 @@ LRESULT CWindow::DynamicWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 			{
 
 				// OnCommandに任せる.
-				return OnCommand(hwnd, wParam, lParam) ? 0 : 1;
+				return OnCommand(wParam, lParam) ? 0 : 1;
 
 			}
 
@@ -282,12 +290,12 @@ void CWindow::OnDestroy(){
 }
 
 // ウィンドウのサイズが変更された時.
-void CWindow::OnSize(HWND hwnd, UINT nType, int cx, int cy){
+void CWindow::OnSize(UINT nType, int cx, int cy){
 
 }
 
 // コマンドが発生した時.
-BOOL CWindow::OnCommand(HWND hwnd, WPARAM wParam, LPARAM lParam){
+BOOL CWindow::OnCommand(WPARAM wParam, LPARAM lParam){
 
 	// 処理していないのでFALSE.
 	return FALSE;	// returnでFALSEを返す.
