@@ -38,9 +38,6 @@ class CMainWindow : public CWindow{
 
 // 関数のプロトタイプ宣言.
 BOOL ShowOpenFileDialog(HWND hWnd, LPTSTR lptszFileName, DWORD dwMaxPath);	// "開く"ファイルダイアログの表示.
-int GetTextLengthA(HWND hWnd);	// エディットコントロールのテキストの長さを取得.
-int GetTextA(HWND hWnd, LPSTR lpszText, int iLen);	// エディットコントロールのテキストを取得.
 BOOL ShowSaveFileDialog(HWND hWnd, LPTSTR lptszFileName, DWORD dwMaxPath);	// "名前を付けて保存"ファイルダイアログの表示.
-int write_file_cstdio(const char *path, const char *buf, size_t file_size);	// C標準入出力によるファイルの書き込み.
 
 #endif

@@ -8,14 +8,6 @@
 // 独自のヘッダ
 #include "Window.h"	// CWindow
 
-// マクロの定義
-// UNICODE切り替え
-#ifdef UNICODE
-#define tstring std::wstring
-#else
-#define tstring std::string
-#endif
-
 // カスタムコントロールクラスCCustomControl
 class CCustomControl : public CWindow{
 

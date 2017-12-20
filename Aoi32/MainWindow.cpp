@@ -153,25 +153,17 @@ BOOL CMainWindow::OnFileSaveAs(){
 	BOOL bRet = ShowSaveFileDialog(m_hWnd, tszPath, _MAX_PATH);	// ShowSaveFileDialogで"名前を付けて保存"ファイルダイアログの表示.
 	if (bRet){	// 選択されたら.
 
+		// 取得したパスをワイド文字列からマルチバイト文字列へ変換.
+		std::string path = class_cpp_string_utility::encode_wstring_to_string(tszPath);	// ワイド文字列のtszPathをマルチバイト文字列のpathに変換.
+
+		// エディットコントロールからテキストを取得.
+		std::wstring text_wstr = m_pEdit->GetText();	// m_pEdit->GetTextでtext_wstrを取得.
+
+		// ワイド文字からマルチバイト文字列に変換.
+		std::string text_str = class_cpp_string_utility::encode_wstring_to_string(text_wstr);	// ワイド文字のtext_wstrをマルチバイト文字列のtext_strに変換.
+
 		// ファイルの書き込み.
-		// テキストの長さを取得.
-		int iLen = GetTextLengthA(m_hWnd);	// GetTextLengthAで長さを取得し, iLenに格納.
-		// バッファの確保.
-		char *buf = (char *)calloc(iLen + 1, sizeof(char));	// callocでbufを確保.
-		// テキストの取得.
-		GetTextA(m_hWnd, buf, iLen);	// GetTextAでテキストを取得し, bufに格納.
-		// 日本語ロケールのセット.
-		setlocale(LC_ALL, "Japanese");	// setlocaleで"Japanese"をセット.
-		// ファイル名をマルチバイト文字列に変換.
-		size_t filename_len = wcstombs(NULL, tszPath, _MAX_PATH);	// wcstombsで長さfilename_lenを求める.(filename_lenにNULL文字は含まれない.)
-		char *path = (char *)malloc(sizeof(char) * (filename_len + 1));	// mallocで動的配列を確保し, アドレスをpathに格納.
-		wcstombs(path, tszPath, _MAX_PATH);	// wcstombsでTCHARからマルチバイトへ変換.
-		// ファイル書き込み.
-		write_file_cstdio(path, buf, iLen);	// write_file_cstdioで書き込み.
-		// pathの解放.
-		free(path);	// freeでpathを解放.
-		// bufの解放.
-		free(buf);	// freeでbufを解放.
+		class_c_stdio_utility::write_text_file_cstdio(path, text_str);	// テキストファイルを書き込み.
 
 		// 処理したのでTRUE.
 		return TRUE;	// returnでTRUEを返す.
@@ -202,30 +194,6 @@ BOOL ShowOpenFileDialog(HWND hWnd, LPTSTR lptszFileName, DWORD dwMaxPath){
 
 }
 
-// エディットコントロールのテキストの長さを取得.
-int GetTextLengthA(HWND hWnd){
-
-	// 変数の宣言.
-	HWND hEdit;		// エディットコントロールのウィンドウハンドルhEdit.
-
-	// テキストの長さを取得.
-	hEdit = GetDlgItem(hWnd, (WM_APP + 1));	// GetDlgItemで(WM_APP + 1)を指定してhEditを取得.
-	return GetWindowTextLengthA(hEdit);	// GetWindowTextLengthAで長さを取得し, それを返す.
-
-}
-
-// エディットコントロールのテキストを取得.
-int GetTextA(HWND hWnd, LPSTR lpszText, int iLen){
-
-	// 変数の宣言.
-	HWND hEdit;		// エディットコントロールのウィンドウハンドルhEdit.
-
-	// テキストの長さを取得.
-	hEdit = GetDlgItem(hWnd, (WM_APP + 1));	// GetDlgItemで(WM_APP + 1)を指定してhEditを取得.
-	return GetWindowTextA(hEdit, lpszText, iLen + 1);	// GetWindowTextAでテキストを取得し, lpszTextに格納.(戻り値をそのまま返す.)
-
-}
-
 // "名前を付けて保存"ファイルダイアログの表示.
 BOOL ShowSaveFileDialog(HWND hWnd, LPTSTR lptszFileName, DWORD dwMaxPath){
 
@@ -243,28 +211,5 @@ BOOL ShowSaveFileDialog(HWND hWnd, LPTSTR lptszFileName, DWORD dwMaxPath){
 
 	// "名前を付けて保存"ファイルダイアログの表示.
 	return GetSaveFileName(&ofn);	// GetSaveFileNameで"名前を付けて保存"ファイルダイアログを表示し, 戻り値はそのまま返す.
-
-}
-
-// C標準入出力によるファイルの書き込み.
-int write_file_cstdio(const char *path, const char *buf, size_t file_size){
-
-	// 変数・構造体の初期化.
-	FILE *fp = NULL;	// fpをNULLで初期化.
-	int len = 0;	// 書き込んだバイト数lenを0に初期化.
-
-	// ファイルを開く.
-	fp = fopen(path, "wb");	// fopenでバイナリ書き込みで開く.
-	if (fp != NULL){	// fpがNULLでない時.
-
-		// ファイルの書き込み.
-		len = fwrite(buf, sizeof(char), file_size, fp);	// friteでbufをfpに書き込み, 書き込んだ長さはlenに格納.
-		fclose(fp);	// fcloseでfpを閉じる.
-		return len;	// lenを返す.
-
-	}
-
-	// 書き込めなかったので, -1を返す.
-	return -1;	// returnで-1を返す.
 
 }
