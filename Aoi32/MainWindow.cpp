@@ -10,6 +10,7 @@
 CMainWindow::CMainWindow() : CWindow(){
 
 	// メンバの初期化.
+	m_pMenuBar = NULL;	// m_pMenuBarをNULLで初期化.
 	m_pEdit = NULL;	// m_pEditをNULLで初期化.
 
 }
@@ -22,14 +23,26 @@ CMainWindow::~CMainWindow(){
 		delete m_pEdit;	// deleteでm_pEditを解放.
 		m_pEdit = NULL;	// m_pEditにNULLをセット.
 	}
+	if (m_pMenuBar != NULL){	// m_pMenuBarがNULLでなければ.
+		delete m_pMenuBar;	// deleteでm_pMenuBarを解放.
+		m_pMenuBar = NULL;	// m_pMenuBarにNULLをセット.
+	}
 
 }
 
 // ウィンドウクラス登録関数RegisterClass.
 BOOL CMainWindow::RegisterClass(HINSTANCE hInstance){
 
-	// ウィンドウプロシージャにはCWindow::StaticWndowProc, メニューはIDR_MENU1を使う.
-	return CWindow::RegisterClass(hInstance, _T("CMainWindow"), MAKEINTRESOURCE(IDR_MENU1));	// CWindow::RegisterClassで登録.
+	// メニューはIDR_MENU1を使う.
+	return RegisterClass(hInstance, MAKEINTRESOURCE(IDR_MENU1));	// RegisterClassで登録.
+
+}
+
+// ウィンドウクラス登録関数RegisterClass.(メニュー名指定バージョン.)
+BOOL CMainWindow::RegisterClass(HINSTANCE hInstance, LPCTSTR lpszMenuName){
+
+	// ウィンドウプロシージャにはCWindow::StaticWndowProc, メニューlpszMenuNameを使う.
+	return CWindow::RegisterClass(hInstance, _T("CMainWindow"), lpszMenuName);	// メニュー名を指定する.
 
 }
 
@@ -43,6 +56,15 @@ BOOL CMainWindow::Create(LPCTSTR lpctszWindowName, DWORD dwStyle, int x, int y, 
 
 // ウィンドウの作成が開始された時.
 int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct){
+
+	// メニューバーの作成.
+	m_pMenuBar = new CMenuBar();	// CMenuBarオブジェクトm_pMenuBarを作成.
+
+	// メニューのロード.
+	m_pMenuBar->LoadMenu(lpCreateStruct->hInstance, IDR_MENU1);	// LoadMenuでIDR_MENU1をロード.
+
+	// メニューのセット.
+	m_pMenuBar->SetMenu(hwnd);	// SetMenuでhwndにメニューをセットｂ.
 
 	// エディットコントロールオブジェクトの作成
 	m_pEdit = new CEdit();	// CEditオブジェクトを作成し, ポインタをm_pEditに格納.
@@ -70,104 +92,20 @@ void CMainWindow::OnSize(UINT nType, int cx, int cy){
 // コマンドが発生した時.
 BOOL CMainWindow::OnCommand(WPARAM wParam, LPARAM lParam){
 
-	// コマンドの処理.
-	switch (LOWORD(wParam)){	// LOWORD(wParam)でリソースIDがわかるので, その値ごとに処理を振り分ける.
+	// メニューコマンドかどうかを判定.
+	if (HIWORD(wParam) == 0){	// HIWORD(wParam)が0なのでメニュー.
 
-		// "開く(&O)..."
-		case ID_FILE_OPEN:
+		// メニューオブジェクトのチェック.
+		if (m_pMenuBar != NULL){	// m_pMenuBarがNULLでない場合.
 
-			// ID_FILE_OPENブロック
-			{
+			// OnCommandMenuItemにコマンド処理を任せる.
+			return m_pMenuBar->OnCommandMenuItem(wParam, lParam);	// m_pMenuBar->OnCommandMenuItemを呼び, そのまま返す.
 
-				// OnFileOpenに任せる.
-				return OnFileOpen();	// OnFileOpenの値を返す.
-
-			}
-
-			// 抜ける.
-			break;	// breakで抜ける.
-
-		// "名前を付けて保存(&A)..."
-		case ID_FILE_SAVE_AS:
-
-			// ID_FILE_SAVE_ASブロック
-			{
-
-				// OnFileSaveAsに任せる.
-				return OnFileSaveAs();	// OnFileSaveAsの値を返す.
-
-			}
-					
-			// 抜ける.
-			break;	// breakで抜ける.
-
-		// それ以外.
-		default:
-
-			// 抜ける.
-			break;	// breakで抜ける.
+		}
 
 	}
 
-	// 処理していないのでFALSE.
-	return FALSE;	// returnでFALSEを返す.
-
-}
-
-// "開く"が選択された時.
-BOOL CMainWindow::OnFileOpen(){
-
-	// "開く"ファイルの選択.
-	CFileDialog selDlg(_T("*.txt"), _T("txt"), _T("テキスト文書(*.txt)|*.txt|すべてのファイル(*.*)|*.*||"), OFN_FILEMUSTEXIST);	// CFileDialogオブジェクトselDlgを定義.
-	if (selDlg.ShowOpenFileDialog(m_hWnd)){	// selDlg.ShowOpenFileDialogで"開く"ファイルダイアログを表示.
-
-		// 取得したパスをワイド文字列からマルチバイト文字列へ変換.
-		std::string path = class_cpp_string_utility::encode_wstring_to_string(selDlg.m_tstrPath);	// ワイド文字selDlg.m_tstrPathをマルチバイト文字列のpathに変換.
-
-		// ファイルの読み込み.
-		std::string text_str = class_c_stdio_utility::read_text_file_cstdio(path.c_str());	// テキストファイルを読み込み, 内容をtext_strに格納.
-
-		// マルチバイト文字列からワイド文字に変換.
-		std::wstring text_wstr = class_cpp_string_utility::decode_string_to_wstring(text_str);	// マルチバイト文字列のtext_strをワイド文字列のtext_wstrに変換.
-
-		// エディットコントロールにテキストのセット.
-		m_pEdit->SetText(text_wstr.c_str());	// m_pEdit->SetTextでtext_wstrをセット.
-
-		// 処理したのでTRUE.
-		return TRUE;	// returnでTRUEを返す.
-
-	}
-
-	// 処理していないのでFALSE.
-	return FALSE;	// returnでFALSEを返す.
-
-}
-
-// "名前を付けて保存"が選択された時.
-BOOL CMainWindow::OnFileSaveAs(){
-
-	// "名前を付けて保存"ファイルの選択.
-	CFileDialog selDlg(_T("*.txt"), _T("txt"), _T("テキスト文書(*.txt)|*.txt|すべてのファイル(*.*)|*.*||"), OFN_OVERWRITEPROMPT);	// CFileDialogオブジェクトselDlgを定義.
-	if (selDlg.ShowSaveFileDialog(m_hWnd)){	// selDlg.ShowSaveFileDialogで"名前を付けて保存"ファイルダイアログを表示.
-
-		// 取得したパスをワイド文字列からマルチバイト文字列へ変換.
-		std::string path = class_cpp_string_utility::encode_wstring_to_string(selDlg.m_tstrPath);	// ワイド文字列のselDlg.m_tstrPathをマルチバイト文字列のpathに変換.
-
-		// エディットコントロールからテキストを取得.
-		std::wstring text_wstr = m_pEdit->GetText();	// m_pEdit->GetTextでtext_wstrを取得.
-
-		// ワイド文字からマルチバイト文字列に変換.
-		std::string text_str = class_cpp_string_utility::encode_wstring_to_string(text_wstr);	// ワイド文字のtext_wstrをマルチバイト文字列のtext_strに変換.
-
-		// ファイルの書き込み.
-		class_c_stdio_utility::write_text_file_cstdio(path, text_str);	// テキストファイルを書き込み.
-
-		// 処理したのでTRUE.
-		return TRUE;	// returnでTRUEを返す.
-
-	}
-
-	// 処理していないのでFALSE.
-	return FALSE;	// returnでFALSEを返す.
+	// それ以外はFALSE.
+	return FALSE;	// FALSEを返す.
 
 }
