@@ -183,6 +183,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\c_string_utility.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\cpp_string_utility.cpp"
 				>
 			</File>
@@ -192,6 +196,10 @@
 			</File>
 			<File
 				RelativePath=".\Edit.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\FileDialog.cpp"
 				>
 			</File>
 			<File
@@ -225,6 +233,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\c_string_utility.h"
+				>
+			</File>
+			<File
 				RelativePath=".\cpp_string_utility.h"
 				>
 			</File>
@@ -234,6 +246,10 @@
 			</File>
 			<File
 				RelativePath=".\Edit.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FileDialog.h"
 				>
 			</File>
 			<File

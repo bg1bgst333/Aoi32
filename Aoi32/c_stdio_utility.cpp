@@ -1,6 +1,6 @@
 // ヘッダのインクルード
 // 独自のヘッダ
-#include "c_stdio_utility.h"	// c_stdio_utility.h
+#include "c_stdio_utility.h"	// class_c_stdio_utility
 
 // ファイルサイズの取得.
 size_t class_c_stdio_utility::get_file_size(const char *path){

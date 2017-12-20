@@ -36,8 +36,4 @@ class CMainWindow : public CWindow{
 
 };
 
-// 関数のプロトタイプ宣言.
-BOOL ShowOpenFileDialog(HWND hWnd, LPTSTR lptszFileName, DWORD dwMaxPath);	// "開く"ファイルダイアログの表示.
-BOOL ShowSaveFileDialog(HWND hWnd, LPTSTR lptszFileName, DWORD dwMaxPath);	// "名前を付けて保存"ファイルダイアログの表示.
-
 #endif

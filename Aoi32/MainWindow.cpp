@@ -3,6 +3,7 @@
 #include "MainWindow.h"	// CMainWindow
 #include "c_stdio_utility.h"	// class_c_stdio_utility
 #include "cpp_string_utility.h"	// class_cpp_string_utility
+#include "FileDialog.h"	// CFileDialog
 #include "resource.h"		// リソース
 
 // コンストラクタCMainWindow()
@@ -117,13 +118,11 @@ BOOL CMainWindow::OnCommand(WPARAM wParam, LPARAM lParam){
 BOOL CMainWindow::OnFileOpen(){
 
 	// "開く"ファイルの選択.
-	// 配列の初期化.
-	TCHAR tszPath[_MAX_PATH] = {0};	// ファイルパスtszPathを{0}で初期化.
-	BOOL bRet = ShowOpenFileDialog(m_hWnd, tszPath, _MAX_PATH);	// ShowOpenFileDialogで"開く"ファイルダイアログの表示.
-	if (bRet){	// 選択されたら.
+	CFileDialog selDlg(_T("*.txt"), _T("txt"), _T("テキスト文書(*.txt)|*.txt|すべてのファイル(*.*)|*.*||"), OFN_FILEMUSTEXIST);	// CFileDialogオブジェクトselDlgを定義.
+	if (selDlg.ShowOpenFileDialog(m_hWnd)){	// selDlg.ShowOpenFileDialogで"開く"ファイルダイアログを表示.
 
 		// 取得したパスをワイド文字列からマルチバイト文字列へ変換.
-		std::string path = class_cpp_string_utility::encode_wstring_to_string(tszPath);	// ワイド文字列のtszPathをマルチバイト文字列のpathに変換.
+		std::string path = class_cpp_string_utility::encode_wstring_to_string(selDlg.m_tstrPath);	// ワイド文字selDlg.m_tstrPathをマルチバイト文字列のpathに変換.
 
 		// ファイルの読み込み.
 		std::string text_str = class_c_stdio_utility::read_text_file_cstdio(path.c_str());	// テキストファイルを読み込み, 内容をtext_strに格納.
@@ -136,7 +135,7 @@ BOOL CMainWindow::OnFileOpen(){
 
 		// 処理したのでTRUE.
 		return TRUE;	// returnでTRUEを返す.
-					
+
 	}
 
 	// 処理していないのでFALSE.
@@ -147,14 +146,12 @@ BOOL CMainWindow::OnFileOpen(){
 // "名前を付けて保存"が選択された時.
 BOOL CMainWindow::OnFileSaveAs(){
 
-	// "名前を付けて保存"するファイルの選択.
-	// 配列の初期化.
-	TCHAR tszPath[_MAX_PATH] = {0};	// ファイルパスtszPathを{0}で初期化.
-	BOOL bRet = ShowSaveFileDialog(m_hWnd, tszPath, _MAX_PATH);	// ShowSaveFileDialogで"名前を付けて保存"ファイルダイアログの表示.
-	if (bRet){	// 選択されたら.
+	// "名前を付けて保存"ファイルの選択.
+	CFileDialog selDlg(_T("*.txt"), _T("txt"), _T("テキスト文書(*.txt)|*.txt|すべてのファイル(*.*)|*.*||"), OFN_OVERWRITEPROMPT);	// CFileDialogオブジェクトselDlgを定義.
+	if (selDlg.ShowSaveFileDialog(m_hWnd)){	// selDlg.ShowSaveFileDialogで"名前を付けて保存"ファイルダイアログを表示.
 
 		// 取得したパスをワイド文字列からマルチバイト文字列へ変換.
-		std::string path = class_cpp_string_utility::encode_wstring_to_string(tszPath);	// ワイド文字列のtszPathをマルチバイト文字列のpathに変換.
+		std::string path = class_cpp_string_utility::encode_wstring_to_string(selDlg.m_tstrPath);	// ワイド文字列のselDlg.m_tstrPathをマルチバイト文字列のpathに変換.
 
 		// エディットコントロールからテキストを取得.
 		std::wstring text_wstr = m_pEdit->GetText();	// m_pEdit->GetTextでtext_wstrを取得.
@@ -172,44 +169,5 @@ BOOL CMainWindow::OnFileSaveAs(){
 
 	// 処理していないのでFALSE.
 	return FALSE;	// returnでFALSEを返す.
-
-}
-
-// "開く"ファイルダイアログの表示.
-BOOL ShowOpenFileDialog(HWND hWnd, LPTSTR lptszFileName, DWORD dwMaxPath){
-
-	// 構造体の初期化.
-	OPENFILENAME ofn = {0};	// OPENFILENAME構造体ofnを{0}で初期化.
-
-	// パラメータのセット.
-	ofn.lStructSize = sizeof(OPENFILENAME);	// sizeofでOPENFILENAME構造体のサイズをセット.
-	ofn.hwndOwner = hWnd;	// hWndをセット.
-	ofn.lpstrFilter = _T("テキスト文書(*.txt)\0*.txt\0すべてのファイル(*.*)\0*.*\0\0");	// テキスト文書とすべてのファイルのフィルタをセット.
-	ofn.lpstrFile = lptszFileName;	// lptszFileNameをセット.
-	ofn.nMaxFile = dwMaxPath;	// dwMaxPathをセット.
-	ofn.Flags = OFN_FILEMUSTEXIST;	// ファイルが存在しないと抜けられない.
-
-	// "開く"ファイルダイアログの表示.
-	return GetOpenFileName(&ofn);	// GetOpenFileNameで"開く"ファイルダイアログを表示し, 戻り値はそのまま返す.
-
-}
-
-// "名前を付けて保存"ファイルダイアログの表示.
-BOOL ShowSaveFileDialog(HWND hWnd, LPTSTR lptszFileName, DWORD dwMaxPath){
-
-
-	// 構造体の初期化.
-	OPENFILENAME ofn = {0};	// OPENFILENAME構造体ofnを{0}で初期化.
-
-	// パラメータのセット.
-	ofn.lStructSize = sizeof(OPENFILENAME);	// sizeofでOPENFILENAME構造体のサイズをセット.
-	ofn.hwndOwner = hWnd;	// hWndをセット.
-	ofn.lpstrFilter = _T("テキスト文書(*.txt)\0*.txt\0すべてのファイル(*.*)\0*.*\0\0");
-	ofn.lpstrFile = lptszFileName;	// lptszFileNameをセット.
-	ofn.nMaxFile = dwMaxPath;	// dwMaxPathをセット.
-	ofn.Flags = OFN_OVERWRITEPROMPT;	// 既にファイルがある時, 上書きするかの確認を表示.
-
-	// "名前を付けて保存"ファイルダイアログの表示.
-	return GetSaveFileName(&ofn);	// GetSaveFileNameで"名前を付けて保存"ファイルダイアログを表示し, 戻り値はそのまま返す.
 
 }
