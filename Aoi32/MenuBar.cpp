@@ -54,6 +54,7 @@ BOOL CMenuBar::SetMenu(HWND hWnd){
 
 }
 
+#if 0	// コマンドハンドラの導入によりOnCommandは不要となった.
 // メニューアイテムが選択された時.
 BOOL CMenuBar::OnCommandMenuItem(WPARAM wParam, LPARAM lParam){
 
@@ -160,3 +161,4 @@ BOOL CMenuBar::OnFileSaveAs(){
 	return FALSE;	// returnでFALSEを返す.
 
 }
+#endif

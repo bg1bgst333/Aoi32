@@ -37,6 +37,7 @@ BOOL  CMenuWindow::Create(LPCTSTR lpctszClassName, LPCTSTR lpctszWindowName, DWO
 
 }
 
+#if 0	// コマンドハンドラの導入によりOnCommandは不要となった.
 // コマンドが発生した時.
 BOOL CMenuWindow::OnCommand(WPARAM wParam, LPARAM lParam){
 
@@ -57,3 +58,4 @@ BOOL CMenuWindow::OnCommand(WPARAM wParam, LPARAM lParam){
 	return FALSE;	// FALSEを返す.
 
 }
+#endif

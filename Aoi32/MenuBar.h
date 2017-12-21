@@ -24,9 +24,11 @@ class CMenuBar{
 		// メンバ関数
 		virtual BOOL LoadMenu(HINSTANCE hInstance, UINT nID);	// メニューをリソースからロード.
 		virtual BOOL SetMenu(HWND hWnd);	// メニューのセット.
+#if 0	// コマンドハンドラの導入によりOnCommandは不要となった.
 		virtual BOOL OnCommandMenuItem(WPARAM wParam, LPARAM lParam);	// メニューアイテムが選択された時.
 		BOOL OnFileOpen();	// "開く"が選択された時.
 		BOOL OnFileSaveAs();	// "名前を付けて保存"が選択された時.
+#endif
 
 };
 
