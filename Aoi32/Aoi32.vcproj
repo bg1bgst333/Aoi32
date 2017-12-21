@@ -215,6 +215,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MenuWindow.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Window.cpp"
 				>
 			</File>
@@ -266,6 +270,10 @@
 			</File>
 			<File
 				RelativePath=".\MenuBar.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MenuWindow.h"
 				>
 			</File>
 			<File

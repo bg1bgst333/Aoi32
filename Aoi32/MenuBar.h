@@ -19,7 +19,8 @@ class CMenuBar{
 
 		// publicメンバ関数
 		// コンストラクタ
-		CMenuBar();	// コンストラクタCMenuBar
+		CMenuBar();	// コンストラクタCMenuBar()
+		CMenuBar(HWND hWnd);	// コンストラクタCMenuBar(HWND hWnd)
 		// メンバ関数
 		virtual BOOL LoadMenu(HINSTANCE hInstance, UINT nID);	// メニューをリソースからロード.
 		virtual BOOL SetMenu(HWND hWnd);	// メニューのセット.

@@ -17,6 +17,15 @@ CMenuBar::CMenuBar(){
 
 }
 
+// コンストラクタCMenuBar(HWND hWnd)
+CMenuBar::CMenuBar(HWND hWnd){
+
+	// メンバの初期化.
+	m_hMenu = NULL;	// m_hMenuにNULLをセット.
+	m_hWnd = hWnd;	// m_hWndにhWndをセット.
+
+}
+
 // メニューをリソースからロード.
 BOOL CMenuBar::LoadMenu(HINSTANCE hInstance, UINT nID){
 

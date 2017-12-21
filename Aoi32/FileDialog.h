@@ -42,7 +42,7 @@ class CFileDialog{
 		// メンバ関数
 		BOOL ShowOpenFileDialog(HWND hWnd);	// "開く"ファイルダイアログの表示ShowOpenFileDialog.
 		BOOL ShowSaveFileDialog(HWND hWnd);	// "名前を付けて保存"ファイルダイアログの表示ShowSaveFileDialog.
-
+		
 };
 
 #endif
