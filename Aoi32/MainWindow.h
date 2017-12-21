@@ -14,6 +14,8 @@ class CMainWindow : public CMenuWindow{
 	public:
 
 		// publicメンバ変数
+		tstring m_tstrCurrentFileName;	// 現在読み込んでいるファイル名.(フルパス)
+		tstring m_tstrCurrentFileNameTitle;	// 現在読み込んでいるファイル名.(フルパスの中のファイル名部分だけ.)
 		CEdit *m_pEdit;	// CEditオブジェクトポインタm_pEdit
 
 		// publicメンバ関数
@@ -25,6 +27,7 @@ class CMainWindow : public CMenuWindow{
 		static BOOL RegisterClass(HINSTANCE hInstance, LPCTSTR lpszMenuName);	// ウィンドウクラス登録関数RegisterClass.(メニュー名指定バージョン.)
 		// メンバ関数
 		virtual BOOL Create(LPCTSTR lpctszWindowName, DWORD dwStyle, int x, int y, int iWidth, int iHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance);	// ウィンドウ作成関数Create.(ウィンドウクラス名省略バージョン.)
+		void SetCurrentFileName(LPCTSTR lpctszFileName);	// ファイル読み書きしたら, これでファイルパスをセット.
 		virtual int OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);	// ウィンドウの作成が開始された時.
 		virtual void OnDestroy();	// ウィンドウが破棄された時.
 		virtual void OnSize(UINT nType, int cx, int cy);	// ウィンドウのサイズが変更された時.

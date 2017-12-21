@@ -49,6 +49,25 @@ BOOL CMainWindow::Create(LPCTSTR lpctszWindowName, DWORD dwStyle, int x, int y, 
 
 }
 
+// ファイル読み書きしたら, これでファイルパスをセット.
+void CMainWindow::SetCurrentFileName(LPCTSTR lpctszFileName){
+
+	// ファイルパスをセット.
+	m_tstrCurrentFileName = lpctszFileName;	// m_tstrCurrentFileNameにlpctszFileNameをセット.
+
+	// ファイルタイトルの取得とセット.
+	TCHAR tszFileNameTitle[_MAX_PATH] = {0};	// ファイル名の部分だけを格納するtszFileNameTitleを{0}で初期化.
+	GetFileTitle(lpctszFileName, tszFileNameTitle, _MAX_PATH);	// GetFileTitleでファイルタイトル取得.
+	m_tstrCurrentFileNameTitle = tszFileNameTitle;	// m_tstrCurrentFileNameTitleにtszFileNameTitleをセット.
+
+	// ウィンドウのタイトルにファイル名を表示する.
+	tstring tstrNewWindowTitle;	// 新しいウィンドウのタイトルtstrNewWindowTitle.
+	tstrNewWindowTitle = m_tstrCurrentFileNameTitle;	// ファイルタイトルをセット.
+	tstrNewWindowTitle = tstrNewWindowTitle + _T(" - Aoi");	// " - Aoi"を連結.
+	SetText(tstrNewWindowTitle.c_str());	// SetTextでtstrNewWindowTitleをセット.
+
+}
+
 // ウィンドウの作成が開始された時.
 int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct){
 
@@ -119,12 +138,8 @@ int CMainWindow::OnFileOpen(WPARAM wParam, LPARAM lParam){
 		// エディットコントロールにテキストのセット.
 		m_pEdit->SetText(text_wstr.c_str());	// m_pEdit->SetTextでtext_wstrをセット.
 
-		// ウィンドウのタイトルにファイル名を表示する.
-		TCHAR tszFileNameTitle[_MAX_PATH] = {0};	// ファイル名の部分だけを表すtszFileNameTitleを{0}で初期化.
-		GetFileTitle(selDlg.m_tstrPath.c_str(), tszFileNameTitle, _MAX_PATH);	// GetFileTitleでタイトルを取得.
-		tstring tstrNewWindowTitle = tszFileNameTitle;	// tstrNewWindowTitleにtszFileNameTitleをセット.
-		tstrNewWindowTitle = tstrNewWindowTitle + _T(" - Aoi");	// 新しいタイトルtstrNewWindowTitleは(タイトル) + " - Aoi"とする.
-		SetText(tstrNewWindowTitle.c_str());	// SetTextで(tstrNewWindowTitleをセット.
+		// 読み込んだパスをセット.
+		SetCurrentFileName(selDlg.m_tstrPath.c_str());	// SetCurrentFileNameでカレントパスをセット.
 
 		// 処理したので0.
 		return 0;	// returnで0を返す.
@@ -155,12 +170,8 @@ int CMainWindow::OnFileSaveAs(WPARAM wParam, LPARAM lParam){
 		// ファイルの書き込み.
 		class_c_stdio_utility::write_text_file_cstdio(path, text_str);	// テキストファイルを書き込み.
 
-		// ウィンドウのタイトルにファイル名を表示する.
-		TCHAR tszFileNameTitle[_MAX_PATH] = {0};	// ファイル名の部分だけを表すtszFileNameTitleを{0}で初期化.
-		GetFileTitle(selDlg.m_tstrPath.c_str(), tszFileNameTitle, _MAX_PATH);	// GetFileTitleでタイトルを取得.
-		tstring tstrNewWindowTitle = tszFileNameTitle;	// tstrNewWindowTitleにtszFileNameTitleをセット.
-		tstrNewWindowTitle = tstrNewWindowTitle + _T(" - Aoi");	// 新しいタイトルtstrNewWindowTitleは(タイトル) + " - Aoi"とする.
-		SetText(tstrNewWindowTitle.c_str());	// SetTextで(tstrNewWindowTitleをセット.
+		// 書き込んだパスをセット.
+		SetCurrentFileName(selDlg.m_tstrPath.c_str());	// SetCurrentFileNameでカレントパスをセット.
 
 		// 処理したので0.
 		return 0;	// returnで0を返す.
