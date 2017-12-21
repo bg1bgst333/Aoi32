@@ -119,6 +119,13 @@ int CMainWindow::OnFileOpen(WPARAM wParam, LPARAM lParam){
 		// エディットコントロールにテキストのセット.
 		m_pEdit->SetText(text_wstr.c_str());	// m_pEdit->SetTextでtext_wstrをセット.
 
+		// ウィンドウのタイトルにファイル名を表示する.
+		TCHAR tszFileNameTitle[_MAX_PATH] = {0};	// ファイル名の部分だけを表すtszFileNameTitleを{0}で初期化.
+		GetFileTitle(selDlg.m_tstrPath.c_str(), tszFileNameTitle, _MAX_PATH);	// GetFileTitleでタイトルを取得.
+		tstring tstrNewWindowTitle = tszFileNameTitle;	// tstrNewWindowTitleにtszFileNameTitleをセット.
+		tstrNewWindowTitle = tstrNewWindowTitle + _T(" - Aoi");	// 新しいタイトルtstrNewWindowTitleは(タイトル) + " - Aoi"とする.
+		SetText(tstrNewWindowTitle.c_str());	// SetTextで(tstrNewWindowTitleをセット.
+
 		// 処理したので0.
 		return 0;	// returnで0を返す.
 
@@ -147,6 +154,13 @@ int CMainWindow::OnFileSaveAs(WPARAM wParam, LPARAM lParam){
 
 		// ファイルの書き込み.
 		class_c_stdio_utility::write_text_file_cstdio(path, text_str);	// テキストファイルを書き込み.
+
+		// ウィンドウのタイトルにファイル名を表示する.
+		TCHAR tszFileNameTitle[_MAX_PATH] = {0};	// ファイル名の部分だけを表すtszFileNameTitleを{0}で初期化.
+		GetFileTitle(selDlg.m_tstrPath.c_str(), tszFileNameTitle, _MAX_PATH);	// GetFileTitleでタイトルを取得.
+		tstring tstrNewWindowTitle = tszFileNameTitle;	// tstrNewWindowTitleにtszFileNameTitleをセット.
+		tstrNewWindowTitle = tstrNewWindowTitle + _T(" - Aoi");	// 新しいタイトルtstrNewWindowTitleは(タイトル) + " - Aoi"とする.
+		SetText(tstrNewWindowTitle.c_str());	// SetTextで(tstrNewWindowTitleをセット.
 
 		// 処理したので0.
 		return 0;	// returnで0を返す.
