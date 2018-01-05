@@ -92,3 +92,25 @@ int class_c_stdio_utility::write_text_file_cstdio(const std::string& path, const
 	return write_file_cstdio(path.c_str(), str.c_str(), str.length());	// write_file_cstdioで書き込み.
 
 }
+
+// UnicodeのBOM(unsigned char型配列)の取得.
+int class_c_stdio_utility::get_bom_unicode(const char *path, unsigned char *bom){
+
+	// 構造体の初期化.
+	FILE *fp = NULL;	// fpをNULLで初期化.
+
+	// ファイルを開く.
+	fp = fopen(path, "rb");	// fopenでバイナリ読み込みで開く.
+	if (fp != NULL){	// fpがNULLでない時.
+
+		// BOMの読み込み.
+		fread(bom, sizeof(unsigned char), 3, fp);	// freadでbomを読み込み.
+		fclose(fp);	// fcloseでfpを閉じる.
+		return 0;	// 読み込めたので0を返す.
+
+	}
+
+	// 読み込めなかったので, -1を返す.
+	return -1;	// returnで-1を返す.
+	
+}

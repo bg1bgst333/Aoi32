@@ -22,6 +22,7 @@ class class_c_stdio_utility{
 		static std::string read_text_file_cstdio(const std::string& path);	// テキストファイルの読み込み.
 		static int write_file_cstdio(const char *path, const char *buf, size_t file_size);	// ファイルの書き込み.
 		static int write_text_file_cstdio(const std::string& path, const std::string& str);	// テキストファイルの書き込み.
+		static int get_bom_unicode(const char *path, unsigned char *bom);	// UnicodeのBOM(unsigned char型配列)の取得.
 
 };
 

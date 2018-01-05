@@ -129,21 +129,39 @@ int CMainWindow::OnFileOpen(WPARAM wParam, LPARAM lParam){
 	// "開く"ファイルの選択.
 	CFileDialog selDlg(_T("*.txt"), _T("txt"), _T("テキスト文書(*.txt)|*.txt|すべてのファイル(*.*)|*.*||"), OFN_FILEMUSTEXIST);	// CFileDialogオブジェクトselDlgを定義.
 	if (selDlg.ShowOpenFileDialog(m_hWnd)){	// selDlg.ShowOpenFileDialogで"開く"ファイルダイアログを表示.
-
+		
 		// 取得したパスをワイド文字列からマルチバイト文字列へ変換.
 		std::string path = class_cpp_string_utility::encode_wstring_to_string(selDlg.m_tstrPath);	// ワイド文字selDlg.m_tstrPathをマルチバイト文字列のpathに変換.
 
-		// ファイルの読み込み.
-		std::string text_str = class_c_stdio_utility::read_text_file_cstdio(path.c_str());	// テキストファイルを読み込み, 内容をtext_strに格納.
+		// 配列の初期化.
+		unsigned char bom[3] = {0};	// unsigned char型配列bomを0で初期化.
 
-		// マルチバイト文字列からワイド文字に変換.
-		std::wstring text_wstr = class_cpp_string_utility::decode_string_to_wstring(text_str);	// マルチバイト文字列のtext_strをワイド文字列のtext_wstrに変換.
+		// UnicodeのBOMを取得.
+		class_c_stdio_utility::get_bom_unicode(path.c_str(), bom);	// pathのファイルのBOMを読み込み, bomに格納.
+		if (bom[0] == 0xff && bom[1] == 0xfe){	// 最初が0xff, 次が0xfeなら, Unicodeとする.
 
-		// エディットコントロールにテキストのセット.
-		m_pEdit->SetText(text_wstr.c_str());	// m_pEdit->SetTextでtext_wstrをセット.
+			// Unicodeにマークを付ける.
+			CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, ID_ENC_UNICODE, ID_ENC_UNICODE, MF_BYCOMMAND);	// CheckMenuRadioItemでID_ENC_UNICODEにマークを付ける.
+			
+		}
+		else{	// Shift_JISとする.
 
-		// 読み込んだパスをセット.
-		SetCurrentFileName(selDlg.m_tstrPath.c_str());	// SetCurrentFileNameでカレントパスをセット.
+			// Shift_JIS(このメニューアイテム)にマークを付ける.
+			CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, ID_ENC_UNICODE, ID_ENC_SHIFT_JIS, MF_BYCOMMAND);	// CheckMenuRadioItemでID_ENC_SHIFT_JISにマークを付ける.
+
+			// ファイルの読み込み.
+			std::string text_str = class_c_stdio_utility::read_text_file_cstdio(path.c_str());	// テキストファイルを読み込み, 内容をtext_strに格納.
+
+			// マルチバイト文字列からワイド文字に変換.
+			std::wstring text_wstr = class_cpp_string_utility::decode_string_to_wstring(text_str);	// マルチバイト文字列のtext_strをワイド文字列のtext_wstrに変換.
+
+			// エディットコントロールにテキストのセット.
+			m_pEdit->SetText(text_wstr.c_str());	// m_pEdit->SetTextでtext_wstrをセット.
+
+			// 読み込んだパスをセット.
+			SetCurrentFileName(selDlg.m_tstrPath.c_str());	// SetCurrentFileNameでカレントパスをセット.
+
+		}
 
 		// 処理したので0.
 		return 0;	// returnで0を返す.
