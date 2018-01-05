@@ -180,20 +180,38 @@ int CMainWindow::OnFileSaveAs(WPARAM wParam, LPARAM lParam){
 	CFileDialog selDlg(_T("*.txt"), _T("txt"), _T("テキスト文書(*.txt)|*.txt|すべてのファイル(*.*)|*.*||"), OFN_OVERWRITEPROMPT);	// CFileDialogオブジェクトselDlgを定義.
 	if (selDlg.ShowSaveFileDialog(m_hWnd)){	// selDlg.ShowSaveFileDialogで"名前を付けて保存"ファイルダイアログを表示.
 
-		// 取得したパスをワイド文字列からマルチバイト文字列へ変換.
-		std::string path = class_cpp_string_utility::encode_wstring_to_string(selDlg.m_tstrPath);	// ワイド文字列のselDlg.m_tstrPathをマルチバイト文字列のpathに変換.
+		// 文字コード設定の確認.
+		// Shift_JIS.
+		UINT uiState = GetMenuState(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, MF_BYCOMMAND);	// GetMenuStateで状態を取得し, uiStateに格納.
+		if (uiState & MFS_CHECKED){	// チェックされている場合.
 
-		// エディットコントロールからテキストを取得.
-		std::wstring text_wstr = m_pEdit->GetText();	// m_pEdit->GetTextでtext_wstrを取得.
+			// "Shift_JIS"と表示.
+			MessageBox(NULL, _T("Shift_JIS"), _T("Aoi"), MB_OK | MB_ICONASTERISK);	// MessageBoxで"Shift_JIS"と表示.
 
-		// ワイド文字からマルチバイト文字列に変換.
-		std::string text_str = class_cpp_string_utility::encode_wstring_to_string(text_wstr);	// ワイド文字のtext_wstrをマルチバイト文字列のtext_strに変換.
+			// 取得したパスをワイド文字列からマルチバイト文字列へ変換.
+			std::string path = class_cpp_string_utility::encode_wstring_to_string(selDlg.m_tstrPath);	// ワイド文字列のselDlg.m_tstrPathをマルチバイト文字列のpathに変換.
 
-		// ファイルの書き込み.
-		class_c_stdio_utility::write_text_file_cstdio(path, text_str);	// テキストファイルを書き込み.
+			// エディットコントロールからテキストを取得.
+			std::wstring text_wstr = m_pEdit->GetText();	// m_pEdit->GetTextでtext_wstrを取得.
 
-		// 書き込んだパスをセット.
-		SetCurrentFileName(selDlg.m_tstrPath.c_str());	// SetCurrentFileNameでカレントパスをセット.
+			// ワイド文字からマルチバイト文字列に変換.
+			std::string text_str = class_cpp_string_utility::encode_wstring_to_string(text_wstr);	// ワイド文字のtext_wstrをマルチバイト文字列のtext_strに変換.
+
+			// ファイルの書き込み.
+			class_c_stdio_utility::write_text_file_cstdio(path, text_str);	// テキストファイルを書き込み.
+
+			// 書き込んだパスをセット.
+			SetCurrentFileName(selDlg.m_tstrPath.c_str());	// SetCurrentFileNameでカレントパスをセット.
+
+		}
+		// Unicode.
+		uiState = GetMenuState(m_pMenuBar->m_hMenu, ID_ENC_UNICODE, MF_BYCOMMAND);	// GetMenuStateで状態を取得し, uiStateに格納.
+		if (uiState & MFS_CHECKED){	// チェックされている場合.
+
+			// "Unicode"と表示.
+			MessageBox(NULL, _T("Unicode"), _T("Aoi"), MB_OK | MB_ICONASTERISK);	// MessageBoxで"Unicode"と表示.
+
+		}
 
 		// 処理したので0.
 		return 0;	// returnで0を返す.
