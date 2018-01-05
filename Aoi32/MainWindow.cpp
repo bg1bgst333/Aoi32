@@ -89,6 +89,8 @@ int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct){
 	// メニューハンドラの追加.
 	AddCommandHandler(ID_FILE_OPEN, 0, (int(CWindow::*)(WPARAM, LPARAM))&CMainWindow::OnFileOpen);	// AddCommandHandlerでID_FILE_OPENに対するハンドラCMainWindow::OnFileOpenを登録.
 	AddCommandHandler(ID_FILE_SAVE_AS, 0, (int(CWindow::*)(WPARAM, LPARAM))&CMainWindow::OnFileSaveAs);	// AddCommandHandlerでID_FILE_SAVE_ASに対するハンドラCMainWindow::OnFileSaveAsを登録.
+	AddCommandHandler(ID_ENC_SHIFT_JIS, 0, (int(CWindow::*)(WPARAM, LPARAM))&CMainWindow::OnEncShiftJis);	// AddCommandHandlerでID_ENC_SHIFT_JISに対するハンドラCMainWindow::OnEncShiftJisを登録.
+	AddCommandHandler(ID_ENC_UNICODE, 0, (int(CWindow::*)(WPARAM, LPARAM))&CMainWindow::OnEncUnicode);	// AddCommandHandlerでID_ENC_UNICODEに対するハンドラCMainWindow::OnEncUnicodeを登録.
 
 	// 常にウィンドウ作成に成功するものとする.
 	return 0;	// 0を返すと, ウィンドウ作成に成功したということになる.
@@ -101,6 +103,8 @@ void CMainWindow::OnDestroy(){
 	// メニューハンドラの削除.
 	DeleteCommandHandler(ID_FILE_OPEN, 0);	// DeleteCommandHandlerでID_FILE_OPENのハンドラを削除.
 	DeleteCommandHandler(ID_FILE_SAVE_AS, 0);	// DeleteCommandHandlerでID_FILE_SAVE_ASのハンドラを削除.
+	DeleteCommandHandler(ID_ENC_SHIFT_JIS, 0);	// DeleteCommandHandlerでID_ENC_SHIFT_JISのハンドラを削除.
+	DeleteCommandHandler(ID_ENC_UNICODE, 0);	// DeleteCommandHandlerでID_ENC_UNICODEのハンドラを削除.
 
 	// CWindowのOnDestroyを呼ぶ.
 	CWindow::OnDestroy();	// CWindow::OnDestroyを呼ぶ.
@@ -180,5 +184,27 @@ int CMainWindow::OnFileSaveAs(WPARAM wParam, LPARAM lParam){
 
 	// 処理していないので-1.
 	return -1;	// returnで-1を返す.
+
+}
+
+// "Shift_JIS"を選択された時のハンドラ.
+int CMainWindow::OnEncShiftJis(WPARAM wParam, LPARAM lParam){
+
+	// Shift_JIS(このメニューアイテム)にマークを付ける.
+	CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, ID_ENC_UNICODE, ID_ENC_SHIFT_JIS, MF_BYCOMMAND);	// CheckMenuRadioItemでID_ENC_SHIFT_JISにマークを付ける.
+
+	// 処理したので0.
+	return 0;	// returnで0を返す.
+
+}
+
+// "Unicode"を選択された時のハンドラ.
+int CMainWindow::OnEncUnicode(WPARAM wParam, LPARAM lParam){
+
+	// Unicode(このメニューアイテム)にマークを付ける.
+	CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, ID_ENC_UNICODE, ID_ENC_UNICODE, MF_BYCOMMAND);	// CheckMenuRadioItemでID_ENC_UNICODEにマークを付ける.
+
+	// 処理したので0.
+	return 0;	// returnで0を返す.
 
 }
