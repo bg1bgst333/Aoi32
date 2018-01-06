@@ -7,8 +7,22 @@
 #include "MenuWindow.h"	// CMenuWindow
 #include "Edit.h"		// CEdit
 
+// 列挙型の定義
+// 文字コード
+typedef enum TAG_ENCODING{
+	ENCODING_NONE,
+	ENCODING_SHIFT_JIS,
+	ENCODING_UNICODE
+} ENCODING;
+
 // メインウィンドウクラスCMainWindow
 class CMainWindow : public CMenuWindow{
+
+	// privateメンバ
+	private:
+
+		// privateメンバ変数.
+		ENCODING m_Encoding;	// ENCODING列挙型m_Encoding.
 
 	// publicメンバ
 	public:
@@ -28,6 +42,8 @@ class CMainWindow : public CMenuWindow{
 		// メンバ関数
 		virtual BOOL Create(LPCTSTR lpctszWindowName, DWORD dwStyle, int x, int y, int iWidth, int iHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance);	// ウィンドウ作成関数Create.(ウィンドウクラス名省略バージョン.)
 		void SetCurrentFileName(LPCTSTR lpctszFileName);	// ファイル読み書きしたら, これでファイルパスをセット.
+		void SetEncoding(ENCODING encoding);	// 文字コードのセットSetEncoding.
+		ENCODING GetEncoding();	// 文字コードの取得GetEncoding.
 		virtual int OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);	// ウィンドウの作成が開始された時.
 		virtual void OnDestroy();	// ウィンドウが破棄された時.
 		virtual void OnSize(UINT nType, int cx, int cy);	// ウィンドウのサイズが変更された時.

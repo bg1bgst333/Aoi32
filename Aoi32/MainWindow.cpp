@@ -68,6 +68,65 @@ void CMainWindow::SetCurrentFileName(LPCTSTR lpctszFileName){
 
 }
 
+// 文字コードのセットSetEncoding.
+void CMainWindow::SetEncoding(ENCODING encoding){
+
+
+	// encodingの値ごとに振り分ける.
+	if (encoding == ENCODING_SHIFT_JIS){	// Shift_JIS.
+
+		// Shift_JISにマークを付ける.
+		CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, ID_ENC_UNICODE, ID_ENC_SHIFT_JIS, MF_BYCOMMAND);	// CheckMenuRadioItemでID_ENC_SHIFT_JISにマークを付ける.
+
+	}
+	else if (encoding == ENCODING_UNICODE){	// Unicode.
+
+		// Unicodeにマークを付ける.
+		CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, ID_ENC_UNICODE, ID_ENC_UNICODE, MF_BYCOMMAND);	// CheckMenuRadioItemでID_ENC_UNICODEにマークを付ける.
+
+	}
+
+	// メンバにセット.
+	m_Encoding = encoding;	// m_Encodingにencodingをセット.
+
+}
+
+// 文字コードの取得GetEncoding.
+ENCODING CMainWindow::GetEncoding(){
+
+	// 変数の宣言
+	UINT uiState;	// メニューアイテムの状態.
+
+	// 文字コード設定の確認.
+	// Shift_JIS.
+	uiState = GetMenuState(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, MF_BYCOMMAND);	// GetMenuStateで状態を取得し, uiStateに格納.
+	if (uiState & MFS_CHECKED){	// チェックされている場合.
+
+		// Shift_JISにセットして返す.
+		m_Encoding = ENCODING_SHIFT_JIS;	// m_EncodingにShift_JISをセット.
+
+		// m_Encodingを返す.
+		return m_Encoding;	// returnでm_Encodingを返す.
+
+	}
+	// Unicode.
+	uiState = GetMenuState(m_pMenuBar->m_hMenu, ID_ENC_UNICODE, MF_BYCOMMAND);	// GetMenuStateで状態を取得し, uiStateに格納.
+	if (uiState & MFS_CHECKED){	// チェックされている場合.
+
+		// Unicodeにセットして返す.
+		m_Encoding = ENCODING_UNICODE;	// m_EncodingでUnicodeをセット.
+
+		// m_Encodingを返す.
+		return m_Encoding;	// returnでm_Encodingを返す.
+
+	}
+
+	// どれでもない場合, ENCODING_NONEを返す.
+	m_Encoding = ENCODING_NONE;	// m_EncodingでNoneをセット.
+	return m_Encoding;	// returnでm_Encodingを返す.
+
+}
+
 // ウィンドウの作成が開始された時.
 int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct){
 
@@ -91,6 +150,9 @@ int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct){
 	AddCommandHandler(ID_FILE_SAVE_AS, 0, (int(CWindow::*)(WPARAM, LPARAM))&CMainWindow::OnFileSaveAs);	// AddCommandHandlerでID_FILE_SAVE_ASに対するハンドラCMainWindow::OnFileSaveAsを登録.
 	AddCommandHandler(ID_ENC_SHIFT_JIS, 0, (int(CWindow::*)(WPARAM, LPARAM))&CMainWindow::OnEncShiftJis);	// AddCommandHandlerでID_ENC_SHIFT_JISに対するハンドラCMainWindow::OnEncShiftJisを登録.
 	AddCommandHandler(ID_ENC_UNICODE, 0, (int(CWindow::*)(WPARAM, LPARAM))&CMainWindow::OnEncUnicode);	// AddCommandHandlerでID_ENC_UNICODEに対するハンドラCMainWindow::OnEncUnicodeを登録.
+
+	// 文字コードはデフォルトShift_JISにする.
+	SetEncoding(ENCODING_SHIFT_JIS);	// SetEncodingでShift_JISをセット.
 
 	// 常にウィンドウ作成に成功するものとする.
 	return 0;	// 0を返すと, ウィンドウ作成に成功したということになる.
@@ -140,14 +202,14 @@ int CMainWindow::OnFileOpen(WPARAM wParam, LPARAM lParam){
 		class_c_stdio_utility::get_bom_unicode(path.c_str(), bom);	// pathのファイルのBOMを読み込み, bomに格納.
 		if (bom[0] == 0xff && bom[1] == 0xfe){	// 最初が0xff, 次が0xfeなら, Unicodeとする.
 
-			// Unicodeにマークを付ける.
-			CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, ID_ENC_UNICODE, ID_ENC_UNICODE, MF_BYCOMMAND);	// CheckMenuRadioItemでID_ENC_UNICODEにマークを付ける.
-			
+			// Unicode.
+			SetEncoding(ENCODING_UNICODE);	// SetEncodingでUnicodeをセット.
+
 		}
 		else{	// Shift_JISとする.
 
-			// Shift_JIS(このメニューアイテム)にマークを付ける.
-			CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, ID_ENC_UNICODE, ID_ENC_SHIFT_JIS, MF_BYCOMMAND);	// CheckMenuRadioItemでID_ENC_SHIFT_JISにマークを付ける.
+			// Shift_JIS.
+			SetEncoding(ENCODING_SHIFT_JIS);	// SetEncodingでShift_JISをセット.
 
 			// ファイルの読み込み.
 			std::string text_str = class_c_stdio_utility::read_text_file_cstdio(path.c_str());	// テキストファイルを読み込み, 内容をtext_strに格納.
@@ -181,9 +243,8 @@ int CMainWindow::OnFileSaveAs(WPARAM wParam, LPARAM lParam){
 	if (selDlg.ShowSaveFileDialog(m_hWnd)){	// selDlg.ShowSaveFileDialogで"名前を付けて保存"ファイルダイアログを表示.
 
 		// 文字コード設定の確認.
-		// Shift_JIS.
-		UINT uiState = GetMenuState(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, MF_BYCOMMAND);	// GetMenuStateで状態を取得し, uiStateに格納.
-		if (uiState & MFS_CHECKED){	// チェックされている場合.
+		ENCODING encoding = GetEncoding();	// GetEncodingでencodingを取得.
+		if (encoding == ENCODING_SHIFT_JIS){	// ENCODING_SHIFT_JISの時.
 
 			// "Shift_JIS"と表示.
 			MessageBox(NULL, _T("Shift_JIS"), _T("Aoi"), MB_OK | MB_ICONASTERISK);	// MessageBoxで"Shift_JIS"と表示.
@@ -204,12 +265,16 @@ int CMainWindow::OnFileSaveAs(WPARAM wParam, LPARAM lParam){
 			SetCurrentFileName(selDlg.m_tstrPath.c_str());	// SetCurrentFileNameでカレントパスをセット.
 
 		}
-		// Unicode.
-		uiState = GetMenuState(m_pMenuBar->m_hMenu, ID_ENC_UNICODE, MF_BYCOMMAND);	// GetMenuStateで状態を取得し, uiStateに格納.
-		if (uiState & MFS_CHECKED){	// チェックされている場合.
+		else if (encoding == ENCODING_UNICODE){	// ENCODING_UNICODEの時.
 
 			// "Unicode"と表示.
 			MessageBox(NULL, _T("Unicode"), _T("Aoi"), MB_OK | MB_ICONASTERISK);	// MessageBoxで"Unicode"と表示.
+
+		}
+		else{	// ENCODING_NONEの時.
+
+			// 処理していないので-1.
+			return -1;	// returnで-1を返す.
 
 		}
 
@@ -226,8 +291,8 @@ int CMainWindow::OnFileSaveAs(WPARAM wParam, LPARAM lParam){
 // "Shift_JIS"を選択された時のハンドラ.
 int CMainWindow::OnEncShiftJis(WPARAM wParam, LPARAM lParam){
 
-	// Shift_JIS(このメニューアイテム)にマークを付ける.
-	CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, ID_ENC_UNICODE, ID_ENC_SHIFT_JIS, MF_BYCOMMAND);	// CheckMenuRadioItemでID_ENC_SHIFT_JISにマークを付ける.
+	// Shift_JISをセット.
+	SetEncoding(ENCODING_SHIFT_JIS);	// SetEncodingでShift_JISをセット.
 
 	// 処理したので0.
 	return 0;	// returnで0を返す.
@@ -237,9 +302,9 @@ int CMainWindow::OnEncShiftJis(WPARAM wParam, LPARAM lParam){
 // "Unicode"を選択された時のハンドラ.
 int CMainWindow::OnEncUnicode(WPARAM wParam, LPARAM lParam){
 
-	// Unicode(このメニューアイテム)にマークを付ける.
-	CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, ID_ENC_UNICODE, ID_ENC_UNICODE, MF_BYCOMMAND);	// CheckMenuRadioItemでID_ENC_UNICODEにマークを付ける.
-
+	// Unicodeをセット.
+	SetEncoding(ENCODING_UNICODE);	// SetEncodingでUnicodeをセット.
+	
 	// 処理したので0.
 	return 0;	// returnで0を返す.
 
