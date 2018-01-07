@@ -273,9 +273,6 @@ int CMainWindow::OnFileSaveAs(WPARAM wParam, LPARAM lParam){
 		GetEncoding();	// GetEncodingでエンコーディングを取得.
 		if (m_Encoding == ENCODING_SHIFT_JIS){	// ENCODING_SHIFT_JISの時.
 
-			// "Shift_JIS"と表示.
-			MessageBox(NULL, _T("Shift_JIS"), _T("Aoi"), MB_OK | MB_ICONASTERISK);	// MessageBoxで"Shift_JIS"と表示.
-
 			// 取得したパスをワイド文字列からマルチバイト文字列へ変換.
 			std::string path = class_cpp_string_utility::encode_wstring_to_string(selDlg.m_tstrPath);	// ワイド文字列のselDlg.m_tstrPathをマルチバイト文字列のpathに変換.
 
@@ -294,8 +291,14 @@ int CMainWindow::OnFileSaveAs(WPARAM wParam, LPARAM lParam){
 		}
 		else if (m_Encoding == ENCODING_UNICODE){	// ENCODING_UNICODEの時.
 
-			// "Unicode"と表示.
-			MessageBox(NULL, _T("Unicode"), _T("Aoi"), MB_OK | MB_ICONASTERISK);	// MessageBoxで"Unicode"と表示.
+			// エディットコントロールからテキストを取得.
+			std::wstring text_wstr = m_pEdit->GetText();	// m_pEdit->GetTextでtext_wstrを取得.
+
+			// ファイルの書き込み.
+			class_c_stdio_utility::write_text_file_cstdio(selDlg.m_tstrPath, text_wstr);	// テキストファイルを書き込み.
+
+			// 書き込んだパスをセット.
+			SetCurrentFileName(selDlg.m_tstrPath.c_str());	// SetCurrentFileNameでカレントパスをセット.
 
 		}
 		else{	// ENCODING_NONEの時.

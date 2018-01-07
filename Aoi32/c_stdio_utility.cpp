@@ -54,7 +54,7 @@ int class_c_stdio_utility::read_file_cstdio(const char *path, char *buf, size_t 
 }
 
 // ファイルの読み込み.(wchar_t版.)
-int class_c_stdio_utility::read_file_cstdio(const wchar_t *wpath, wchar_t *buf, size_t wchar_len){
+int class_c_stdio_utility::read_file_cstdio(const wchar_t *wpath, wchar_t *buf, size_t wstr_len){
 
 	// 変数・構造体の初期化.
 	FILE *fp = NULL;	// fpをNULLで初期化.
@@ -66,7 +66,7 @@ int class_c_stdio_utility::read_file_cstdio(const wchar_t *wpath, wchar_t *buf, 
 
 		// ファイルの読み込み.
 		fseek(fp, 2, SEEK_SET);	// fseekで2つ(BOM分)読み飛ばす.
-		len = fread(buf, sizeof(wchar_t), wchar_len, fp);	// freadでfpを読み込み, bufに格納し, 読み込んだ長さはlenに格納.
+		len = fread(buf, sizeof(wchar_t), wstr_len, fp);	// freadでfpを読み込み, bufに格納し, 読み込んだ長さはlenに格納.
 		fclose(fp);	// fcloseでfpを閉じる.
 		return len;	// lenを返す.
 
@@ -107,13 +107,13 @@ std::wstring class_c_stdio_utility::read_text_file_cstdio(const std::wstring& wp
 	size_t file_size = get_file_size(wpath.c_str());	// get_file_sizeでfile_sizeを取得.
 
 	// ワイド文字の長さを求める.
-	size_t wchar_len = (file_size / 2) - 1;	// ファイルサイズの半分からBOM分を引く.
+	size_t wstr_len = (file_size / 2) - 1;	// ファイルサイズの半分からBOM分を引く.
 
 	// バッファを生成.
-	wchar_t *wbuf = (wchar_t *)calloc(wchar_len + 1, sizeof(wchar_t));	// callocでwbufを確保.
+	wchar_t *wbuf = (wchar_t *)calloc(wstr_len + 1, sizeof(wchar_t));	// callocでwbufを確保.
 
 	// ファイル読み込み.
-	int read = read_file_cstdio(wpath.c_str(), wbuf, wchar_len);	// read_file_cstdioで読み込み.
+	int read = read_file_cstdio(wpath.c_str(), wbuf, wstr_len);	// read_file_cstdioで読み込み.
 
 	// wbufをcontent_wstrに代入.
 	std::wstring content_wstr = wbuf;	// content_wstrをwbufで初期化.
@@ -138,7 +138,32 @@ int class_c_stdio_utility::write_file_cstdio(const char *path, const char *buf, 
 	if (fp != NULL){	// fpがNULLでない時.
 
 		// ファイルの書き込み.
-		len = fwrite(buf, sizeof(char), file_size, fp);	// friteでbufをfpに書き込み, 書き込んだ長さはlenに格納.
+		len = fwrite(buf, sizeof(char), file_size, fp);	// fwriteでbufをfpに書き込み, 書き込んだ長さはlenに格納.
+		fclose(fp);	// fcloseでfpを閉じる.
+		return len;	// lenを返す.
+
+	}
+
+	// 書き込めなかったので, -1を返す.
+	return -1;	// returnで-1を返す.
+
+}
+
+// ファイルの書き込み.(wchar_t版.)
+int class_c_stdio_utility::write_file_cstdio(const wchar_t *wpath, const wchar_t *wbuf, size_t wstr_len){
+
+	// 変数・構造体の初期化.
+	FILE *fp = NULL;	// fpをNULLで初期化.
+	int len = 0;	// 書き込んだバイト数lenを0に初期化.
+	
+	// ファイルを開く.
+	fp = _wfopen(wpath, L"wb,ccs=UNICODE");	// _wfopenでバイナリ書き込み(Unicode)で開く.
+	if (fp != NULL){	// fpがNULLでない時.
+
+		// ファイルの書き込み.
+		wchar_t bom = 0xfeff;	// bomを0xfeffで初期化.
+		fwrite(&bom, sizeof(wchar_t), 1, fp);	// fwriteでbomを書き込み.
+		len = fwrite(wbuf, sizeof(wchar_t), wstr_len, fp);	// fwriteでwbufをfpに書き込み, 書き込んだ長さはlenに格納.
 		fclose(fp);	// fcloseでfpを閉じる.
 		return len;	// lenを返す.
 
@@ -154,6 +179,14 @@ int class_c_stdio_utility::write_text_file_cstdio(const std::string& path, const
 
 	// ファイルの書き込み.
 	return write_file_cstdio(path.c_str(), str.c_str(), str.length());	// write_file_cstdioで書き込み.
+
+}
+
+// テキストファイルの書き込み.(wchar_t版.)
+int  class_c_stdio_utility::write_text_file_cstdio(const std::wstring& wpath, const std::wstring& wstr){
+
+	// ファイルの書き込み.
+	return write_file_cstdio(wpath.c_str(), wstr.c_str(), wstr.length());	// write_file_cstdioで書き込み.
 
 }
 
