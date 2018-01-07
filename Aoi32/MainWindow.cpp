@@ -133,11 +133,8 @@ BOM CMainWindow::GetBom(const tstring &path){
 	// 配列の初期化.
 	unsigned char bom[3] = {0};	// unsigned char型配列bomを0で初期化.
 
-	// 取得したパスをワイド文字列からマルチバイト文字列へ変換.
-	std::string str_path = class_cpp_string_utility::encode_wstring_to_string(path);	// ワイド文字pathをマルチバイト文字列のstr_pathに変換.
-
 	// UnicodeのBOMを取得.
-	class_c_stdio_utility::get_bom_unicode(str_path.c_str(), bom);	// str_pathのファイルのBOMを読み込み, bomに格納.
+	class_c_stdio_utility::get_bom_unicode(path.c_str(), bom);	// pathのファイルのBOMを読み込み, bomに格納.
 	if (bom[0] == 0xff && bom[1] == 0xfe){	// 最初が0xff, 次が0xfeなら, Unicodeとする.
 		m_Bom = BOM_UTF16LE;	// UTF16LE.
 	}
@@ -221,7 +218,7 @@ int CMainWindow::OnFileOpen(WPARAM wParam, LPARAM lParam){
 			SetEncoding(ENCODING_UNICODE);	// SetEncodingでUnicodeをセット.
 
 			// ファイルの読み込み.
-			std::wstring text_wstr =  class_c_stdio_utility::read_text_file_cstdio(selDlg.m_tstrPath);	// テキストファイルを読み込み, 内容をtext_wstrに格納.
+			std::wstring text_wstr = class_c_stdio_utility::read_text_file_cstdio_w(selDlg.m_tstrPath);	// テキストファイルを読み込み, 内容をtext_wstrに格納.
 
 			// エディットコントロールにテキストのセット.
 			m_pEdit->SetText(text_wstr.c_str());	// m_pEdit->SetTextでtext_wstrをセット.
@@ -232,14 +229,11 @@ int CMainWindow::OnFileOpen(WPARAM wParam, LPARAM lParam){
 		}
 		else{	// Shift_JISとする.
 
-			// 取得したパスをワイド文字列からマルチバイト文字列へ変換.
-			std::string path = class_cpp_string_utility::encode_wstring_to_string(selDlg.m_tstrPath);	// ワイド文字selDlg.m_tstrPathをマルチバイト文字列のpathに変換.
-
 			// Shift_JIS.
 			SetEncoding(ENCODING_SHIFT_JIS);	// SetEncodingでShift_JISをセット.
 
 			// ファイルの読み込み.
-			std::string text_str = class_c_stdio_utility::read_text_file_cstdio(path.c_str());	// テキストファイルを読み込み, 内容をtext_strに格納.
+			std::string text_str = class_c_stdio_utility::read_text_file_cstdio_a(selDlg.m_tstrPath);	// テキストファイルを読み込み, 内容をtext_strに格納.
 
 			// マルチバイト文字列からワイド文字に変換.
 			std::wstring text_wstr = class_cpp_string_utility::decode_string_to_wstring(text_str);	// マルチバイト文字列のtext_strをワイド文字列のtext_wstrに変換.
@@ -273,9 +267,6 @@ int CMainWindow::OnFileSaveAs(WPARAM wParam, LPARAM lParam){
 		GetEncoding();	// GetEncodingでエンコーディングを取得.
 		if (m_Encoding == ENCODING_SHIFT_JIS){	// ENCODING_SHIFT_JISの時.
 
-			// 取得したパスをワイド文字列からマルチバイト文字列へ変換.
-			std::string path = class_cpp_string_utility::encode_wstring_to_string(selDlg.m_tstrPath);	// ワイド文字列のselDlg.m_tstrPathをマルチバイト文字列のpathに変換.
-
 			// エディットコントロールからテキストを取得.
 			std::wstring text_wstr = m_pEdit->GetText();	// m_pEdit->GetTextでtext_wstrを取得.
 
@@ -283,7 +274,7 @@ int CMainWindow::OnFileSaveAs(WPARAM wParam, LPARAM lParam){
 			std::string text_str = class_cpp_string_utility::encode_wstring_to_string(text_wstr);	// ワイド文字のtext_wstrをマルチバイト文字列のtext_strに変換.
 
 			// ファイルの書き込み.
-			class_c_stdio_utility::write_text_file_cstdio(path, text_str);	// テキストファイルを書き込み.
+			class_c_stdio_utility::write_text_file_cstdio(selDlg.m_tstrPath, text_str);	// テキストファイルを書き込み.
 
 			// 書き込んだパスをセット.
 			SetCurrentFileName(selDlg.m_tstrPath.c_str());	// SetCurrentFileNameでカレントパスをセット.

@@ -2,20 +2,6 @@
 // 独自のヘッダ
 #include "c_stdio_utility.h"	// class_c_stdio_utility
 
-// ファイルサイズの取得.
-size_t class_c_stdio_utility::get_file_size(const char *path){
-
-	// 構造体の初期化.
-	struct _stat st = {0};	// _stat構造体stを{0}で初期化.
-
-	// ファイル情報の取得.
-	_stat(path, &st);	// _statでpathで示されたファイルの情報をstに格納.
-
-	// ファイルサイズを返す.
-	return st.st_size;	// returnでst.st_sizeを返す.
-
-}
-
 // ファイルサイズの取得.(wchar_t版.)
 size_t class_c_stdio_utility::get_file_size(const wchar_t *wpath){
 
@@ -31,14 +17,14 @@ size_t class_c_stdio_utility::get_file_size(const wchar_t *wpath){
 }
 
 // ファイルの読み込み.
-int class_c_stdio_utility::read_file_cstdio(const char *path, char *buf, size_t file_size){
+int class_c_stdio_utility::read_file_cstdio(const wchar_t *wpath, char *buf, size_t file_size){
 	
 	// 変数・構造体の初期化.
 	FILE *fp = NULL;	// fpをNULLで初期化.
 	int len = 0;	// 読み込んだバイト数lenを0に初期化.
 
 	// ファイルを開く.
-	fp = fopen(path, "rb");	// fopenでバイナリ読み込みで開く.
+	fp = _wfopen(wpath, L"rb");	// fopenでバイナリ読み込みで開く.
 	if (fp != NULL){	// fpがNULLでない時.
 
 		// ファイルの読み込み.
@@ -78,16 +64,16 @@ int class_c_stdio_utility::read_file_cstdio(const wchar_t *wpath, wchar_t *buf, 
 }
 
 // テキストファイルの読み込み.
-std::string class_c_stdio_utility::read_text_file_cstdio(const std::string& path){
+std::string class_c_stdio_utility::read_text_file_cstdio_a(const std::wstring& wpath){
 
 	// ファイルサイズの取得.
-	size_t file_size = get_file_size(path.c_str());	// get_file_sizeでfile_sizeを取得.
+	size_t file_size = get_file_size(wpath.c_str());	// get_file_sizeでfile_sizeを取得.
 
 	// バッファを生成.
 	char *buf = (char *)calloc(file_size + 1, sizeof(char));	// callocでbufを確保.
 
 	// ファイル読み込み.
-	int read = read_file_cstdio(path.c_str(), buf, file_size);	// read_file_cstdioで読み込み.
+	int read = read_file_cstdio(wpath.c_str(), buf, file_size);	// read_file_cstdioで読み込み.
 
 	// bufをcontent_strに代入.
 	std::string content_str = buf;	// content_strをbufで初期化.
@@ -101,7 +87,7 @@ std::string class_c_stdio_utility::read_text_file_cstdio(const std::string& path
 }
 
 // テキストファイルの読み込み.(wchar_t版.)
-std::wstring class_c_stdio_utility::read_text_file_cstdio(const std::wstring& wpath){
+std::wstring class_c_stdio_utility::read_text_file_cstdio_w(const std::wstring& wpath){
 
 	// ファイルサイズの取得.
 	size_t file_size = get_file_size(wpath.c_str());	// get_file_sizeでfile_sizeを取得.
@@ -127,14 +113,14 @@ std::wstring class_c_stdio_utility::read_text_file_cstdio(const std::wstring& wp
 }
 
 // ファイルの書き込み.
-int class_c_stdio_utility::write_file_cstdio(const char *path, const char *buf, size_t file_size){
+int class_c_stdio_utility::write_file_cstdio(const wchar_t *wpath, const char *buf, size_t file_size){
 
 	// 変数・構造体の初期化.
 	FILE *fp = NULL;	// fpをNULLで初期化.
 	int len = 0;	// 書き込んだバイト数lenを0に初期化.
 
 	// ファイルを開く.
-	fp = fopen(path, "wb");	// fopenでバイナリ書き込みで開く.
+	fp = _wfopen(wpath, L"wb");	// _wfopenでバイナリ書き込みで開く.
 	if (fp != NULL){	// fpがNULLでない時.
 
 		// ファイルの書き込み.
@@ -175,10 +161,10 @@ int class_c_stdio_utility::write_file_cstdio(const wchar_t *wpath, const wchar_t
 }
 
 // テキストファイルの書き込み.
-int class_c_stdio_utility::write_text_file_cstdio(const std::string& path, const std::string& str){
+int class_c_stdio_utility::write_text_file_cstdio(const std::wstring& wpath, const std::string& str){
 
 	// ファイルの書き込み.
-	return write_file_cstdio(path.c_str(), str.c_str(), str.length());	// write_file_cstdioで書き込み.
+	return write_file_cstdio(wpath.c_str(), str.c_str(), str.length());	// write_file_cstdioで書き込み.
 
 }
 
@@ -191,13 +177,13 @@ int  class_c_stdio_utility::write_text_file_cstdio(const std::wstring& wpath, co
 }
 
 // UnicodeのBOM(unsigned char型配列)の取得.
-int class_c_stdio_utility::get_bom_unicode(const char *path, unsigned char *bom){
+int class_c_stdio_utility::get_bom_unicode(const wchar_t *wpath, unsigned char *bom){
 
 	// 構造体の初期化.
 	FILE *fp = NULL;	// fpをNULLで初期化.
 
 	// ファイルを開く.
-	fp = fopen(path, "rb");	// fopenでバイナリ読み込みで開く.
+	fp = _wfopen(wpath, L"rb");	// fopenでバイナリ読み込みで開く.
 	if (fp != NULL){	// fpがNULLでない時.
 
 		// BOMの読み込み.
