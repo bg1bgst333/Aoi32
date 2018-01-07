@@ -220,6 +220,15 @@ int CMainWindow::OnFileOpen(WPARAM wParam, LPARAM lParam){
 			// Unicode.
 			SetEncoding(ENCODING_UNICODE);	// SetEncodingでUnicodeをセット.
 
+			// ファイルの読み込み.
+			std::wstring text_wstr =  class_c_stdio_utility::read_text_file_cstdio(selDlg.m_tstrPath);	// テキストファイルを読み込み, 内容をtext_wstrに格納.
+
+			// エディットコントロールにテキストのセット.
+			m_pEdit->SetText(text_wstr.c_str());	// m_pEdit->SetTextでtext_wstrをセット.
+
+			// 読み込んだパスをセット.
+			SetCurrentFileName(selDlg.m_tstrPath.c_str());	// SetCurrentFileNameでカレントパスをセット.
+
 		}
 		else{	// Shift_JISとする.
 
