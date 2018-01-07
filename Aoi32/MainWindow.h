@@ -14,6 +14,11 @@ typedef enum TAG_ENCODING{
 	ENCODING_SHIFT_JIS,
 	ENCODING_UNICODE
 } ENCODING;
+// BOM
+typedef enum TAG_BOM{
+	BOM_NONE,
+	BOM_UTF16LE
+} BOM;
 
 // メインウィンドウクラスCMainWindow
 class CMainWindow : public CMenuWindow{
@@ -23,6 +28,7 @@ class CMainWindow : public CMenuWindow{
 
 		// privateメンバ変数.
 		ENCODING m_Encoding;	// ENCODING列挙型m_Encoding.
+		BOM m_Bom;	// BOM列挙型m_Bom.
 
 	// publicメンバ
 	public:
@@ -44,6 +50,7 @@ class CMainWindow : public CMenuWindow{
 		void SetCurrentFileName(LPCTSTR lpctszFileName);	// ファイル読み書きしたら, これでファイルパスをセット.
 		void SetEncoding(ENCODING encoding);	// 文字コードのセットSetEncoding.
 		ENCODING GetEncoding();	// 文字コードの取得GetEncoding.
+		BOM GetBom(const tstring &path);	// BOMの取得GetBom.
 		virtual int OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);	// ウィンドウの作成が開始された時.
 		virtual void OnDestroy();	// ウィンドウが破棄された時.
 		virtual void OnSize(UINT nType, int cx, int cy);	// ウィンドウのサイズが変更された時.

@@ -127,6 +127,27 @@ ENCODING CMainWindow::GetEncoding(){
 
 }
 
+// BOMの取得GetBom.
+BOM CMainWindow::GetBom(const tstring &path){
+
+	// 配列の初期化.
+	unsigned char bom[3] = {0};	// unsigned char型配列bomを0で初期化.
+
+	// 取得したパスをワイド文字列からマルチバイト文字列へ変換.
+	std::string str_path = class_cpp_string_utility::encode_wstring_to_string(path);	// ワイド文字pathをマルチバイト文字列のstr_pathに変換.
+
+	// UnicodeのBOMを取得.
+	class_c_stdio_utility::get_bom_unicode(str_path.c_str(), bom);	// str_pathのファイルのBOMを読み込み, bomに格納.
+	if (bom[0] == 0xff && bom[1] == 0xfe){	// 最初が0xff, 次が0xfeなら, Unicodeとする.
+		m_Bom = BOM_UTF16LE;	// UTF16LE.
+	}
+	else{
+		m_Bom = BOM_NONE;	// BOMなし.
+	}
+	return m_Bom;	// m_Bomを返す.
+
+}
+
 // ウィンドウの作成が開始された時.
 int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct){
 
@@ -192,21 +213,18 @@ int CMainWindow::OnFileOpen(WPARAM wParam, LPARAM lParam){
 	CFileDialog selDlg(_T("*.txt"), _T("txt"), _T("テキスト文書(*.txt)|*.txt|すべてのファイル(*.*)|*.*||"), OFN_FILEMUSTEXIST);	// CFileDialogオブジェクトselDlgを定義.
 	if (selDlg.ShowOpenFileDialog(m_hWnd)){	// selDlg.ShowOpenFileDialogで"開く"ファイルダイアログを表示.
 		
-		// 取得したパスをワイド文字列からマルチバイト文字列へ変換.
-		std::string path = class_cpp_string_utility::encode_wstring_to_string(selDlg.m_tstrPath);	// ワイド文字selDlg.m_tstrPathをマルチバイト文字列のpathに変換.
-
-		// 配列の初期化.
-		unsigned char bom[3] = {0};	// unsigned char型配列bomを0で初期化.
-
-		// UnicodeのBOMを取得.
-		class_c_stdio_utility::get_bom_unicode(path.c_str(), bom);	// pathのファイルのBOMを読み込み, bomに格納.
-		if (bom[0] == 0xff && bom[1] == 0xfe){	// 最初が0xff, 次が0xfeなら, Unicodeとする.
+		// BOMを取得し, Unicodeかどうか判断.
+		GetBom(selDlg.m_tstrPath);	// GetBomでBOMを取得.
+		if (m_Bom == BOM_UTF16LE){	// Unicodeとする.
 
 			// Unicode.
 			SetEncoding(ENCODING_UNICODE);	// SetEncodingでUnicodeをセット.
 
 		}
 		else{	// Shift_JISとする.
+
+			// 取得したパスをワイド文字列からマルチバイト文字列へ変換.
+			std::string path = class_cpp_string_utility::encode_wstring_to_string(selDlg.m_tstrPath);	// ワイド文字selDlg.m_tstrPathをマルチバイト文字列のpathに変換.
 
 			// Shift_JIS.
 			SetEncoding(ENCODING_SHIFT_JIS);	// SetEncodingでShift_JISをセット.
@@ -243,8 +261,8 @@ int CMainWindow::OnFileSaveAs(WPARAM wParam, LPARAM lParam){
 	if (selDlg.ShowSaveFileDialog(m_hWnd)){	// selDlg.ShowSaveFileDialogで"名前を付けて保存"ファイルダイアログを表示.
 
 		// 文字コード設定の確認.
-		ENCODING encoding = GetEncoding();	// GetEncodingでencodingを取得.
-		if (encoding == ENCODING_SHIFT_JIS){	// ENCODING_SHIFT_JISの時.
+		GetEncoding();	// GetEncodingでエンコーディングを取得.
+		if (m_Encoding == ENCODING_SHIFT_JIS){	// ENCODING_SHIFT_JISの時.
 
 			// "Shift_JIS"と表示.
 			MessageBox(NULL, _T("Shift_JIS"), _T("Aoi"), MB_OK | MB_ICONASTERISK);	// MessageBoxで"Shift_JIS"と表示.
@@ -265,7 +283,7 @@ int CMainWindow::OnFileSaveAs(WPARAM wParam, LPARAM lParam){
 			SetCurrentFileName(selDlg.m_tstrPath.c_str());	// SetCurrentFileNameでカレントパスをセット.
 
 		}
-		else if (encoding == ENCODING_UNICODE){	// ENCODING_UNICODEの時.
+		else if (m_Encoding == ENCODING_UNICODE){	// ENCODING_UNICODEの時.
 
 			// "Unicode"と表示.
 			MessageBox(NULL, _T("Unicode"), _T("Aoi"), MB_OK | MB_ICONASTERISK);	// MessageBoxで"Unicode"と表示.
