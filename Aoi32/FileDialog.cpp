@@ -8,8 +8,9 @@ CFileDialog::CFileDialog(LPCTSTR lpctszDefFileName, LPCTSTR lpctszExt, LPCTSTR l
 
 	// メンバのセット.
 	// デフォルトファイル名.
-	if (lpctszDefFileName == NULL){	// NULLなら.
-		m_tstrDefFileName = _T("");	// m_tstrDefFileNameに""をセット.
+	if (lpctszDefFileName == NULL || _tcscmp(lpctszDefFileName, _T("")) == 0){	// NULLまたは空文字列の場合.
+		m_tstrDefFileName = _T("*.");	// "*."をセット.
+		m_tstrDefFileName = m_tstrDefFileName + lpctszExt;	// lpctszExtを連結. 
 	}
 	else{	// そうでない場合.
 		m_tstrDefFileName = lpctszDefFileName;	// デフォルトファイル名lpctszDefFileNameをセット.

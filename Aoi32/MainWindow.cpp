@@ -207,7 +207,7 @@ void CMainWindow::OnSize(UINT nType, int cx, int cy){
 int CMainWindow::OnFileOpen(WPARAM wParam, LPARAM lParam){
 
 	// "開く"ファイルの選択.
-	CFileDialog selDlg(_T("*.txt"), _T("txt"), _T("テキスト文書(*.txt)|*.txt|すべてのファイル(*.*)|*.*||"), OFN_FILEMUSTEXIST);	// CFileDialogオブジェクトselDlgを定義.
+	CFileDialog selDlg(m_tstrCurrentFileName.c_str(), _T("txt"), _T("テキスト文書(*.txt)|*.txt|すべてのファイル(*.*)|*.*||"), OFN_FILEMUSTEXIST);	// CFileDialogオブジェクトselDlgを定義.
 	if (selDlg.ShowOpenFileDialog(m_hWnd)){	// selDlg.ShowOpenFileDialogで"開く"ファイルダイアログを表示.
 		
 		// BOMを取得し, Unicodeかどうか判断.
@@ -260,7 +260,7 @@ int CMainWindow::OnFileOpen(WPARAM wParam, LPARAM lParam){
 int CMainWindow::OnFileSaveAs(WPARAM wParam, LPARAM lParam){
 
 	// "名前を付けて保存"ファイルの選択.
-	CFileDialog selDlg(_T("*.txt"), _T("txt"), _T("テキスト文書(*.txt)|*.txt|すべてのファイル(*.*)|*.*||"), OFN_OVERWRITEPROMPT);	// CFileDialogオブジェクトselDlgを定義.
+	CFileDialog selDlg(m_tstrCurrentFileName.c_str(), _T("txt"), _T("テキスト文書(*.txt)|*.txt|すべてのファイル(*.*)|*.*||"), OFN_OVERWRITEPROMPT);	// CFileDialogオブジェクトselDlgを定義.
 	if (selDlg.ShowSaveFileDialog(m_hWnd)){	// selDlg.ShowSaveFileDialogで"名前を付けて保存"ファイルダイアログを表示.
 
 		// 文字コード設定の確認.
