@@ -11,6 +11,7 @@ CMainWindow::CMainWindow() : CMenuWindow(){
 
 	// メンバの初期化.
 	m_pEdit = NULL;	// m_pEditをNULLで初期化.
+	m_pTextFile = NULL;	// m_pTextFileをNULLで初期化.
 
 }
 
@@ -18,6 +19,10 @@ CMainWindow::CMainWindow() : CMenuWindow(){
 CMainWindow::~CMainWindow(){
 
 	// メンバの終了処理
+	if (m_pTextFile != NULL){	// m_pTextFileがNULLでなければ.
+		delete m_pTextFile;	// deleteでm_pTextFileを解放.
+		m_pTextFile = NULL;	// m_pTextFileにNULLをセット.
+	}
 	if (m_pEdit != NULL){	// m_pEditがNULLでなければ.
 		delete m_pEdit;	// deleteでm_pEditを解放.
 		m_pEdit = NULL;	// m_pEditにNULLをセット.
@@ -68,6 +73,8 @@ void CMainWindow::SetCurrentFileName(LPCTSTR lpctszFileName){
 
 }
 
+// 標準入出力版は使わない.
+#if 0
 // 文字コードのセットSetEncoding.
 void CMainWindow::SetEncoding(ENCODING encoding){
 
@@ -144,6 +151,7 @@ BOM CMainWindow::GetBom(const tstring &path){
 	return m_Bom;	// m_Bomを返す.
 
 }
+#endif
 
 // ウィンドウの作成が開始された時.
 int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct){
@@ -169,8 +177,19 @@ int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct){
 	AddCommandHandler(ID_ENC_SHIFT_JIS, 0, (int(CWindow::*)(WPARAM, LPARAM))&CMainWindow::OnEncShiftJis);	// AddCommandHandlerでID_ENC_SHIFT_JISに対するハンドラCMainWindow::OnEncShiftJisを登録.
 	AddCommandHandler(ID_ENC_UNICODE, 0, (int(CWindow::*)(WPARAM, LPARAM))&CMainWindow::OnEncUnicode);	// AddCommandHandlerでID_ENC_UNICODEに対するハンドラCMainWindow::OnEncUnicodeを登録.
 
+	// テキストファイルオブジェクトの作成.
+	m_pTextFile = new CTextFile();	// m_pTextFileを生成.
+
+// 標準入出力版は使わない.
+#if 0
 	// 文字コードはデフォルトShift_JISにする.
 	SetEncoding(ENCODING_SHIFT_JIS);	// SetEncodingでShift_JISをセット.
+#else
+	// デフォルトはUnicodeにセット.
+	m_pTextFile->m_Bom = CTextFile::BOM_UTF16LE;	// BOMはUTF16LEとする.
+	m_pTextFile->m_Encoding = CTextFile::ENCODING_UNICODE;	// EncodingはUnicodeとする.
+	CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, ID_ENC_UNICODE, ID_ENC_UNICODE, MF_BYCOMMAND);	// CheckMenuRadioItemでID_ENC_UNICODEにマークを付ける.
+#endif
 
 	// 常にウィンドウ作成に成功するものとする.
 	return 0;	// 0を返すと, ウィンドウ作成に成功したということになる.
@@ -209,7 +228,16 @@ int CMainWindow::OnFileOpen(WPARAM wParam, LPARAM lParam){
 	// "開く"ファイルの選択.
 	CFileDialog selDlg(m_tstrCurrentFileName.c_str(), _T("txt"), _T("テキスト文書(*.txt)|*.txt|すべてのファイル(*.*)|*.*||"), OFN_FILEMUSTEXIST);	// CFileDialogオブジェクトselDlgを定義.
 	if (selDlg.ShowOpenFileDialog(m_hWnd)){	// selDlg.ShowOpenFileDialogで"開く"ファイルダイアログを表示.
-		
+
+		// WindowsAPI版に差し替え.
+#if 1
+		// WindowsAPI版.
+		if (m_pTextFile->Read(selDlg.m_tstrPath.c_str())){	// m_pTextFile->Readで読み込み.
+			m_pEdit->SetText(m_pTextFile->m_tstrText.c_str());
+			CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, ID_ENC_UNICODE, ID_ENC_UNICODE, MF_BYCOMMAND);	// CheckMenuRadioItemでID_ENC_UNICODEにマークを付ける.
+		}
+#else
+		// 標準入出力版.
 		// BOMを取得し, Unicodeかどうか判断.
 		GetBom(selDlg.m_tstrPath);	// GetBomでBOMを取得.
 		if (m_Bom == BOM_UTF16LE){	// Unicodeとする.
@@ -245,6 +273,7 @@ int CMainWindow::OnFileOpen(WPARAM wParam, LPARAM lParam){
 			SetCurrentFileName(selDlg.m_tstrPath.c_str());	// SetCurrentFileNameでカレントパスをセット.
 
 		}
+#endif
 
 		// 処理したので0.
 		return 0;	// returnで0を返す.
@@ -263,6 +292,11 @@ int CMainWindow::OnFileSaveAs(WPARAM wParam, LPARAM lParam){
 	CFileDialog selDlg(m_tstrCurrentFileName.c_str(), _T("txt"), _T("テキスト文書(*.txt)|*.txt|すべてのファイル(*.*)|*.*||"), OFN_OVERWRITEPROMPT);	// CFileDialogオブジェクトselDlgを定義.
 	if (selDlg.ShowSaveFileDialog(m_hWnd)){	// selDlg.ShowSaveFileDialogで"名前を付けて保存"ファイルダイアログを表示.
 
+		// WindowsAPI版に差し替え.
+#if 1
+		// WindowsAPI版.
+#else
+		// 標準入出力版.
 		// 文字コード設定の確認.
 		GetEncoding();	// GetEncodingでエンコーディングを取得.
 		if (m_Encoding == ENCODING_SHIFT_JIS){	// ENCODING_SHIFT_JISの時.
@@ -298,6 +332,7 @@ int CMainWindow::OnFileSaveAs(WPARAM wParam, LPARAM lParam){
 			return -1;	// returnで-1を返す.
 
 		}
+#endif
 
 		// 処理したので0.
 		return 0;	// returnで0を返す.
@@ -312,8 +347,11 @@ int CMainWindow::OnFileSaveAs(WPARAM wParam, LPARAM lParam){
 // "Shift_JIS"を選択された時のハンドラ.
 int CMainWindow::OnEncShiftJis(WPARAM wParam, LPARAM lParam){
 
+	// 標準入出力版は使わない.
+#if 0
 	// Shift_JISをセット.
 	SetEncoding(ENCODING_SHIFT_JIS);	// SetEncodingでShift_JISをセット.
+#endif
 
 	// 処理したので0.
 	return 0;	// returnで0を返す.
@@ -323,9 +361,17 @@ int CMainWindow::OnEncShiftJis(WPARAM wParam, LPARAM lParam){
 // "Unicode"を選択された時のハンドラ.
 int CMainWindow::OnEncUnicode(WPARAM wParam, LPARAM lParam){
 
+		// 標準入出力版は使わない.
+#if 0
 	// Unicodeをセット.
 	SetEncoding(ENCODING_UNICODE);	// SetEncodingでUnicodeをセット.
-	
+#else
+	// Unicodeをセット.
+	m_pTextFile->m_Bom = CTextFile::BOM_UTF16LE;	// BOMはUTF16LEとする.
+	m_pTextFile->m_Encoding = CTextFile::ENCODING_UNICODE;	// EncodingはUnicodeとする.
+	CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, ID_ENC_UNICODE, ID_ENC_UNICODE, MF_BYCOMMAND);	// CheckMenuRadioItemでID_ENC_UNICODEにマークを付ける.
+#endif
+
 	// 処理したので0.
 	return 0;	// returnで0を返す.
 

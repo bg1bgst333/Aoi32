@@ -6,7 +6,10 @@
 // 独自のヘッダ
 #include "MenuWindow.h"	// CMenuWindow
 #include "Edit.h"		// CEdit
+#include "TextFile.h"	// CTextFile
 
+// 標準入出力版は使わない.
+#if 0
 // 列挙型の定義
 // 文字コード
 typedef enum TAG_ENCODING{
@@ -19,6 +22,7 @@ typedef enum TAG_BOM{
 	BOM_NONE,
 	BOM_UTF16LE
 } BOM;
+#endif
 
 // メインウィンドウクラスCMainWindow
 class CMainWindow : public CMenuWindow{
@@ -26,9 +30,12 @@ class CMainWindow : public CMenuWindow{
 	// privateメンバ
 	private:
 
+// 標準入出力版は使わない.
+#if 0
 		// privateメンバ変数.
 		ENCODING m_Encoding;	// ENCODING列挙型m_Encoding.
 		BOM m_Bom;	// BOM列挙型m_Bom.
+#endif
 
 	// publicメンバ
 	public:
@@ -37,6 +44,7 @@ class CMainWindow : public CMenuWindow{
 		tstring m_tstrCurrentFileName;	// 現在読み込んでいるファイル名.(フルパス)
 		tstring m_tstrCurrentFileNameTitle;	// 現在読み込んでいるファイル名.(フルパスの中のファイル名部分だけ.)
 		CEdit *m_pEdit;	// CEditオブジェクトポインタm_pEdit
+		CTextFile *m_pTextFile;	// CTextFileオブジェクトポインタm_pTextFile.
 
 		// publicメンバ関数
 		// コンストラクタ・デストラクタ
@@ -48,9 +56,12 @@ class CMainWindow : public CMenuWindow{
 		// メンバ関数
 		virtual BOOL Create(LPCTSTR lpctszWindowName, DWORD dwStyle, int x, int y, int iWidth, int iHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance);	// ウィンドウ作成関数Create.(ウィンドウクラス名省略バージョン.)
 		void SetCurrentFileName(LPCTSTR lpctszFileName);	// ファイル読み書きしたら, これでファイルパスをセット.
+// 標準入出力版は使わない.
+#if 0
 		void SetEncoding(ENCODING encoding);	// 文字コードのセットSetEncoding.
 		ENCODING GetEncoding();	// 文字コードの取得GetEncoding.
 		BOM GetBom(const tstring &path);	// BOMの取得GetBom.
+#endif
 		virtual int OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);	// ウィンドウの作成が開始された時.
 		virtual void OnDestroy();	// ウィンドウが破棄された時.
 		virtual void OnSize(UINT nType, int cx, int cy);	// ウィンドウのサイズが変更された時.

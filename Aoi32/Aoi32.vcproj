@@ -179,6 +179,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\BinaryFile.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\c_stdio_utility.cpp"
 				>
 			</File>
@@ -196,6 +200,10 @@
 			</File>
 			<File
 				RelativePath=".\Edit.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\File.cpp"
 				>
 			</File>
 			<File
@@ -219,6 +227,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\TextFile.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Window.cpp"
 				>
 			</File>
@@ -234,6 +246,10 @@
 			>
 			<File
 				RelativePath=".\Application.h"
+				>
+			</File>
+			<File
+				RelativePath=".\BinaryFile.h"
 				>
 			</File>
 			<File
@@ -254,6 +270,10 @@
 			</File>
 			<File
 				RelativePath=".\Edit.h"
+				>
+			</File>
+			<File
+				RelativePath=".\File.h"
 				>
 			</File>
 			<File
@@ -282,6 +302,10 @@
 			</File>
 			<File
 				RelativePath=".\resource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\TextFile.h"
 				>
 			</File>
 			<File
