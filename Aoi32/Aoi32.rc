@@ -50,8 +50,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,0,4,2
- PRODUCTVERSION 0,0,4,2
+ FILEVERSION 0,0,4,3
+ PRODUCTVERSION 0,0,4,3
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x29L
@@ -66,10 +66,10 @@ BEGIN
     BEGIN
         BLOCK "041104b0"
         BEGIN
-            VALUE "Comments", "Osaki #48"
+            VALUE "Comments", "Osaki #49"
             VALUE "CompanyName", "B.G-STATION"
-            VALUE "FileDescription", "Osaki #48"
-            VALUE "FileVersion", "0, 0, 4, 2"
+            VALUE "FileDescription", "Osaki #49"
+            VALUE "FileVersion", "0, 0, 4, 3"
             VALUE "InternalName", "Aoi32"
             VALUE "LegalCopyright", "Copyright (C) 2005-2018 B.G-STATION, All rights reserved."
             VALUE "LegalTrademarks", "B.G-STATION"

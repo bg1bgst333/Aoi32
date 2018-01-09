@@ -29,7 +29,7 @@ CTextFile::BOM CTextFile::CheckBom(){
 		m_Bom = BOM_UTF16LE;	// BOM_UTF16LEをセット.
 	}
 	else {	// それ以外はShift_JIS.
-		m_Bom = BOM_NONE;	// とりあえずBOM_NONEとする.
+		m_Bom = BOM_NONE;	// BOM_NONEをセット.
 	}
 	return m_Bom;	// m_Bomを返す.
 
@@ -38,10 +38,23 @@ CTextFile::BOM CTextFile::CheckBom(){
 // UTF16LEのバイトデータをテキストにデコード.
 void CTextFile::DecodeUtf16LE(){
 
-	// テキスト配列の確保.
+	// UTF16LE形式バイナリをtstringに変換.
 	TCHAR *ptszText = new TCHAR[m_dwSize - 2 + 1];	// (全体のバイト数 - BOMのバイト数) + NULL文字.
 	wmemset(ptszText, _T('\0'), m_dwSize - 2 + 1);	// wmemsetでptszTextを0で埋める.
 	memcpy(ptszText, m_pBytes + 2, m_dwSize - 2);	// memcpyでm_pBytesの3バイト目からptszTextにコピー.
+	m_tstrText = ptszText;	// m_tstrTextにptszTextをセット.
+	delete [] ptszText;	// delete[]でptszTextを解放.
+
+}
+
+// Shift_JISのバイトデータをテキストにデコード.
+void CTextFile::DecodeShiftJis(){
+
+	// Shift_JIS形式バイナリをtstringに変換.
+	int len = MultiByteToWideChar(CP_ACP, 0, (char *)m_pBytes, -1, NULL, NULL);	// MultiByteToWideCharでバイト列の変換に必要なバッファの長さlenを求める.
+	TCHAR *ptszText = new TCHAR[len];	// lenの分のTCHAR動的配列を用意し, ポインタをptszTextに格納.
+	wmemset(ptszText, _T('\0'), len);	// wmemsetでptszTextを0で埋める.
+	MultiByteToWideChar(CP_ACP, 0, (char *)m_pBytes, -1, ptszText, len);	// MultiByteToWideCharでマルチバイト文字からワイド文字への変換.
 	m_tstrText = ptszText;	// m_tstrTextにptszTextをセット.
 	delete [] ptszText;	// delete[]でptszTextを解放.
 
@@ -64,6 +77,7 @@ BOOL CTextFile::Read(LPCTSTR lpctszFileName){
 		}
 		else{	// Shift_Jis.
 			m_Encoding = ENCODING_SHIFT_JIS;	// Shift_Jis.
+			DecodeShiftJis();	// DecodeShiftJisでバイト列をテキストに変換.
 			return TRUE;	// TRUEを返す.
 		}
 	}

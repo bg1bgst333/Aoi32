@@ -185,10 +185,10 @@ int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct){
 	// 文字コードはデフォルトShift_JISにする.
 	SetEncoding(ENCODING_SHIFT_JIS);	// SetEncodingでShift_JISをセット.
 #else
-	// デフォルトはUnicodeにセット.
-	m_pTextFile->m_Bom = CTextFile::BOM_UTF16LE;	// BOMはUTF16LEとする.
-	m_pTextFile->m_Encoding = CTextFile::ENCODING_UNICODE;	// EncodingはUnicodeとする.
-	CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, ID_ENC_UNICODE, ID_ENC_UNICODE, MF_BYCOMMAND);	// CheckMenuRadioItemでID_ENC_UNICODEにマークを付ける.
+	// デフォルトはShift_JISにセット.
+	m_pTextFile->m_Bom = CTextFile::BOM_NONE;	// BOMはNONEとする.
+	m_pTextFile->m_Encoding = CTextFile::ENCODING_SHIFT_JIS;	// EncodingはShift_JISとする.
+	CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, ID_ENC_UNICODE, ID_ENC_SHIFT_JIS, MF_BYCOMMAND);	// CheckMenuRadioItemでID_ENC_SHIFT_JISにマークを付ける.
 #endif
 
 	// 常にウィンドウ作成に成功するものとする.
@@ -234,7 +234,12 @@ int CMainWindow::OnFileOpen(WPARAM wParam, LPARAM lParam){
 		// WindowsAPI版.
 		if (m_pTextFile->Read(selDlg.m_tstrPath.c_str())){	// m_pTextFile->Readで読み込み.
 			m_pEdit->SetText(m_pTextFile->m_tstrText.c_str());
-			CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, ID_ENC_UNICODE, ID_ENC_UNICODE, MF_BYCOMMAND);	// CheckMenuRadioItemでID_ENC_UNICODEにマークを付ける.
+			if (m_pTextFile->m_Encoding == CTextFile::ENCODING_UNICODE){	// Unicode.
+				CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, ID_ENC_UNICODE, ID_ENC_UNICODE, MF_BYCOMMAND);	// CheckMenuRadioItemでID_ENC_UNICODEにマークを付ける.
+			}
+			else{	// Shift_JIS.
+				CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, ID_ENC_UNICODE, ID_ENC_SHIFT_JIS, MF_BYCOMMAND);	// CheckMenuRadioItemでID_ENC_SHIFT_JISにマークを付ける.
+			}
 		}
 #else
 		// 標準入出力版.
@@ -351,6 +356,11 @@ int CMainWindow::OnEncShiftJis(WPARAM wParam, LPARAM lParam){
 #if 0
 	// Shift_JISをセット.
 	SetEncoding(ENCODING_SHIFT_JIS);	// SetEncodingでShift_JISをセット.
+#else
+	// Shift_JISをセット.
+	m_pTextFile->m_Bom = CTextFile::BOM_NONE;	// BOMはNONEとする.
+	m_pTextFile->m_Encoding = CTextFile::ENCODING_SHIFT_JIS;	// EncodingはShift_JISとする.
+	CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, ID_ENC_UNICODE, ID_ENC_SHIFT_JIS, MF_BYCOMMAND);	// CheckMenuRadioItemでID_ENC_SHIFT_JISにマークを付ける.
 #endif
 
 	// 処理したので0.
@@ -361,7 +371,7 @@ int CMainWindow::OnEncShiftJis(WPARAM wParam, LPARAM lParam){
 // "Unicode"を選択された時のハンドラ.
 int CMainWindow::OnEncUnicode(WPARAM wParam, LPARAM lParam){
 
-		// 標準入出力版は使わない.
+	// 標準入出力版は使わない.
 #if 0
 	// Unicodeをセット.
 	SetEncoding(ENCODING_UNICODE);	// SetEncodingでUnicodeをセット.
