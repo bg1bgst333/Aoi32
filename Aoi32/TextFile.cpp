@@ -87,8 +87,50 @@ BOOL CTextFile::Read(LPCTSTR lpctszFileName){
 
 }
 
+// テキストのセット.
+void CTextFile::SetText(tstring tstrText){
+
+	// メンバにセット.
+	m_tstrText = tstrText;	// m_tstrTextにtstrTextをセット.
+
+}
+
+// 指定のテキストをUTF-16LEに変換.
+void CTextFile::EncodeUtf16LEWithBom(tstring tstrText){
+
+	// バイト列のセット.
+	BYTE *pByteWithBOM = new BYTE[(tstrText.length() + 1) * 2];	// BOM付きバイト列を格納する配列pByteWithBOM.
+	pByteWithBOM[0] = 0xff;	// 0番目は0xff.
+	pByteWithBOM[1] = 0xfe;	// 1番目は0xfe.
+	memcpy(pByteWithBOM + 2, (BYTE *)tstrText.c_str(), tstrText.length() * 2);	// pByteWithBOM + 2以降にコピー.
+	Set(pByteWithBOM, (tstrText.length() + 1) * 2);	// pByteWithBOMをセット.(サロゲートペア非対応.)
+	delete[] pByteWithBOM;	// deleteでpByteWithBOMを解放.
+
+}
+
 // 指定のテキストファイルに全部一斉書き込み.
 BOOL CTextFile::Write(LPCTSTR lpctszFileName){
+
+	// テキストを一時保存.
+	tstring tstrTemp = m_tstrText;	// tstrTempにm_tstrTextを格納.
+	ENCODING encoding = m_Encoding;	// encodingにm_Encodingを格納.
+	BOM bom = m_Bom;	// bomにm_Bomを格納.
+
+	// ファイルとバッファをクリアする.
+	Close();	// ファイルを閉じる.
+	Clear();	// バッファを破棄.
+
+	// 復元.
+	m_tstrText = tstrTemp;	// m_tstrTextにtstrTempを格納.
+	m_Encoding = encoding;	// m_Encodingにencodingを格納.
+	m_Bom = bom;	// m_Bomにbomを格納.
+
+	// 文字コードのチェック.
+	if (encoding == ENCODING_UNICODE){	// Unicode.
+		EncodeUtf16LEWithBom(m_tstrText);	// テキスト文字列をUTF-16LEバイト列に変換,
+		CBinaryFile::Write(lpctszFileName);	// CBinaryFile:Writeで書き込み.
+		return TRUE;	// TRUEを返す.
+	}
 
 	// FALSE.
 	return FALSE;	// FAlSEを返す.

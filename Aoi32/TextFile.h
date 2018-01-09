@@ -39,6 +39,8 @@ class CTextFile : public CBinaryFile{
 		void DecodeUtf16LE();	// UTF16LEのバイトデータをテキストにデコード.
 		void DecodeShiftJis();	// Shift_JISのバイトデータをテキストにデコード.
 		virtual BOOL Read(LPCTSTR lpctszFileName);	// 指定のテキストファイルを全部一斉読み込み.
+		void SetText(tstring tstrText);	// テキストのセット.
+		void EncodeUtf16LEWithBom(tstring tstrText);	// 指定のテキストをUTF-16LEに変換.
 		virtual BOOL Write(LPCTSTR lpctszFileName);	// 指定のテキストファイルに全部一斉書き込み.
 		virtual void Clear();	// バッファのクリア.
 

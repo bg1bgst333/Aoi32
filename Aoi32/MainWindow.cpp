@@ -240,6 +240,7 @@ int CMainWindow::OnFileOpen(WPARAM wParam, LPARAM lParam){
 			else{	// Shift_JIS.
 				CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, ID_ENC_UNICODE, ID_ENC_SHIFT_JIS, MF_BYCOMMAND);	// CheckMenuRadioItemでID_ENC_SHIFT_JISにマークを付ける.
 			}
+			SetCurrentFileName(selDlg.m_tstrPath.c_str());	// SetCurrentFileNameでカレントパスをセット.
 		}
 #else
 		// 標準入出力版.
@@ -300,6 +301,9 @@ int CMainWindow::OnFileSaveAs(WPARAM wParam, LPARAM lParam){
 		// WindowsAPI版に差し替え.
 #if 1
 		// WindowsAPI版.
+		m_pTextFile->SetText(m_pEdit->GetText());	// m_pEdit->GetTextで取得したテキストをm_pTextFile->SetTextでセット.
+		m_pTextFile->Write(selDlg.m_tstrPath.c_str());	// selDlg.m_tstrPathをWriteに渡して書き込み.
+		SetCurrentFileName(selDlg.m_tstrPath.c_str());	// SetCurrentFileNameでカレントパスをセット.
 #else
 		// 標準入出力版.
 		// 文字コード設定の確認.
