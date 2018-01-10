@@ -108,6 +108,21 @@ void CTextFile::EncodeUtf16LEWithBom(tstring tstrText){
 
 }
 
+// 指定のテキストをShift_JISに変換.
+void CTextFile::EncodeShiftJis(tstring tstrText){
+
+	// バイト列のセット.
+	int len = WideCharToMultiByte(CP_ACP, 0, tstrText.c_str(), -1, NULL, 0, NULL, NULL);	// 変換に必要なバッファの長さを取得.
+	BYTE *pByte = new BYTE[len];	// バイト列を格納する配列pByte.
+	ZeroMemory(pByte, sizeof(BYTE) * len);	// pByteを0で埋める.
+	WideCharToMultiByte(CP_ACP, 0, tstrText.c_str(), -1, (char *)pByte, len, NULL, NULL);	// ワイド文字からマルチバイト文字への変換.
+	if (len > 0) {	// lenが0より大きい場合.
+		Set(pByte, len - 1);	// pByteを(len - 1)分セット.
+	}
+	delete[] pByte;	// deleteでpByteを解放.
+
+}
+
 // 指定のテキストファイルに全部一斉書き込み.
 BOOL CTextFile::Write(LPCTSTR lpctszFileName){
 
@@ -128,6 +143,11 @@ BOOL CTextFile::Write(LPCTSTR lpctszFileName){
 	// 文字コードのチェック.
 	if (encoding == ENCODING_UNICODE){	// Unicode.
 		EncodeUtf16LEWithBom(m_tstrText);	// テキスト文字列をUTF-16LEバイト列に変換,
+		CBinaryFile::Write(lpctszFileName);	// CBinaryFile:Writeで書き込み.
+		return TRUE;	// TRUEを返す.
+	}
+	else{	// Shift_JIS.
+		EncodeShiftJis(m_tstrText);	// テキスト文字列をShift_JISバイト列に変換.
 		CBinaryFile::Write(lpctszFileName);	// CBinaryFile:Writeで書き込み.
 		return TRUE;	// TRUEを返す.
 	}

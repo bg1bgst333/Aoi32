@@ -41,6 +41,7 @@ class CTextFile : public CBinaryFile{
 		virtual BOOL Read(LPCTSTR lpctszFileName);	// 指定のテキストファイルを全部一斉読み込み.
 		void SetText(tstring tstrText);	// テキストのセット.
 		void EncodeUtf16LEWithBom(tstring tstrText);	// 指定のテキストをUTF-16LEに変換.
+		void EncodeShiftJis(tstring tstrText);	// 指定のテキストをShift_JISに変換.
 		virtual BOOL Write(LPCTSTR lpctszFileName);	// 指定のテキストファイルに全部一斉書き込み.
 		virtual void Clear();	// バッファのクリア.
 
