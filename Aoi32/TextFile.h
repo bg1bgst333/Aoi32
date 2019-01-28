@@ -24,12 +24,20 @@ class CTextFile : public CBinaryFile{
 			BOM_NONE,
 			BOM_UTF16LE
 		} BOM;
+		// 改行コード
+		typedef enum TAG_NEW_LINE{
+			NEW_LINE_NONE,
+			NEW_LINE_CRLF,
+			NEW_LINE_LF,
+			NEW_LINE_CR
+		} NEW_LINE;
 
 		// publicメンバ変数
 		tstring m_tstrText;		// テキスト内容.
 		ENCODING m_Encoding;	// 文字コード.
 		BOM m_Bom;	// BOM.
-		
+		NEW_LINE m_NewLine;		// 改行コード.
+
 		// publicメンバ関数
 		// コンストラクタ・デストラクタ
 		CTextFile();	// コンストラクタCTextFile

@@ -9,6 +9,7 @@ CTextFile::CTextFile() : CBinaryFile(){
 	m_tstrText.clear();	// m_tstrText.clear‚ÅƒNƒŠƒA.
 	m_Encoding = ENCODING_NONE;	// m_Encoding‚ğENCODING_NONE‚Å‰Šú‰».
 	m_Bom = BOM_NONE;	// m_Bom‚ğBOM_NONE‚Å‰Šú‰».
+	m_NewLine = NEW_LINE_NONE;	// m_NewLine‚ğNEW_LINE_NONE‚Å‰Šú‰».
 
 }
 
