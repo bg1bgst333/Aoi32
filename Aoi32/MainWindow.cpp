@@ -152,6 +152,15 @@ int CMainWindow::OnFileOpen(WPARAM wParam, LPARAM lParam){
 			else{	// Shift_JIS.
 				CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, ID_ENC_UNICODE, ID_ENC_SHIFT_JIS, MF_BYCOMMAND);	// CheckMenuRadioItemでID_ENC_SHIFT_JISにマークを付ける.
 			}
+			if (m_pTextFile->m_NewLine == CTextFile::NEW_LINE_CR){	// CR.
+				CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_LINE_CRLF, ID_LINE_CR, ID_LINE_CR, MF_BYCOMMAND);	// CheckMenuRadioItemでID_LINE_CRにマークを付ける.
+			}
+			else if (m_pTextFile->m_NewLine == CTextFile::NEW_LINE_LF){	// LF.
+				CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_LINE_CRLF, ID_LINE_CR, ID_LINE_LF, MF_BYCOMMAND);	// CheckMenuRadioItemでID_LINE_LFにマークを付ける.
+			}
+			else{	// CRLF.
+				CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_LINE_CRLF, ID_LINE_CR, ID_LINE_CRLF, MF_BYCOMMAND);	// CheckMenuRadioItemでID_LINE_CRLFにマークを付ける.
+			}
 			SetCurrentFileName(selDlg.m_tstrPath.c_str());	// SetCurrentFileNameでカレントパスをセット.
 		}
 

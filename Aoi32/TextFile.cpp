@@ -36,6 +36,34 @@ CTextFile::BOM CTextFile::CheckBom(){
 
 }
 
+// 改行のチェック.
+CTextFile::NEW_LINE CTextFile::CheckNewLine(){
+
+	// まずCR('\r')を探す.
+	size_t f = m_tstrText.find_first_of(_T('\r'));	// '\r'の位置をfに格納.
+	if (f != -1 && f < m_tstrText.length() - 1){	// f('\r')が見つかった場合.
+		if (m_tstrText[f + 1] == '\n'){	// 次が'\n'の場合.
+			m_NewLine = NEW_LINE_CRLF;	// NEW_LINE_CRLFをセット.
+		}
+		else{	// '\r'だけ.
+			m_NewLine = NEW_LINE_CR;	// NEW_LINE_CRをセット.
+		}
+	}
+	else{	// '\r'はないので, '\n'を探す.
+		f = m_tstrText.find_first_of(_T('\n'));	// '\n'の位置をfに格納.
+		if (f != -1){	// f('\n')が見つかった場合.
+			m_NewLine = NEW_LINE_LF;	// NEW_LINE_LFをセット.
+		}
+		else{	// '\n'もない.
+			m_NewLine = NEW_LINE_NONE;	// NEW_LINE_NONEをセット.
+		}
+	}
+
+	// 改行コードを返す.
+	return m_NewLine;	// を返す.
+
+}
+
 // UTF16LEのバイトデータをテキストにデコード.
 void CTextFile::DecodeUtf16LE(){
 
@@ -74,13 +102,13 @@ BOOL CTextFile::Read(LPCTSTR lpctszFileName){
 		if (m_Bom == BOM_UTF16LE){	// UTF-16LE.
 			m_Encoding = ENCODING_UNICODE;	// Unicode.
 			DecodeUtf16LE();	// DecodeUtf16LEでバイト列をテキストに変換.
-			return TRUE;	// TRUEを返す.
 		}
 		else{	// Shift_Jis.
 			m_Encoding = ENCODING_SHIFT_JIS;	// Shift_Jis.
 			DecodeShiftJis();	// DecodeShiftJisでバイト列をテキストに変換.
-			return TRUE;	// TRUEを返す.
 		}
+		CheckNewLine();	// 改行コードのチェック.
+		return TRUE;	// TRUEを返す.
 	}
 
 	// FALSE.

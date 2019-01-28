@@ -44,6 +44,7 @@ class CTextFile : public CBinaryFile{
 		virtual ~CTextFile();	// デストラクタ~CTextFile
 		// メンバ関数
 		BOM CheckBom();	// BOMのチェック.
+		NEW_LINE CheckNewLine();	// 改行のチェック.
 		void DecodeUtf16LE();	// UTF16LEのバイトデータをテキストにデコード.
 		void DecodeShiftJis();	// Shift_JISのバイトデータをテキストにデコード.
 		virtual BOOL Read(LPCTSTR lpctszFileName);	// 指定のテキストファイルを全部一斉読み込み.
