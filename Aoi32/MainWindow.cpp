@@ -94,6 +94,9 @@ int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct){
 	AddCommandHandler(ID_FILE_SAVE_AS, 0, (int(CWindow::*)(WPARAM, LPARAM))&CMainWindow::OnFileSaveAs);	// AddCommandHandlerでID_FILE_SAVE_ASに対するハンドラCMainWindow::OnFileSaveAsを登録.
 	AddCommandHandler(ID_ENC_SHIFT_JIS, 0, (int(CWindow::*)(WPARAM, LPARAM))&CMainWindow::OnEncShiftJis);	// AddCommandHandlerでID_ENC_SHIFT_JISに対するハンドラCMainWindow::OnEncShiftJisを登録.
 	AddCommandHandler(ID_ENC_UNICODE, 0, (int(CWindow::*)(WPARAM, LPARAM))&CMainWindow::OnEncUnicode);	// AddCommandHandlerでID_ENC_UNICODEに対するハンドラCMainWindow::OnEncUnicodeを登録.
+	AddCommandHandler(ID_LINE_CRLF, 0, (int(CWindow::*)(WPARAM, LPARAM))&CMainWindow::OnNLCrLf);	// AddCommandHandlerでID_LINE_CRLFに対するハンドラCMainWindow::OnNLCrLfを登録.
+	AddCommandHandler(ID_LINE_LF, 0, (int(CWindow::*)(WPARAM, LPARAM))&CMainWindow::OnNLLf);	// AddCommandHandlerでID_LINE_LFに対するハンドラCMainWindow::OnNLLfを登録.
+	AddCommandHandler(ID_LINE_CR, 0, (int(CWindow::*)(WPARAM, LPARAM))&CMainWindow::OnNLCr);	// AddCommandHandlerでID_LINE_CRに対するハンドラCMainWindow::OnNLCrを登録.
 
 	// テキストファイルオブジェクトの作成.
 	m_pTextFile = new CTextFile();	// m_pTextFileを生成.
@@ -118,6 +121,9 @@ void CMainWindow::OnDestroy(){
 	DeleteCommandHandler(ID_FILE_SAVE_AS, 0);	// DeleteCommandHandlerでID_FILE_SAVE_ASのハンドラを削除.
 	DeleteCommandHandler(ID_ENC_SHIFT_JIS, 0);	// DeleteCommandHandlerでID_ENC_SHIFT_JISのハンドラを削除.
 	DeleteCommandHandler(ID_ENC_UNICODE, 0);	// DeleteCommandHandlerでID_ENC_UNICODEのハンドラを削除.
+	DeleteCommandHandler(ID_LINE_CRLF, 0);	// DeleteCommandHandlerでID_LINE_CRLFのハンドラを削除.
+	DeleteCommandHandler(ID_LINE_LF, 0);	// DeleteCommandHandlerでID_LINE_LFのハンドラを削除.
+	DeleteCommandHandler(ID_LINE_CR, 0);	// DeleteCommandHandlerでID_LINE_CRのハンドラを削除.
 
 	// CWindowのOnDestroyを呼ぶ.
 	CWindow::OnDestroy();	// CWindow::OnDestroyを呼ぶ.
@@ -216,6 +222,42 @@ int CMainWindow::OnEncUnicode(WPARAM wParam, LPARAM lParam){
 	m_pTextFile->m_Bom = CTextFile::BOM_UTF16LE;	// BOMはUTF16LEとする.
 	m_pTextFile->m_Encoding = CTextFile::ENCODING_UNICODE;	// EncodingはUnicodeとする.
 	CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, ID_ENC_UNICODE, ID_ENC_UNICODE, MF_BYCOMMAND);	// CheckMenuRadioItemでID_ENC_UNICODEにマークを付ける.
+
+	// 処理したので0.
+	return 0;	// returnで0を返す.
+
+}
+
+// "CRLF"を選択された時のハンドラ.
+int CMainWindow::OnNLCrLf(WPARAM wParam, LPARAM lParam){
+
+	// "CRLF"をセット.
+	m_pTextFile->m_NewLine = CTextFile::NEW_LINE_CRLF;	// NewLineはCRLFとする.
+	CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_LINE_CRLF, ID_LINE_CR, ID_LINE_CRLF, MF_BYCOMMAND);	// CheckMenuRadioItemでID_LINE_CRLFにマークを付ける.
+
+	// 処理したので0.
+	return 0;	// returnで0を返す.
+
+}
+
+// "LF"を選択された時のハンドラ.
+int CMainWindow::OnNLLf(WPARAM wParam, LPARAM lParam){
+
+	// "LF"をセット.
+	m_pTextFile->m_NewLine = CTextFile::NEW_LINE_LF;	// NewLineはLFとする.
+	CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_LINE_CRLF, ID_LINE_CR, ID_LINE_LF, MF_BYCOMMAND);	// CheckMenuRadioItemでID_LINE_LFにマークを付ける.
+
+	// 処理したので0.
+	return 0;	// returnで0を返す.
+
+}
+
+// "CR"を選択された時のハンドラ.
+int CMainWindow::OnNLCr(WPARAM wParam, LPARAM lParam){
+
+	// "CR"をセット.
+	m_pTextFile->m_NewLine = CTextFile::NEW_LINE_CR;	// NewLineはCRとする.
+	CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_LINE_CRLF, ID_LINE_CR, ID_LINE_CR, MF_BYCOMMAND);	// CheckMenuRadioItemでID_LINE_CRにマークを付ける.
 
 	// 処理したので0.
 	return 0;	// returnで0を返す.

@@ -37,6 +37,9 @@ class CMainWindow : public CMenuWindow{
 		virtual int OnFileSaveAs(WPARAM wParam, LPARAM lParam);	// "名前を付けて保存"を選択された時のハンドラ.
 		virtual int OnEncShiftJis(WPARAM wParam, LPARAM lParam);	// "Shift_JIS"を選択された時のハンドラ.
 		virtual int OnEncUnicode(WPARAM wParam, LPARAM lParam);	// "Unicode"を選択された時のハンドラ.
+		virtual int OnNLCrLf(WPARAM wParam, LPARAM lParam);	// "CRLF"を選択された時のハンドラ.
+		virtual int OnNLLf(WPARAM wParam, LPARAM lParam);	// "LF"を選択された時のハンドラ.
+		virtual int OnNLCr(WPARAM wParam, LPARAM lParam);	// "CR"を選択された時のハンドラ.
 
 };
 
