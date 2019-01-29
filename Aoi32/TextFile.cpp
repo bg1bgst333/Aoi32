@@ -1,6 +1,7 @@
 // ヘッダのインクルード
 // 独自のヘッダ
 #include "TextFile.h"	// CTextFile
+#include "cpp_string_utility.h"	// class_cpp_string_utility
 
 // コンストラクタCTextFile
 CTextFile::CTextFile() : CBinaryFile(){
@@ -108,6 +109,9 @@ BOOL CTextFile::Read(LPCTSTR lpctszFileName){
 			DecodeShiftJis();	// DecodeShiftJisでバイト列をテキストに変換.
 		}
 		CheckNewLine();	// 改行コードのチェック.
+		if (m_NewLine != NEW_LINE_NONE){	// 改行なしではない場合.
+			ConvertNewLine(m_tstrText, CTextFile::NEW_LINE_CRLF, m_NewLine);	// ConvertNewLineでCRLFに変換.
+		}
 		return TRUE;	// TRUEを返す.
 	}
 
@@ -149,6 +153,36 @@ void CTextFile::EncodeShiftJis(tstring tstrText){
 		Set(pByte, len - 1);	// pByteを(len - 1)分セット.
 	}
 	delete[] pByte;	// deleteでpByteを解放.
+
+}
+
+// 改行コードの変換.
+void CTextFile::ConvertNewLine(tstring &tstrText, CTextFile::NEW_LINE dest, CTextFile::NEW_LINE src){
+
+	// 改行コードを置き換える.
+	tstring before;	// 置換前before.
+	if (src == CTextFile::NEW_LINE_CRLF){	// CRLF
+		before = _T("\r\n");	// beforeに"\r\n"をセット.
+	}
+	else if (src == CTextFile::NEW_LINE_LF){	// LF
+		before = _T("\n");	// beforeに"\n"をセット.
+	}
+	else if (src == CTextFile::NEW_LINE_CR){	// CR
+		before = _T("\r");	// beforeに"\r"をセット.
+	}
+	tstring after;	// 置換後after.
+	if (dest == CTextFile::NEW_LINE_CRLF){	// CRLF
+		after = _T("\r\n");	// afterに"\r\n"をセット.
+	}
+	else if (dest == CTextFile::NEW_LINE_LF){	// LF
+		after = _T("\n");	// afterに"\n"をセット.
+	}
+	else if (dest == CTextFile::NEW_LINE_CR){	// CR
+		after = _T("\r");	// afterに"\r"をセット.
+	}
+	if (before != after){	// beforeとafterが違う時.
+		class_cpp_string_utility::replace(tstrText, before, after);	// replaceで置換.
+	}
 
 }
 

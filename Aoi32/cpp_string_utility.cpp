@@ -59,3 +59,15 @@ std::wstring class_cpp_string_utility::decode_string_to_wstring(const std::strin
 	return wstr;	// wstr‚ğ•Ô‚·.
 
 }
+
+// tstring‚Ì’uŠ·.
+void class_cpp_string_utility::replace(tstring & target, const tstring & before, const tstring & after) {
+
+	// tstring‚Ì•¶š—ñ’uŠ·.
+	tstring::size_type pos = target.find(before);	// target‚ÅÅ‰‚Ébefore‚ªŒ©‚Â‚©‚Á‚½êŠ‚ğpos‚ÉŠi”[.
+	while (pos != tstring::npos) {
+		target.replace(pos, before.size(), after);	// target‚ğbefore‚©‚çafter‚É’uŠ·.
+		pos = target.find(before, pos + after.size());	// Ÿ‚Ìpos‚ğ’T‚·.
+	}
+
+}
