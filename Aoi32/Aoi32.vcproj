@@ -231,10 +231,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Window.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\WinMain.cpp"
 				>
 			</File>
@@ -306,6 +302,10 @@
 			</File>
 			<File
 				RelativePath=".\TextFile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Window.cpp"
 				>
 			</File>
 			<File

@@ -193,6 +193,7 @@ BOOL CTextFile::Write(LPCTSTR lpctszFileName){
 	tstring tstrTemp = m_tstrText;	// tstrTempにm_tstrTextを格納.
 	ENCODING encoding = m_Encoding;	// encodingにm_Encodingを格納.
 	BOM bom = m_Bom;	// bomにm_Bomを格納.
+	NEW_LINE newline = m_NewLine;	// newlineにm_NewLineを格納.
 
 	// ファイルとバッファをクリアする.
 	Close();	// ファイルを閉じる.
@@ -202,15 +203,24 @@ BOOL CTextFile::Write(LPCTSTR lpctszFileName){
 	m_tstrText = tstrTemp;	// m_tstrTextにtstrTempを格納.
 	m_Encoding = encoding;	// m_Encodingにencodingを格納.
 	m_Bom = bom;	// m_Bomにbomを格納.
+	m_NewLine = newline;	// m_NewLineにnewlineを格納.
+
+	// 改行コードのチェック.(CRLFなら変更しない.)
+	if (newline == NEW_LINE_CR){	// CR.
+		ConvertNewLine(tstrTemp, NEW_LINE_CR, NEW_LINE_CRLF);	// ConverNewLineでCRLFからCRに変換.
+	}
+	else if (newline == NEW_LINE_LF){	// LF.
+		ConvertNewLine(tstrTemp, NEW_LINE_LF, NEW_LINE_CRLF);	// ConverNewLineでCRLFからLFに変換.
+	}
 
 	// 文字コードのチェック.
 	if (encoding == ENCODING_UNICODE){	// Unicode.
-		EncodeUtf16LEWithBom(m_tstrText);	// テキスト文字列をUTF-16LEバイト列に変換,
+		EncodeUtf16LEWithBom(tstrTemp);	// テキスト文字列をUTF-16LEバイト列に変換,
 		CBinaryFile::Write(lpctszFileName);	// CBinaryFile:Writeで書き込み.
 		return TRUE;	// TRUEを返す.
 	}
 	else{	// Shift_JIS.
-		EncodeShiftJis(m_tstrText);	// テキスト文字列をShift_JISバイト列に変換.
+		EncodeShiftJis(tstrTemp);	// テキスト文字列をShift_JISバイト列に変換.
 		CBinaryFile::Write(lpctszFileName);	// CBinaryFile:Writeで書き込み.
 		return TRUE;	// TRUEを返す.
 	}
