@@ -55,6 +55,7 @@ class CWindow{
 		virtual int OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);	// ウィンドウの作成が開始された時.
 		virtual void OnDestroy();	// ウィンドウが破棄された時.
 		virtual void OnSize(UINT nType, int cx, int cy);	// ウィンドウのサイズが変更された時.
+		virtual int OnClose();	// ウィンドウを閉じた時.
 		virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);	// コマンドが発生した時.
 
 };

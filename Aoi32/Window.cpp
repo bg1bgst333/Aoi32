@@ -305,6 +305,22 @@ LRESULT CWindow::DynamicWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 			// 既定の処理へ向かう.
 			break;	// breakで抜けて, 既定の処理(DefWindowProc)へ向かう.
 
+		// ウィンドウを閉じた時.
+		case WM_CLOSE:
+
+			// WM_CLOSEブロック
+			{
+
+				// OnCloseに任せる.
+				if (OnClose() != 0) {	// 0以外なら
+					return 0;	// 0を返す.
+				}
+
+			}
+
+			// 既定の処理へ向かう.
+			break;	// breakで抜けて, 既定の処理(DefWindowProc)へ向かう.
+
 		// コマンドが発生した時.
 		case WM_COMMAND:
 
@@ -350,6 +366,14 @@ void CWindow::OnDestroy(){
 
 // ウィンドウのサイズが変更された時.
 void CWindow::OnSize(UINT nType, int cx, int cy){
+
+}
+
+// ウィンドウを閉じた時.
+int CWindow::OnClose(){
+
+	// 0を返す.
+	return 0;	// 0を返してウィンドウを閉じる.
 
 }
 

@@ -142,6 +142,23 @@ void CMainWindow::OnSize(UINT nType, int cx, int cy){
 
 }
 
+// ウィンドウを閉じた時.
+int CMainWindow::OnClose(){
+
+	// アプリケーションを終了するかどうかの確認ダイアログを表示する.
+	int iRet = MessageBox(m_hWnd, _T("このアプリケーションを終了します。\nよろしいですか?"), _T("Aoi"), MB_OKCANCEL | MB_ICONQUESTION);	// MessageBoxで"このアプリケーションを終了します。よろしいですか?"と表示し, OKかCancelか戻り値を取得.
+	if (iRet == IDOK){	// IDOKなら.
+
+		// 0を返す.
+		return 0;	// 0を返してウィンドウを閉じる.
+
+	}
+
+	// 0以外を返す.
+	return -1;	// -1を返してウィンドウを閉じない.
+
+}
+
 // "開く"を選択された時のハンドラ.
 int CMainWindow::OnFileOpen(WPARAM wParam, LPARAM lParam){
 

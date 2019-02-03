@@ -33,6 +33,7 @@ class CMainWindow : public CMenuWindow{
 		virtual int OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);	// ウィンドウの作成が開始された時.
 		virtual void OnDestroy();	// ウィンドウが破棄された時.
 		virtual void OnSize(UINT nType, int cx, int cy);	// ウィンドウのサイズが変更された時.
+		virtual int OnClose();	// ウィンドウを閉じた時.
 		virtual int OnFileOpen(WPARAM wParam, LPARAM lParam);	// "開く"を選択された時のハンドラ.
 		virtual int OnFileSaveAs(WPARAM wParam, LPARAM lParam);	// "名前を付けて保存"を選択された時のハンドラ.
 		virtual int OnEncShiftJis(WPARAM wParam, LPARAM lParam);	// "Shift_JIS"を選択された時のハンドラ.
