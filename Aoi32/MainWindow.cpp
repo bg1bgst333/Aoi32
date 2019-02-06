@@ -10,6 +10,7 @@ CMainWindow::CMainWindow() : CMenuWindow(){
 	// メンバの初期化.
 	m_pEdit = NULL;	// m_pEditをNULLで初期化.
 	m_pTextFile = NULL;	// m_pTextFileをNULLで初期化.
+	m_bModified = FALSE;	// FALSEで初期化.
 
 }
 
@@ -25,6 +26,7 @@ CMainWindow::~CMainWindow(){
 		delete m_pEdit;	// deleteでm_pEditを解放.
 		m_pEdit = NULL;	// m_pEditにNULLをセット.
 	}
+	m_bModified = FALSE;	// FALSEにしておく.
 
 }
 
@@ -108,6 +110,9 @@ int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct){
 	CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, ID_ENC_UNICODE, ID_ENC_SHIFT_JIS, MF_BYCOMMAND);	// CheckMenuRadioItemでID_ENC_SHIFT_JISにマークを付ける.
 	CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_LINE_CRLF, ID_LINE_CR, ID_LINE_CRLF, MF_BYCOMMAND);	// CheckMenuRadioItemでID_LINE_CRLFにマークを付ける.
 
+	// 変更されていない状態とする.
+	m_bModified = FALSE;	// m_bModifiedをFALSEにする.
+
 	// 常にウィンドウ作成に成功するものとする.
 	return 0;	// 0を返すと, ウィンドウ作成に成功したということになる.
 
@@ -115,6 +120,9 @@ int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct){
 
 // ウィンドウが破棄された時.
 void CMainWindow::OnDestroy(){
+
+	// 変更されていない状態とする.
+	m_bModified = FALSE;	// m_bModifiedをFALSEにする.
 
 	// メニューハンドラの削除.
 	DeleteCommandHandler(ID_FILE_OPEN, 0);	// DeleteCommandHandlerでID_FILE_OPENのハンドラを削除.
@@ -148,6 +156,15 @@ int CMainWindow::OnClose(){
 	// アプリケーションを終了するかどうかの確認ダイアログを表示する.
 	int iRet = MessageBox(m_hWnd, _T("このアプリケーションを終了します。\nよろしいですか?"), _T("Aoi"), MB_OKCANCEL | MB_ICONQUESTION);	// MessageBoxで"このアプリケーションを終了します。よろしいですか?"と表示し, OKかCancelか戻り値を取得.
 	if (iRet == IDOK){	// IDOKなら.
+
+		// 変更されているかチェックする.
+		BOOL bRet = SendMessage(m_pEdit->m_hWnd, EM_GETMODIFY, 0, 0);	// EM_GETMODIFYでm_pEditの変更状態を取得.
+		if (bRet){	// 変更状態なら.
+			MessageBox(m_hWnd, _T("Modified!"), _T("Aoi"), MB_OK | MB_ICONASTERISK);	// "Modified!"と表示.
+		}
+		else{	// 変更されていない.
+			MessageBox(m_hWnd, _T("Not Modified!"), _T("Aoi"), MB_OK | MB_ICONASTERISK);	// "Not Modified!"と表示.
+		}
 
 		// 0を返す.
 		return 0;	// 0を返してウィンドウを閉じる.
@@ -185,6 +202,15 @@ int CMainWindow::OnFileOpen(WPARAM wParam, LPARAM lParam){
 				CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_LINE_CRLF, ID_LINE_CR, ID_LINE_CRLF, MF_BYCOMMAND);	// CheckMenuRadioItemでID_LINE_CRLFにマークを付ける.
 			}
 			SetCurrentFileName(selDlg.m_tstrPath.c_str());	// SetCurrentFileNameでカレントパスをセット.
+			// 変更されていない状態とする.
+			BOOL bRet = SendMessage(m_pEdit->m_hWnd, EM_GETMODIFY, 0, 0);	// EM_GETMODIFYでm_pEditの変更状態を取得.
+			if (bRet){	// 変更状態なら.
+				MessageBox(m_hWnd, _T("Modified!"), _T("Aoi"), MB_OK | MB_ICONASTERISK);	// "Modified!"と表示.
+			}
+			else{	// 変更されていない.
+				MessageBox(m_hWnd, _T("Not Modified!"), _T("Aoi"), MB_OK | MB_ICONASTERISK);	// "Not Modified!"と表示.
+			}
+			m_bModified = FALSE;	// m_bModifiedをFALSEにする.
 		}
 
 		// 処理したので0.

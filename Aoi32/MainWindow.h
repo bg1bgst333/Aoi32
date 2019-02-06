@@ -19,6 +19,7 @@ class CMainWindow : public CMenuWindow{
 		tstring m_tstrCurrentFileNameTitle;	// 現在読み込んでいるファイル名.(フルパスの中のファイル名部分だけ.)
 		CEdit *m_pEdit;	// CEditオブジェクトポインタm_pEdit
 		CTextFile *m_pTextFile;	// CTextFileオブジェクトポインタm_pTextFile.
+		BOOL m_bModified;	// 変更されたかどうかのフラグm_bModified.
 
 		// publicメンバ関数
 		// コンストラクタ・デストラクタ
