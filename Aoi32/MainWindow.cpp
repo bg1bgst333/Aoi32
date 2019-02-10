@@ -283,6 +283,10 @@ int CMainWindow::OnFileSaveAs(WPARAM wParam, LPARAM lParam){
 		m_pTextFile->Write(selDlg.m_tstrPath.c_str());	// selDlg.m_tstrPathをWriteに渡して書き込み.
 		SetCurrentFileName(selDlg.m_tstrPath.c_str());	// SetCurrentFileNameでカレントパスをセット.
 
+		// フラグを降ろす.
+		SendMessage(m_pEdit->m_hWnd, EM_SETMODIFY, (WPARAM)FALSE, 0);	// FALSEでEM_SETMODIFYを送信してフラグを降ろす.
+		m_bModified = FALSE;	// m_bModifiedをFALSEにセット.
+
 		// 処理したので0.
 		return 0;	// returnで0を返す.
 
