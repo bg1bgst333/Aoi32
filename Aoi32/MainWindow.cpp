@@ -154,16 +154,68 @@ void CMainWindow::OnSize(UINT nType, int cx, int cy){
 int CMainWindow::OnClose(){
 
 	// アプリケーションを終了するかどうかの確認ダイアログを表示する.
-	int iRet = MessageBox(m_hWnd, _T("このアプリケーションを終了します。\nよろしいですか?"), _T("Aoi"), MB_OKCANCEL | MB_ICONQUESTION);	// MessageBoxで"このアプリケーションを終了します。よろしいですか?"と表示し, OKかCancelか戻り値を取得.
-	if (iRet == IDOK){	// IDOKなら.
+	int iRet1 = MessageBox(m_hWnd, _T("このアプリケーションを終了します。\nよろしいですか?"), _T("Aoi"), MB_OKCANCEL | MB_ICONQUESTION);	// MessageBoxで"このアプリケーションを終了します。よろしいですか?"と表示し, "OK"か"キャンセル"か戻り値を取得.
+	if (iRet1 == IDOK){	// IDOKなら.
 
 		// 変更されているかチェックする.
 		BOOL bRet = SendMessage(m_pEdit->m_hWnd, EM_GETMODIFY, 0, 0);	// EM_GETMODIFYでm_pEditの変更状態を取得.
 		if (bRet){	// 変更状態なら.
-			MessageBox(m_hWnd, _T("Modified!"), _T("Aoi"), MB_OK | MB_ICONASTERISK);	// "Modified!"と表示.
-		}
-		else{	// 変更されていない.
-			MessageBox(m_hWnd, _T("Not Modified!"), _T("Aoi"), MB_OK | MB_ICONASTERISK);	// "Not Modified!"と表示.
+			
+			// フラグを立てる.
+			m_bModified = TRUE;	// m_bModifiedをTRUEにセット.
+
+			// 変更内容を保存するかどうかの確認ダイアログを表示する.
+			int iRet2 = MessageBox(m_hWnd, _T("変更内容を保存しますか?"), _T("Aoi"), MB_YESNOCANCEL | MB_ICONQUESTION);	// MessageBoxで"変更内容を保存しますか?"と表示し, "はい"か"いいえ"か"キャンセル"か戻り値を取得.
+			if (iRet2 == IDYES){	// "はい"を選択.
+
+				// 既存のファイルを編集中かどうかをチェック.
+				if (m_tstrCurrentFileName.length() > 0){	// ファイル名がセットされている.
+
+					// テキストファイルの書き込み.
+					m_pTextFile->SetText(m_pEdit->GetText());	// m_pEdit->GetTextで取得したテキストをm_pTextFile->SetTextでセット.
+					m_pTextFile->Write(m_tstrCurrentFileName.c_str());	// m_tstrCurrentFileNameをWriteに渡して書き込み.
+
+					// フラグを降ろす.
+					SendMessage(m_pEdit->m_hWnd, EM_SETMODIFY, (WPARAM)FALSE, 0);	// FALSEでEM_SETMODIFYを送信してフラグを降ろす.
+					m_bModified = FALSE;	// m_bModifiedをFALSEにセット.
+
+					// 0を返す.
+					return 0;	// 0を返してウィンドウを閉じる.
+
+				}
+				else{	// 新規ファイルの場合.
+
+					// "名前を付けて保存"ファイルの選択.
+					CFileDialog selDlg(m_tstrCurrentFileName.c_str(), _T("txt"), _T("テキスト文書(*.txt)|*.txt|すべてのファイル(*.*)|*.*||"), OFN_OVERWRITEPROMPT);	// CFileDialogオブジェクトselDlgを定義.
+					if (selDlg.ShowSaveFileDialog(m_hWnd)){	// selDlg.ShowSaveFileDialogで"名前を付けて保存"ファイルダイアログを表示.
+
+						// テキストファイルの書き込み.
+						m_pTextFile->SetText(m_pEdit->GetText());	// m_pEdit->GetTextで取得したテキストをm_pTextFile->SetTextでセット.
+						m_pTextFile->Write(selDlg.m_tstrPath.c_str());	// selDlg.m_tstrPathをWriteに渡して書き込み.
+						SetCurrentFileName(selDlg.m_tstrPath.c_str());	// SetCurrentFileNameでカレントパスをセット.
+
+						// フラグを降ろす.
+						SendMessage(m_pEdit->m_hWnd, EM_SETMODIFY, (WPARAM)FALSE, 0);	// FALSEでEM_SETMODIFYを送信してフラグを降ろす.
+						m_bModified = FALSE;	// m_bModifiedをFALSEにセット.
+
+						// 0を返す.
+						return 0;	// 0を返してウィンドウを閉じる.
+
+					}
+
+				}
+
+			}
+			else if (iRet2 == IDNO){	// "いいえ"を選択.
+
+				// 0を返す.
+				return 0;	// 0を返してウィンドウを閉じる.
+
+			}
+
+			// 0以外を返す.
+			return -1;	// -1を返してウィンドウを閉じない.
+
 		}
 
 		// 0を返す.
@@ -202,15 +254,6 @@ int CMainWindow::OnFileOpen(WPARAM wParam, LPARAM lParam){
 				CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_LINE_CRLF, ID_LINE_CR, ID_LINE_CRLF, MF_BYCOMMAND);	// CheckMenuRadioItemでID_LINE_CRLFにマークを付ける.
 			}
 			SetCurrentFileName(selDlg.m_tstrPath.c_str());	// SetCurrentFileNameでカレントパスをセット.
-			// 変更されていない状態とする.
-			BOOL bRet = SendMessage(m_pEdit->m_hWnd, EM_GETMODIFY, 0, 0);	// EM_GETMODIFYでm_pEditの変更状態を取得.
-			if (bRet){	// 変更状態なら.
-				MessageBox(m_hWnd, _T("Modified!"), _T("Aoi"), MB_OK | MB_ICONASTERISK);	// "Modified!"と表示.
-			}
-			else{	// 変更されていない.
-				MessageBox(m_hWnd, _T("Not Modified!"), _T("Aoi"), MB_OK | MB_ICONASTERISK);	// "Not Modified!"と表示.
-			}
-			m_bModified = FALSE;	// m_bModifiedをFALSEにする.
 		}
 
 		// 処理したので0.
