@@ -157,12 +157,17 @@ int CMainWindow::OnClose(){
 	int iRet1 = MessageBox(m_hWnd, _T("このアプリケーションを終了します。\nよろしいですか?"), _T("Aoi"), MB_OKCANCEL | MB_ICONQUESTION);	// MessageBoxで"このアプリケーションを終了します。よろしいですか?"と表示し, "OK"か"キャンセル"か戻り値を取得.
 	if (iRet1 == IDOK){	// IDOKなら.
 
-		// 変更されているかチェックする.
+		// エディットコントロールが変更されているかチェックする.
 		BOOL bRet = SendMessage(m_pEdit->m_hWnd, EM_GETMODIFY, 0, 0);	// EM_GETMODIFYでm_pEditの変更状態を取得.
 		if (bRet){	// 変更状態なら.
 			
 			// フラグを立てる.
 			m_bModified = TRUE;	// m_bModifiedをTRUEにセット.
+
+		}
+
+		// フラグが立っている時.(立っている条件は上のEM_GETMODIFYだけではない.)
+		if (m_bModified){	// m_bModifiedがTRUE.
 
 			// 変更内容を保存するかどうかの確認ダイアログを表示する.
 			int iRet2 = MessageBox(m_hWnd, _T("変更内容を保存しますか?"), _T("Aoi"), MB_YESNOCANCEL | MB_ICONQUESTION);	// MessageBoxで"変更内容を保存しますか?"と表示し, "はい"か"いいえ"か"キャンセル"か戻り値を取得.
@@ -296,6 +301,9 @@ int CMainWindow::OnEncShiftJis(WPARAM wParam, LPARAM lParam){
 	m_pTextFile->m_Encoding = CTextFile::ENCODING_SHIFT_JIS;	// EncodingはShift_JISとする.
 	CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, ID_ENC_UNICODE, ID_ENC_SHIFT_JIS, MF_BYCOMMAND);	// CheckMenuRadioItemでID_ENC_SHIFT_JISにマークを付ける.
 
+	// 変更フラグをセット.
+	m_bModified = TRUE;	// m_bModifiedをTRUEにセット.
+
 	// 処理したので0.
 	return 0;	// returnで0を返す.
 
@@ -309,6 +317,9 @@ int CMainWindow::OnEncUnicode(WPARAM wParam, LPARAM lParam){
 	m_pTextFile->m_Encoding = CTextFile::ENCODING_UNICODE;	// EncodingはUnicodeとする.
 	CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_ENC_SHIFT_JIS, ID_ENC_UNICODE, ID_ENC_UNICODE, MF_BYCOMMAND);	// CheckMenuRadioItemでID_ENC_UNICODEにマークを付ける.
 
+	// 変更フラグをセット.
+	m_bModified = TRUE;	// m_bModifiedをTRUEにセット.
+
 	// 処理したので0.
 	return 0;	// returnで0を返す.
 
@@ -320,6 +331,9 @@ int CMainWindow::OnNLCrLf(WPARAM wParam, LPARAM lParam){
 	// "CRLF"をセット.
 	m_pTextFile->m_NewLine = CTextFile::NEW_LINE_CRLF;	// NewLineはCRLFとする.
 	CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_LINE_CRLF, ID_LINE_CR, ID_LINE_CRLF, MF_BYCOMMAND);	// CheckMenuRadioItemでID_LINE_CRLFにマークを付ける.
+
+	// 変更フラグをセット.
+	m_bModified = TRUE;	// m_bModifiedをTRUEにセット.
 
 	// 処理したので0.
 	return 0;	// returnで0を返す.
@@ -333,6 +347,9 @@ int CMainWindow::OnNLLf(WPARAM wParam, LPARAM lParam){
 	m_pTextFile->m_NewLine = CTextFile::NEW_LINE_LF;	// NewLineはLFとする.
 	CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_LINE_CRLF, ID_LINE_CR, ID_LINE_LF, MF_BYCOMMAND);	// CheckMenuRadioItemでID_LINE_LFにマークを付ける.
 
+	// 変更フラグをセット.
+	m_bModified = TRUE;	// m_bModifiedをTRUEにセット.
+
 	// 処理したので0.
 	return 0;	// returnで0を返す.
 
@@ -344,6 +361,9 @@ int CMainWindow::OnNLCr(WPARAM wParam, LPARAM lParam){
 	// "CR"をセット.
 	m_pTextFile->m_NewLine = CTextFile::NEW_LINE_CR;	// NewLineはCRとする.
 	CheckMenuRadioItem(m_pMenuBar->m_hMenu, ID_LINE_CRLF, ID_LINE_CR, ID_LINE_CR, MF_BYCOMMAND);	// CheckMenuRadioItemでID_LINE_CRにマークを付ける.
+
+	// 変更フラグをセット.
+	m_bModified = TRUE;	// m_bModifiedをTRUEにセット.
 
 	// 処理したので0.
 	return 0;	// returnで0を返す.
