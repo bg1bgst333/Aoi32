@@ -73,6 +73,40 @@ void CMainWindow::SetCurrentFileName(LPCTSTR lpctszFileName){
 
 }
 
+// 変更状態のマークを設定または解除する.
+void CMainWindow::SetModifiedMark(BOOL bModified){
+
+	// オブジェクトの宣言.
+	tstring tstrNewWindowTitle;	// 新しいウィンドウのタイトルtstrNewWindowTitle.
+
+	// マークを設定または解除.
+	if (bModified){	// 設定.
+		if (m_tstrCurrentFileName.length() > 0){	// 既存.
+			tstrNewWindowTitle = _T("* ");	// "* "で開始.
+			tstrNewWindowTitle = tstrNewWindowTitle + m_tstrCurrentFileNameTitle;	// ファイルタイトルを連結.
+			tstrNewWindowTitle = tstrNewWindowTitle + _T(" - Aoi");	// " - Aoi"を連結.
+			SetText(tstrNewWindowTitle.c_str());	// SetTextでtstrNewWindowTitleをセット.
+		}
+		else{	// 新規.
+			tstrNewWindowTitle = _T("* ");	// "* "で開始.
+			tstrNewWindowTitle = tstrNewWindowTitle + _T("Aoi");	// "Aoi"を連結.
+			SetText(tstrNewWindowTitle.c_str());	// SetTextでtstrNewWindowTitleをセット.
+		}
+	}
+	else{	// 解除.
+		if (m_tstrCurrentFileName.length() > 0){	// 既存.
+			tstrNewWindowTitle = m_tstrCurrentFileNameTitle;	// ファイルタイトルをセット.
+			tstrNewWindowTitle = tstrNewWindowTitle + _T(" - Aoi");	// " - Aoi"を連結.
+			SetText(tstrNewWindowTitle.c_str());	// SetTextでtstrNewWindowTitleをセット.
+		}
+		else{	// 新規.
+			tstrNewWindowTitle = _T("Aoi");	// "Aoi"をセット.
+			SetText(tstrNewWindowTitle.c_str());	// SetTextでtstrNewWindowTitleをセット.
+		}
+	}
+
+}
+
 // ウィンドウの作成が開始された時.
 int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct){
 
@@ -99,6 +133,7 @@ int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct){
 	AddCommandHandler(ID_LINE_CRLF, 0, (int(CWindow::*)(WPARAM, LPARAM))&CMainWindow::OnNLCrLf);	// AddCommandHandlerでID_LINE_CRLFに対するハンドラCMainWindow::OnNLCrLfを登録.
 	AddCommandHandler(ID_LINE_LF, 0, (int(CWindow::*)(WPARAM, LPARAM))&CMainWindow::OnNLLf);	// AddCommandHandlerでID_LINE_LFに対するハンドラCMainWindow::OnNLLfを登録.
 	AddCommandHandler(ID_LINE_CR, 0, (int(CWindow::*)(WPARAM, LPARAM))&CMainWindow::OnNLCr);	// AddCommandHandlerでID_LINE_CRに対するハンドラCMainWindow::OnNLCrを登録.
+	AddCommandHandler(WM_APP + 1, EN_UPDATE, (int(CWindow::*)(WPARAM, LPARAM))&CMainWindow::OnEnUpdate);	// AddCommandHandlerでWM_APP + 1に対するハンドラCMainWindow::OnEnUpdateを登録.
 
 	// テキストファイルオブジェクトの作成.
 	m_pTextFile = new CTextFile();	// m_pTextFileを生成.
@@ -125,6 +160,7 @@ void CMainWindow::OnDestroy(){
 	m_bModified = FALSE;	// m_bModifiedをFALSEにする.
 
 	// メニューハンドラの削除.
+	DeleteCommandHandler(WM_APP + 1, EN_UPDATE);	// DeleteCommandHandlerでWM_APP + 1でEN_UPDATEのハンドラを削除.
 	DeleteCommandHandler(ID_FILE_OPEN, 0);	// DeleteCommandHandlerでID_FILE_OPENのハンドラを削除.
 	DeleteCommandHandler(ID_FILE_SAVE_AS, 0);	// DeleteCommandHandlerでID_FILE_SAVE_ASのハンドラを削除.
 	DeleteCommandHandler(ID_ENC_SHIFT_JIS, 0);	// DeleteCommandHandlerでID_ENC_SHIFT_JISのハンドラを削除.
@@ -163,6 +199,9 @@ int CMainWindow::OnClose(){
 			
 			// フラグを立てる.
 			m_bModified = TRUE;	// m_bModifiedをTRUEにセット.
+
+			// 変更マークを点ける.
+			SetModifiedMark(m_bModified);	// SetModifiedMarkでm_bModifiedはTRUEなので点ける.
 
 		}
 
@@ -287,6 +326,9 @@ int CMainWindow::OnFileSaveAs(WPARAM wParam, LPARAM lParam){
 		SendMessage(m_pEdit->m_hWnd, EM_SETMODIFY, (WPARAM)FALSE, 0);	// FALSEでEM_SETMODIFYを送信してフラグを降ろす.
 		m_bModified = FALSE;	// m_bModifiedをFALSEにセット.
 
+		// 変更マークを消す.
+		SetModifiedMark(m_bModified);	// SetModifiedMarkでm_bModifiedはFALSEなので消える.
+
 		// 処理したので0.
 		return 0;	// returnで0を返す.
 
@@ -308,6 +350,9 @@ int CMainWindow::OnEncShiftJis(WPARAM wParam, LPARAM lParam){
 	// 変更フラグをセット.
 	m_bModified = TRUE;	// m_bModifiedをTRUEにセット.
 
+	// 変更マークを点ける.
+	SetModifiedMark(m_bModified);	// SetModifiedMarkでm_bModifiedはTRUEなので点ける.
+
 	// 処理したので0.
 	return 0;	// returnで0を返す.
 
@@ -324,6 +369,9 @@ int CMainWindow::OnEncUnicode(WPARAM wParam, LPARAM lParam){
 	// 変更フラグをセット.
 	m_bModified = TRUE;	// m_bModifiedをTRUEにセット.
 
+	// 変更マークを点ける.
+	SetModifiedMark(m_bModified);	// SetModifiedMarkでm_bModifiedはTRUEなので点ける.
+
 	// 処理したので0.
 	return 0;	// returnで0を返す.
 
@@ -338,6 +386,9 @@ int CMainWindow::OnNLCrLf(WPARAM wParam, LPARAM lParam){
 
 	// 変更フラグをセット.
 	m_bModified = TRUE;	// m_bModifiedをTRUEにセット.
+
+	// 変更マークを点ける.
+	SetModifiedMark(m_bModified);	// SetModifiedMarkでm_bModifiedはTRUEなので点ける.
 
 	// 処理したので0.
 	return 0;	// returnで0を返す.
@@ -354,6 +405,9 @@ int CMainWindow::OnNLLf(WPARAM wParam, LPARAM lParam){
 	// 変更フラグをセット.
 	m_bModified = TRUE;	// m_bModifiedをTRUEにセット.
 
+	// 変更マークを点ける.
+	SetModifiedMark(m_bModified);	// SetModifiedMarkでm_bModifiedはTRUEなので点ける.
+
 	// 処理したので0.
 	return 0;	// returnで0を返す.
 
@@ -368,6 +422,23 @@ int CMainWindow::OnNLCr(WPARAM wParam, LPARAM lParam){
 
 	// 変更フラグをセット.
 	m_bModified = TRUE;	// m_bModifiedをTRUEにセット.
+
+	// 変更マークを点ける.
+	SetModifiedMark(m_bModified);	// SetModifiedMarkでm_bModifiedはTRUEなので点ける.
+
+	// 処理したので0.
+	return 0;	// returnで0を返す.
+
+}
+
+// m_pEditの内容が変更された直後の時のハンドラ.
+int CMainWindow::OnEnUpdate(WPARAM wParam, LPARAM lParam){
+
+	// 変更フラグをセット.
+	m_bModified = TRUE;	// m_bModifiedをTRUEにセット.
+
+	// 変更マークをセット.
+	SetModifiedMark(m_bModified);	// SetModifiedMarkでm_bModifiedをセット.
 
 	// 処理したので0.
 	return 0;	// returnで0を返す.

@@ -31,6 +31,7 @@ class CMainWindow : public CMenuWindow{
 		// メンバ関数
 		virtual BOOL Create(LPCTSTR lpctszWindowName, DWORD dwStyle, int x, int y, int iWidth, int iHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance);	// ウィンドウ作成関数Create.(ウィンドウクラス名省略バージョン.)
 		void SetCurrentFileName(LPCTSTR lpctszFileName);	// ファイル読み書きしたら, これでファイルパスをセット.
+		void SetModifiedMark(BOOL bModified);	// 変更状態のマークを設定または解除する.
 		virtual int OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);	// ウィンドウの作成が開始された時.
 		virtual void OnDestroy();	// ウィンドウが破棄された時.
 		virtual void OnSize(UINT nType, int cx, int cy);	// ウィンドウのサイズが変更された時.
@@ -42,6 +43,7 @@ class CMainWindow : public CMenuWindow{
 		virtual int OnNLCrLf(WPARAM wParam, LPARAM lParam);	// "CRLF"を選択された時のハンドラ.
 		virtual int OnNLLf(WPARAM wParam, LPARAM lParam);	// "LF"を選択された時のハンドラ.
 		virtual int OnNLCr(WPARAM wParam, LPARAM lParam);	// "CR"を選択された時のハンドラ.
+		virtual int OnEnUpdate(WPARAM wParam, LPARAM lParam);	// m_pEditの内容が変更された直後の時のハンドラ.
 
 };
 
