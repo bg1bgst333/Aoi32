@@ -275,6 +275,61 @@ int CMainWindow::OnClose(){
 // "開く"を選択された時のハンドラ.
 int CMainWindow::OnFileOpen(WPARAM wParam, LPARAM lParam){
 
+	// 変更された場合.
+	if (m_bModified){	// m_bModifiedがTRUE.
+
+		// 変更内容を保存するかどうかの確認ダイアログを表示する.
+		int iRet = MessageBox(m_hWnd, _T("変更内容を保存しますか?"), _T("Aoi"), MB_YESNOCANCEL | MB_ICONQUESTION);	// MessageBoxで"変更内容を保存しますか?"と表示し, "はい"か"いいえ"か"キャンセル"か戻り値を取得.
+		if (iRet == IDYES){	// "はい"を選択.
+
+			// 既存のファイルを編集中かどうかをチェック.
+			if (m_tstrCurrentFileName.length() > 0){	// ファイル名がセットされている.
+
+				// テキストファイルの書き込み.
+				m_pTextFile->SetText(m_pEdit->GetText());	// m_pEdit->GetTextで取得したテキストをm_pTextFile->SetTextでセット.
+				m_pTextFile->Write(m_tstrCurrentFileName.c_str());	// m_tstrCurrentFileNameをWriteに渡して書き込み.
+
+				// フラグを降ろす.
+				SendMessage(m_pEdit->m_hWnd, EM_SETMODIFY, (WPARAM)FALSE, 0);	// FALSEでEM_SETMODIFYを送信してフラグを降ろす.
+				m_bModified = FALSE;	// m_bModifiedをFALSEにセット.
+				SetModifiedMark(m_bModified);	// マークを外す.
+
+			}
+			else{	// 新規ファイルの場合.
+
+				// "名前を付けて保存"ファイルの選択.
+				CFileDialog selDlg(m_tstrCurrentFileName.c_str(), _T("txt"), _T("テキスト文書(*.txt)|*.txt|すべてのファイル(*.*)|*.*||"), OFN_OVERWRITEPROMPT);	// CFileDialogオブジェクトselDlgを定義.
+				if (selDlg.ShowSaveFileDialog(m_hWnd)){	// selDlg.ShowSaveFileDialogで"名前を付けて保存"ファイルダイアログを表示.
+
+					// テキストファイルの書き込み.
+					m_pTextFile->SetText(m_pEdit->GetText());	// m_pEdit->GetTextで取得したテキストをm_pTextFile->SetTextでセット.
+					m_pTextFile->Write(selDlg.m_tstrPath.c_str());	// selDlg.m_tstrPathをWriteに渡して書き込み.
+					SetCurrentFileName(selDlg.m_tstrPath.c_str());	// SetCurrentFileNameでカレントパスをセット.
+
+					// フラグを降ろす.
+					SendMessage(m_pEdit->m_hWnd, EM_SETMODIFY, (WPARAM)FALSE, 0);	// FALSEでEM_SETMODIFYを送信してフラグを降ろす.
+					m_bModified = FALSE;	// m_bModifiedをFALSEにセット.
+
+				}
+				else{	// キャンセル.
+
+					// 処理していないので-1.
+					return -1;	// returnで-1を返す.
+
+				}
+
+			}
+
+		}
+		else if (iRet == IDCANCEL){	// "キャンセル"を選択.
+
+			// 処理していないので-1.
+			return -1;	// returnで-1を返す.
+
+		}
+
+	}
+
 	// "開く"ファイルの選択.
 	CFileDialog selDlg(m_tstrCurrentFileName.c_str(), _T("txt"), _T("テキスト文書(*.txt)|*.txt|すべてのファイル(*.*)|*.*||"), OFN_FILEMUSTEXIST);	// CFileDialogオブジェクトselDlgを定義.
 	if (selDlg.ShowOpenFileDialog(m_hWnd)){	// selDlg.ShowOpenFileDialogで"開く"ファイルダイアログを表示.
