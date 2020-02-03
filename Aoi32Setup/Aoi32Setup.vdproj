@@ -114,7 +114,7 @@
         {
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AD553487C24E2609A3E3944144F8E4B1"
             {
-            "SourcePath" = "8:comdlg32.dll"
+            "SourcePath" = "8:COMDLG32.dll"
             "TargetName" = "8:comdlg32.dll"
             "Tag" = "8:"
             "Folder" = "8:_2E26360A0BE341988779115BB04D107B"
@@ -198,14 +198,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Aoi"
-        "ProductCode" = "8:{726353C2-DE01-46A9-96CF-9AACADCD09F0}"
-        "PackageCode" = "8:{1797D232-3A13-467A-A90A-8F91B6880C2A}"
+        "ProductCode" = "8:{2AA17B38-65CD-4CC5-8CE6-707BADDD2A15}"
+        "PackageCode" = "8:{6E7336A8-6CB9-429D-8587-98756759C961}"
         "UpgradeCode" = "8:{BF2A635F-438A-4162-BF0C-144EE03FAAC7}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:0.0.5"
+        "ProductVersion" = "8:0.0.6"
         "Manufacturer" = "8:B.G-STATION"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
