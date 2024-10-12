@@ -33,3 +33,5 @@
 /src/vs8/Aoi32/*.ncb
 /src/vs8/Aoi32/*.suo
 /src/vs8/Aoi32/Aoi32/*.user
+/src/vs8/Aoi32/debug/*.exe
+/src/vs8/Aoi32/release/*.exe
