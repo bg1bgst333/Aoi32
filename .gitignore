@@ -37,3 +37,5 @@
 /src/vs8/Aoi32/release/*.exe
 /src/vs14/Aoi32/*.db
 /src/vs14/Aoi32/.vs
+/src/vs14/Aoi32/Debug/*.exe
+/src/vs14/Aoi32/Release/*.exe
