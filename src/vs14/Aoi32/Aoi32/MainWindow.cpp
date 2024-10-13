@@ -13,6 +13,9 @@ BOOL CMainWindow::RegisterClass(HINSTANCE hInstance) {
 // コンストラクタCMainWindow()
 CMainWindow::CMainWindow() {
 
+	// メンバの初期化.
+	m_pEdit = NULL;	// m_pEditをNULLで初期化.
+
 }
 
 // デストラクタ~CMainWindow()
@@ -37,14 +40,54 @@ BOOL CMainWindow::Destroy() {
 	// 変数の初期化.
 	BOOL bRet = FALSE;	// bRetをFALSEで初期化.
 
-	// 自身のウィンドウも破棄.(OnCloseの前にOnDestroyが呼ばれるのはおかしいのでコメントアウト.)
-	//return CWindow::Destroy();	// CWindow::Destroyを呼ぶ.
-	return bRet;	// bRetを返す.
+	// DestroyChildrenを分けたので, 自身のウィンドウ破棄は問題ない.
+	// まず子ウィンドウの破棄.
+	DestroyChildren();
+
+	// 自身のウィンドウ破棄.
+	bRet = CWindow::Destroy();	// 戻り値をbRetに格納.
+
+	// bRetを返す.
+	return bRet;
+
+}
+
+// 子ウィンドウ破棄関数DestroyChildren
+BOOL CMainWindow::DestroyChildren() {
+
+	// 変数の初期化.
+	BOOL bRet = FALSE;	// bRetをFALSEで初期化.
+
+	// 子ウィンドウの破棄.
+	if (m_pEdit != NULL) {	// NULLでなければ.
+		bRet = m_pEdit->Destroy();	// m_pEdit->Destroyでウィンドウを破棄.
+		delete m_pEdit;	// deleteでm_pEditを解放.
+		m_pEdit = NULL;	// NULLをセット.
+	}
+
+	// 破棄したらTRUEを返す.
+	if (bRet) {	// TRUEなら.
+		return TRUE;	// TRUEを返す.
+	}
+
+	// 破棄しなければ, CWindowのDestroyChildrenを返す.
+	return CWindow::DestroyChildren();	// CWindow::DestroyChildrenを返す.
 
 }
 
 // ウィンドウの作成が開始された時.
 int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
+
+	// エディットコアコントロールオブジェクトの作成.
+	m_pEdit = new CEditCore();	// newでCEditCoreオブジェクトを作成し, ポインタをm_pEditに格納.
+								
+	// エディットコアコントロールのウィンドウ作成.
+	RECT rc;	// RECT構造体rc.
+	rc.left = 50;		// 左50
+	rc.right = 690;		// 右690
+	rc.top = 50;		// 上50
+	rc.bottom = 530;	// 下530
+	m_pEdit->Create(_T(""), WS_HSCROLL | WS_VSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOHSCROLL | ES_AUTOVSCROLL | WS_BORDER, rc, hwnd, (HMENU)(WM_APP + 1), lpCreateStruct->hInstance);	// Createでエディットコアコントロールのウィンドウ作成.
 
 	// 親クラスのOnCreateを呼ぶ.
 	return CWindow::OnCreate(hwnd, lpCreateStruct);	// CWindow::OnCreateを呼び, 戻り値を返す.

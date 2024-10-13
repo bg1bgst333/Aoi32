@@ -147,6 +147,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="CustomControl.cpp" />
+    <ClCompile Include="EditCore.cpp" />
     <ClCompile Include="MainApplication.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="Window.cpp" />
@@ -154,6 +156,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="CustomControl.h" />
+    <ClInclude Include="EditCore.h" />
     <ClInclude Include="HandlerConditions.h" />
     <ClInclude Include="MainApplication.h" />
     <ClInclude Include="MainWindow.h" />
