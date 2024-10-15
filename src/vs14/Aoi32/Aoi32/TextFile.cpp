@@ -169,6 +169,7 @@ BOOL CTextFile::DecodeShiftJis() {
 	}
 	m_tstrText = ptszText;	// m_tstrText‚ÉptszText‚ðƒZƒbƒg.
 	delete[] ptszText;	// delete [] ‚ÅptszText‚ð‰ð•ú.
+	return TRUE;
 
 }
 
