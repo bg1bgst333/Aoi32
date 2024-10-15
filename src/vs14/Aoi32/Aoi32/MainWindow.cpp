@@ -58,6 +58,12 @@ BOOL CMainWindow::DestroyChildren() {
 	// 変数の初期化.
 	BOOL bRet = FALSE;	// bRetをFALSEで初期化.
 
+	// テキストファイルオブジェクトの破棄.
+	if (m_pTextFile != NULL) {	// m_pTextFileがNULLでなければ.
+		delete m_pTextFile;	// deleteでm_pTextFileを解放.
+		m_pTextFile = NULL;	// m_pTextFileにNULLをセット.
+	}
+
 	// 子ウィンドウの破棄.
 	if (m_pEdit != NULL) {	// NULLでなければ.
 		bRet = m_pEdit->Destroy();	// m_pEdit->Destroyでウィンドウを破棄.
@@ -88,6 +94,12 @@ int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 	rc.top = 50;		// 上50
 	rc.bottom = 530;	// 下530
 	m_pEdit->Create(_T(""), WS_HSCROLL | WS_VSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOHSCROLL | ES_AUTOVSCROLL | WS_BORDER, rc, hwnd, (HMENU)(WM_APP + 1), lpCreateStruct->hInstance);	// Createでエディットコアコントロールのウィンドウ作成.
+
+	// テキストファイルオブジェクトの作成.
+	m_pTextFile = new CTextFile();
+	m_pTextFile->m_Bom = CTextFile::BOM_NONE;	// BOMはNONEとする.
+	m_pTextFile->m_Encoding = CTextFile::ENCODING_UTF_16LE;	// 文字コードはUTF-16LEとする.
+	m_pTextFile->m_NewLine = CTextFile::NEW_LINE_CRLF;	// 改行コードはCRLFとする.
 
 	// 親クラスのOnCreateを呼ぶ.
 	return CWindow::OnCreate(hwnd, lpCreateStruct);	// CWindow::OnCreateを呼び, 戻り値を返す.
@@ -120,6 +132,12 @@ int CMainWindow::OnClose() {
 	if (iRet != IDOK) {	// OK以外.(Cancelなど.)
 		return -1;	// -1を返す.
 	}
+
+	// ここでファイルを保存する.
+	tstring tstrText;	// 一時的にテキストを格納しておくtstringオブジェクトtstrText.
+	m_pEdit->GetWindowText(tstrText);	// m_pEditから取得.
+	m_pTextFile->SetText(tstrText);	// tstrTextをm_pTextFileにセット.
+	m_pTextFile->Write(_T("test.txt"));	// UTF-16LEバイト列に変換し, バッファにセットし, "test.txt"に書き込み.
 
 	// このウィンドウの破棄.
 	Destroy();	// Destroyでこのウィンドウの破棄処理.

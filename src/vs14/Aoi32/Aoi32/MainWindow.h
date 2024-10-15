@@ -6,6 +6,7 @@
 // 独自のヘッダ
 #include "Window.h"	// CWindow
 #include "EditCore.h"	// CEditCore
+#include "TextFile.h"	// CTextFile
 
 // メインウィンドウクラスCMainWindow
 class CMainWindow : public CWindow {
@@ -15,6 +16,7 @@ class CMainWindow : public CWindow {
 
 		// メンバ変数
 		CEditCore* m_pEdit;	// CEditCoreオブジェクトポインタm_pEdit.
+		CTextFile* m_pTextFile;	// CTextFileオブジェクトポインタm_pTextFile.
 
 		// staticメンバ関数
 		static BOOL RegisterClass(HINSTANCE hInstance);	// ウィンドウクラス登録関数RegisterClass.
