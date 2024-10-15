@@ -102,6 +102,16 @@ void CMainWindow::OnDestroy() {
 
 }
 
+// ウィンドウのサイズが変更された時.
+void CMainWindow::OnSize(UINT nType, int cx, int cy) {
+
+	// エディットボックスのサイズをメインウィンドウのクライアント領域に合わせる.
+	if (m_pEdit != NULL) {	// NULLでない場合.
+		m_pEdit->MoveWindow(0, 0, cx, cy);	// m_pEdit->MoveWindowにcx, cyを指定.
+	}
+
+}
+
 // ウィンドウが閉じられる時.
 int CMainWindow::OnClose() {
 

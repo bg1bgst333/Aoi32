@@ -28,6 +28,7 @@ class CMainWindow : public CWindow {
 		virtual BOOL DestroyChildren();	// 子ウィンドウ破棄関数DestroyChildren
 		virtual int OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);	// ウィンドウの作成が開始された時.
 		virtual void OnDestroy();	// ウィンドウが破棄された時.
+		virtual void OnSize(UINT nType, int cx, int cy);	// ウィンドウのサイズが変更された時.
 		virtual int OnClose();	// ウィンドウが閉じられる時.
 
 };
