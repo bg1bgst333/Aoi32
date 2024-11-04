@@ -1,6 +1,7 @@
 // ヘッダのインクルード
 // 独自のヘッダ
 #include "MainWindow.h"	// CMainWindow
+#include "FileDialog.h"	// CFileDialog
 #include "resource.h"	// リソース
 
 // ウィンドウクラス登録関数RegisterClass.
@@ -101,6 +102,9 @@ int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 		BOOL bRet = m_pMainMenu->LoadMenu(lpCreateStruct->hInstance, IDM_MAINMENU);	// IDM_MAINMENUをロード.
 		if (bRet) {
 			SetMenu(m_pMainMenu);	// CWindow::SetMenuでm_pMainMenuをセット.
+			// メニューハンドラの追加.
+			AddCommandHandler(ID_ITEM_FILE_OPEN, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnFileOpen);	// AddCommandHandlerでID_ITEM_FILE_OPENに対するハンドラCMainWindow::OnFileOpenを登録.
+			AddCommandHandler(ID_ITEM_FILE_SAVEAS, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnFileSaveAs);	// AddCommandHandlerでID_ITEM_FILE_SAVEASに対するハンドラCMainWindow::OnFileSaveAsを登録.
 		}
 	}
 
@@ -128,6 +132,10 @@ int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 
 // ウィンドウが破棄された時.
 void CMainWindow::OnDestroy() {
+
+	// メニューハンドラの削除.
+	DeleteCommandHandler(ID_ITEM_FILE_OPEN, 0);	// DeleteCommandHandlerでID_ITEM_FILE_OPENのハンドラを削除.
+	DeleteCommandHandler(ID_ITEM_FILE_SAVEAS, 0);	// DeleteCommandHandlerでID_ITEM_FILE_SAVEASのハンドラを削除.
 
 	// メニューの終了処理.
 	CMenu::DeleteMenuHandleMap();
@@ -168,5 +176,35 @@ int CMainWindow::OnClose() {
 
 	// OKなので閉じる.
 	return CWindow::OnClose();	// 親クラスのOnCloseを呼ぶ.(親クラスのOnCloseは常に閉じる処理になっている.)
+
+}
+
+// "開く"が選択された時.
+int CMainWindow::OnFileOpen(WPARAM wParam, LPARAM lParam) {
+
+	// "開く"ダイアログ
+	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY, _T("テキストファイル(*.txt)|*.txt|すべてのファイル(*.*)|*.*||"));
+	INT_PTR ret = dlg.DoModal();
+	if (ret == IDOK) {
+
+	}
+
+	// 0を返す.
+	return 0;	// 処理したので0.
+
+}
+
+// "名前を付けて保存"が選択された時.
+int CMainWindow::OnFileSaveAs(WPARAM wParam, LPARAM lParam)
+{
+	// "名前を付けて保存"ダイアログ
+	CFileDialog dlg(FALSE, NULL, NULL, OFN_OVERWRITEPROMPT, _T("テキストファイル(*.txt)|*.txt|すべてのファイル(*.*)|*.*||"));
+	INT_PTR ret = dlg.DoModal();
+	if (ret == IDOK) {
+
+	}
+
+	// 0を返す.
+	return 0;	// 処理したので0.
 
 }
