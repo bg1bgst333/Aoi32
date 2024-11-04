@@ -34,6 +34,8 @@ class CMainWindow : public CWindow {
 		virtual void OnDestroy();	// ウィンドウが破棄された時.
 		virtual void OnSize(UINT nType, int cx, int cy);	// ウィンドウのサイズが変更された時.
 		virtual int OnClose();	// ウィンドウが閉じられる時.
+		int OnFileOpen(WPARAM wParam, LPARAM lParam);	// "開く"が選択された時.
+		int OnFileSaveAs(WPARAM wParam, LPARAM lParam);	// "名前を付けて保存"が選択された時.
 
 };
 
