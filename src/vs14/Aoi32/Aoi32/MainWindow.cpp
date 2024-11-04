@@ -1,6 +1,7 @@
 // ヘッダのインクルード
 // 独自のヘッダ
 #include "MainWindow.h"	// CMainWindow
+#include "resource.h"	// リソース
 
 // ウィンドウクラス登録関数RegisterClass.
 BOOL CMainWindow::RegisterClass(HINSTANCE hInstance) {
@@ -15,6 +16,8 @@ CMainWindow::CMainWindow() {
 
 	// メンバの初期化.
 	m_pEdit = NULL;	// m_pEditをNULLで初期化.
+	m_pTextFile = NULL;	// m_pTextFileをNULLで初期化.
+	m_pMainMenu = NULL;	// m_pMainMenuをNULLで初期化.
 
 }
 
@@ -71,6 +74,12 @@ BOOL CMainWindow::DestroyChildren() {
 		m_pEdit = NULL;	// NULLをセット.
 	}
 
+	// メニューオブジェクトの破棄.
+	if (m_pMainMenu != NULL) {	// m_pMainMenuがNULLでなければ.
+		delete m_pTextFile;	// deleteでm_pMainMenuを解放.
+		m_pTextFile = NULL;	// m_pMainMenuにNULLをセット.
+	}
+
 	// 破棄したらTRUEを返す.
 	if (bRet) {	// TRUEなら.
 		return TRUE;	// TRUEを返す.
@@ -83,6 +92,17 @@ BOOL CMainWindow::DestroyChildren() {
 
 // ウィンドウの作成が開始された時.
 int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
+
+	// 親クラスのOnCreateを呼ぶ.
+	int iRet = CWindow::OnCreate(hwnd, lpCreateStruct);	// CWindow::OnCreateを呼び, 戻り値をiRetに格納.
+	m_pMainMenu = CWindow::GetMenu();	// CWindow::GetMenuでm_pMainMenu取得.
+	if (m_pMainMenu == NULL) {	// メニューハンドルが無い場合は, m_pMainMenuがNULLになる.
+		m_pMainMenu = new CMenu();
+		BOOL bRet = m_pMainMenu->LoadMenu(lpCreateStruct->hInstance, IDM_MAINMENU);	// IDM_MAINMENUをロード.
+		if (bRet) {
+			SetMenu(m_pMainMenu);	// CWindow::SetMenuでm_pMainMenuをセット.
+		}
+	}
 
 	// エディットコアコントロールオブジェクトの作成.
 	m_pEdit = new CEditCore();	// newでCEditCoreオブジェクトを作成し, ポインタをm_pEditに格納.
@@ -101,13 +121,17 @@ int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 	m_pTextFile->m_Encoding = CTextFile::ENCODING_UTF_16LE;	// 文字コードはUTF-16LEとする.
 	m_pTextFile->m_NewLine = CTextFile::NEW_LINE_CRLF;	// 改行コードはCRLFとする.
 
-	// 親クラスのOnCreateを呼ぶ.
-	return CWindow::OnCreate(hwnd, lpCreateStruct);	// CWindow::OnCreateを呼び, 戻り値を返す.
+	// 戻り値を返す.
+	return iRet;	// iRetを返す.
 
 }
 
 // ウィンドウが破棄された時.
 void CMainWindow::OnDestroy() {
+
+	// メニューの終了処理.
+	CMenu::DeleteMenuHandleMap();
+	m_pMainMenu = NULL;
 
 	// CWindowのOnDestroyを呼ぶ.
 	CWindow::OnDestroy();	// CWindow::OnDestroyを呼ぶ.

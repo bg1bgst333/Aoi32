@@ -7,6 +7,7 @@
 #include "Window.h"	// CWindow
 #include "EditCore.h"	// CEditCore
 #include "TextFile.h"	// CTextFile
+#include "Menu.h"	// CMenu
 
 // メインウィンドウクラスCMainWindow
 class CMainWindow : public CWindow {
@@ -17,6 +18,7 @@ class CMainWindow : public CWindow {
 		// メンバ変数
 		CEditCore* m_pEdit;	// CEditCoreオブジェクトポインタm_pEdit.
 		CTextFile* m_pTextFile;	// CTextFileオブジェクトポインタm_pTextFile.
+		CMenu* m_pMainMenu;	// CMenuオブジェクトポインタm_pMainMenu.
 
 		// staticメンバ関数
 		static BOOL RegisterClass(HINSTANCE hInstance);	// ウィンドウクラス登録関数RegisterClass.
