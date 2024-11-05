@@ -165,12 +165,6 @@ int CMainWindow::OnClose() {
 		return -1;	// -1を返す.
 	}
 
-	// ここでファイルを保存する.
-	tstring tstrText;	// 一時的にテキストを格納しておくtstringオブジェクトtstrText.
-	m_pEdit->GetWindowText(tstrText);	// m_pEditから取得.
-	m_pTextFile->SetText(tstrText);	// tstrTextをm_pTextFileにセット.
-	m_pTextFile->Write(_T("test.txt"));	// UTF-16LEバイト列に変換し, バッファにセットし, "test.txt"に書き込み.
-
 	// このウィンドウの破棄.
 	Destroy();	// Destroyでこのウィンドウの破棄処理.
 
@@ -201,7 +195,11 @@ int CMainWindow::OnFileSaveAs(WPARAM wParam, LPARAM lParam)
 	CFileDialog dlg(FALSE, NULL, NULL, OFN_OVERWRITEPROMPT, _T("テキストファイル(*.txt)|*.txt|すべてのファイル(*.*)|*.*||"));
 	INT_PTR ret = dlg.DoModal();
 	if (ret == IDOK) {
-
+		// ここでファイルを保存する.
+		tstring tstrText;	// 一時的にテキストを格納しておくtstringオブジェクトtstrText.
+		m_pEdit->GetWindowText(tstrText);	// m_pEditから取得.
+		m_pTextFile->SetText(tstrText);	// tstrTextをm_pTextFileにセット.
+		m_pTextFile->Write(dlg.GetOFN().lpstrFile);	// UTF-16LEバイト列に変換し, バッファにセットし, dlg.GetOFN().lpstrFileに書き込み.
 	}
 
 	// 0を返す.
