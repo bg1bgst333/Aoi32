@@ -36,6 +36,8 @@ class CMainWindow : public CWindow {
 		virtual int OnClose();	// ウィンドウが閉じられる時.
 		int OnFileOpen(WPARAM wParam, LPARAM lParam);	// "開く"が選択された時.
 		int OnFileSaveAs(WPARAM wParam, LPARAM lParam);	// "名前を付けて保存"が選択された時.
+		int OnBomNone(WPARAM wParam, LPARAM lParam);	// "BOM無し"が選択された時.
+		int OnBomUtf16LE(WPARAM wParam, LPARAM lParam);	// "UTF-16LE BOM"が選択された時.
 
 };
 

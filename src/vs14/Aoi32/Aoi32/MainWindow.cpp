@@ -105,6 +105,8 @@ int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 			// メニューハンドラの追加.
 			AddCommandHandler(ID_ITEM_FILE_OPEN, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnFileOpen);	// AddCommandHandlerでID_ITEM_FILE_OPENに対するハンドラCMainWindow::OnFileOpenを登録.
 			AddCommandHandler(ID_ITEM_FILE_SAVEAS, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnFileSaveAs);	// AddCommandHandlerでID_ITEM_FILE_SAVEASに対するハンドラCMainWindow::OnFileSaveAsを登録.
+			AddCommandHandler(ID_ITEM_BOM_NONE, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnBomNone);	// AddCommandHandlerでID_ITEM_BOM_NONEに対するハンドラCMainWindow::OnBomNoneを登録.
+			AddCommandHandler(ID_ITEM_BOM_UTF16LE, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnBomUtf16LE);	// AddCommandHandlerでID_ITEM_BOM_UTF16LEに対するハンドラCMainWindow::OnBomUtf16LEを登録.
 		}
 	}
 
@@ -125,6 +127,10 @@ int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 	m_pTextFile->m_Encoding = CTextFile::ENCODING_UTF_16LE;	// 文字コードはUTF-16LEとする.
 	m_pTextFile->m_NewLine = CTextFile::NEW_LINE_CRLF;	// 改行コードはCRLFとする.
 
+	// "BOM無し"にラジオチェックを付ける.
+	CMenu* pSubMenu0 = m_pMainMenu->GetSubMenu(0);
+	pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF16LE, ID_ITEM_BOM_NONE, MF_BYCOMMAND);
+
 	// 戻り値を返す.
 	return iRet;	// iRetを返す.
 
@@ -136,6 +142,8 @@ void CMainWindow::OnDestroy() {
 	// メニューハンドラの削除.
 	DeleteCommandHandler(ID_ITEM_FILE_OPEN, 0);	// DeleteCommandHandlerでID_ITEM_FILE_OPENのハンドラを削除.
 	DeleteCommandHandler(ID_ITEM_FILE_SAVEAS, 0);	// DeleteCommandHandlerでID_ITEM_FILE_SAVEASのハンドラを削除.
+	DeleteCommandHandler(ID_ITEM_BOM_NONE, 0);	// DeleteCommandHandlerでID_ITEM_BOM_NONEのハンドラを削除.
+	DeleteCommandHandler(ID_ITEM_BOM_UTF16LE, 0);	// DeleteCommandHandlerでID_ITEM_BOM_UTF16LEのハンドラを削除.
 
 	// メニューの終了処理.
 	CMenu::DeleteMenuHandleMap();
@@ -189,8 +197,7 @@ int CMainWindow::OnFileOpen(WPARAM wParam, LPARAM lParam) {
 }
 
 // "名前を付けて保存"が選択された時.
-int CMainWindow::OnFileSaveAs(WPARAM wParam, LPARAM lParam)
-{
+int CMainWindow::OnFileSaveAs(WPARAM wParam, LPARAM lParam) {
 	// "名前を付けて保存"ダイアログ
 	CFileDialog dlg(FALSE, NULL, NULL, OFN_OVERWRITEPROMPT, _T("テキストファイル(*.txt)|*.txt|すべてのファイル(*.*)|*.*||"));
 	INT_PTR ret = dlg.DoModal();
@@ -203,6 +210,29 @@ int CMainWindow::OnFileSaveAs(WPARAM wParam, LPARAM lParam)
 	}
 
 	// 0を返す.
+	return 0;	// 処理したので0.
+
+}
+
+// "BOM無し"が選択された時.
+int CMainWindow::OnBomNone(WPARAM wParam, LPARAM lParam) {
+
+	// "BOM無し"にラジオチェックを付ける.
+	CMenu* pSubMenu0 = m_pMainMenu->GetSubMenu(0);
+	pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF16LE, ID_ITEM_BOM_NONE, MF_BYCOMMAND);
+	m_pTextFile->m_Bom = CTextFile::BOM_NONE;	// BOMはNONEとする.
+	return 0;	// 処理したので0.
+
+}
+
+// "UTF-16LE BOM"が選択された時.
+int CMainWindow::OnBomUtf16LE(WPARAM wParam, LPARAM lParam) {
+
+	// "UTF-16LE BOM"にラジオチェックを付ける.
+	CMenu* pSubMenu0 = m_pMainMenu->GetSubMenu(0);
+	pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF16LE, ID_ITEM_BOM_UTF16LE, MF_BYCOMMAND);
+	m_pTextFile->m_Bom = CTextFile::BOM_UTF16LE;	// BOM_UTF16LEとする.
+	m_pTextFile->m_Encoding = CTextFile::ENCODING_UTF_16LE;	// UTF-16LEとする.
 	return 0;	// 処理したので0.
 
 }
