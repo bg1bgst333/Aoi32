@@ -105,6 +105,8 @@ int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 			// メニューハンドラの追加.
 			AddCommandHandler(ID_ITEM_FILE_OPEN, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnFileOpen);	// AddCommandHandlerでID_ITEM_FILE_OPENに対するハンドラCMainWindow::OnFileOpenを登録.
 			AddCommandHandler(ID_ITEM_FILE_SAVEAS, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnFileSaveAs);	// AddCommandHandlerでID_ITEM_FILE_SAVEASに対するハンドラCMainWindow::OnFileSaveAsを登録.
+			AddCommandHandler(ID_ITEM_ENCODE_SHIFTJIS, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnEncodeShiftJis);	// AddCommandHandlerでID_ITEM_ENCODE_SHIFTJISに対するハンドラCMainWindow::OnEncodeShiftJisを登録.
+			AddCommandHandler(ID_ITEM_ENOCDE_UTF16LE, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnEncodeUtf16LE);	// AddCommandHandlerでID_ITEM_ENOCDE_UTF16LEに対するハンドラCMainWindow::OnEncodeUtf16LEを登録.
 			AddCommandHandler(ID_ITEM_BOM_NONE, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnBomNone);	// AddCommandHandlerでID_ITEM_BOM_NONEに対するハンドラCMainWindow::OnBomNoneを登録.
 			AddCommandHandler(ID_ITEM_BOM_UTF16LE, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnBomUtf16LE);	// AddCommandHandlerでID_ITEM_BOM_UTF16LEに対するハンドラCMainWindow::OnBomUtf16LEを登録.
 		}
@@ -124,12 +126,13 @@ int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 	// テキストファイルオブジェクトの作成.
 	m_pTextFile = new CTextFile();
 	m_pTextFile->m_Bom = CTextFile::BOM_NONE;	// BOMはNONEとする.
-	m_pTextFile->m_Encoding = CTextFile::ENCODING_UTF_16LE;	// 文字コードはUTF-16LEとする.
+	m_pTextFile->m_Encoding = CTextFile::ENCODING_SHIFT_JIS;	// 文字コードはShift_JISとする.
 	m_pTextFile->m_NewLine = CTextFile::NEW_LINE_CRLF;	// 改行コードはCRLFとする.
 
-	// "BOM無し"にラジオチェックを付ける.
+	// "BOM無し", "Shift_JIS"にラジオチェックを付ける.
 	CMenu* pSubMenu0 = m_pMainMenu->GetSubMenu(0);
 	pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF16LE, ID_ITEM_BOM_NONE, MF_BYCOMMAND);
+	pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENOCDE_UTF16LE, ID_ITEM_ENCODE_SHIFTJIS, MF_BYCOMMAND);
 
 	// 戻り値を返す.
 	return iRet;	// iRetを返す.
@@ -142,6 +145,8 @@ void CMainWindow::OnDestroy() {
 	// メニューハンドラの削除.
 	DeleteCommandHandler(ID_ITEM_FILE_OPEN, 0);	// DeleteCommandHandlerでID_ITEM_FILE_OPENのハンドラを削除.
 	DeleteCommandHandler(ID_ITEM_FILE_SAVEAS, 0);	// DeleteCommandHandlerでID_ITEM_FILE_SAVEASのハンドラを削除.
+	DeleteCommandHandler(ID_ITEM_ENCODE_SHIFTJIS, 0);	// DeleteCommandHandlerでID_ITEM_ENCODE_SHIFTJISのハンドラを削除.
+	DeleteCommandHandler(ID_ITEM_ENOCDE_UTF16LE, 0);	// DeleteCommandHandlerでID_ITEM_ENOCDE_UTF16LEのハンドラを削除.
 	DeleteCommandHandler(ID_ITEM_BOM_NONE, 0);	// DeleteCommandHandlerでID_ITEM_BOM_NONEのハンドラを削除.
 	DeleteCommandHandler(ID_ITEM_BOM_UTF16LE, 0);	// DeleteCommandHandlerでID_ITEM_BOM_UTF16LEのハンドラを削除.
 
@@ -199,6 +204,13 @@ int CMainWindow::OnFileOpen(WPARAM wParam, LPARAM lParam) {
 			else {
 				pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF16LE, ID_ITEM_BOM_NONE, MF_BYCOMMAND);
 			}
+			// 文字コード.
+			if (m_pTextFile->m_Encoding == CTextFile::ENCODING_UTF_16LE) {
+				pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENOCDE_UTF16LE, ID_ITEM_ENOCDE_UTF16LE, MF_BYCOMMAND);
+			}
+			else {
+				pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENOCDE_UTF16LE, ID_ITEM_ENCODE_SHIFTJIS, MF_BYCOMMAND);
+			}
 			m_pEdit->SetWindowText(m_pTextFile->m_tstrText.c_str());	// m_tstrTextをm_pEditにセット.
 		}
 	}
@@ -226,6 +238,30 @@ int CMainWindow::OnFileSaveAs(WPARAM wParam, LPARAM lParam) {
 
 }
 
+// "Shift_JIS"が選択された時.
+int CMainWindow::OnEncodeShiftJis(WPARAM wParam, LPARAM lParam) {
+
+	// "Shift_JIS"にラジオチェックを付ける.
+	CMenu* pSubMenu0 = m_pMainMenu->GetSubMenu(0);
+	pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENOCDE_UTF16LE, ID_ITEM_ENCODE_SHIFTJIS, MF_BYCOMMAND);
+	m_pTextFile->m_Encoding = CTextFile::ENCODING_SHIFT_JIS;	// ENCODEはShift_JISとする.
+	pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF16LE, ID_ITEM_BOM_NONE, MF_BYCOMMAND);
+	m_pTextFile->m_Bom = CTextFile::BOM_NONE;	// BOMはNONEとする.
+	return 0;	// 処理したので0.
+
+}
+
+// "UTF-16LE"が選択された時.
+int CMainWindow::OnEncodeUtf16LE(WPARAM wParam, LPARAM lParam) {
+
+	// "UTF-16LE"にラジオチェックを付ける.
+	CMenu* pSubMenu0 = m_pMainMenu->GetSubMenu(0);
+	pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENOCDE_UTF16LE, ID_ITEM_ENOCDE_UTF16LE, MF_BYCOMMAND);
+	m_pTextFile->m_Encoding = CTextFile::ENCODING_UTF_16LE;	// ENCODEはUTF-16LEとする.
+	return 0;	// 処理したので0.
+
+}
+
 // "BOM無し"が選択された時.
 int CMainWindow::OnBomNone(WPARAM wParam, LPARAM lParam) {
 
@@ -244,7 +280,8 @@ int CMainWindow::OnBomUtf16LE(WPARAM wParam, LPARAM lParam) {
 	CMenu* pSubMenu0 = m_pMainMenu->GetSubMenu(0);
 	pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF16LE, ID_ITEM_BOM_UTF16LE, MF_BYCOMMAND);
 	m_pTextFile->m_Bom = CTextFile::BOM_UTF16LE;	// BOM_UTF16LEとする.
-	m_pTextFile->m_Encoding = CTextFile::ENCODING_UTF_16LE;	// UTF-16LEとする.
+	pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENOCDE_UTF16LE, ID_ITEM_ENOCDE_UTF16LE, MF_BYCOMMAND);
+	m_pTextFile->m_Encoding = CTextFile::ENCODING_UTF_16LE;	// ENCODEはUTF-16LEとする.
 	return 0;	// 処理したので0.
 
 }

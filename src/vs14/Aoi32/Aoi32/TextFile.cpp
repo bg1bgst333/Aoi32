@@ -219,6 +219,9 @@ BOOL CTextFile::Read(LPCTSTR lpctszFileName) {
 	BOOL bRet = CBinaryFile::Read(lpctszFileName);
 	if (bRet) {	// 成功.
 
+		// ファイルを閉じる.
+		Close();
+
 		// BOMのチェック.
 		CheckBom();
 		if (m_Bom == BOM_UTF16LE) {	// UTF-16LEのBOMの場合.
@@ -233,11 +236,13 @@ BOOL CTextFile::Read(LPCTSTR lpctszFileName) {
 		if (m_NewLine != NEW_LINE_NONE || m_NewLine != NEW_LINE_CRLF) {	// 改行無しではない or CRLFではない場合.
 			ConvertNewLine(CTextFile::NEW_LINE_CRLF, m_NewLine);	// CRLFに変換.
 		}
+		CBinaryFile::Clear();	// バッファクリア.
 		return TRUE;	// TRUEを返す.
 
 	}
 
 	// FALSEを返す.
+	CBinaryFile::Clear();	// バッファクリア.
 	return FALSE;
 
 }
