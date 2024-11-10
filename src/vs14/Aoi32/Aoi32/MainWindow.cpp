@@ -188,7 +188,19 @@ int CMainWindow::OnFileOpen(WPARAM wParam, LPARAM lParam) {
 	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY, _T("テキストファイル(*.txt)|*.txt|すべてのファイル(*.*)|*.*||"));
 	INT_PTR ret = dlg.DoModal();
 	if (ret == IDOK) {
-
+		BOOL bRet = m_pTextFile->Read(dlg.GetOFN().lpstrFile);	// 指定されたファイルを読み込み, 読み込んだバイト列を文字コード変換し, テキストとして持つ.
+		if (bRet) {	// 成功.
+			// メニューラジオチェックの変更.
+			CMenu* pSubMenu0 = m_pMainMenu->GetSubMenu(0);
+			// BOM.
+			if (m_pTextFile->m_Bom == CTextFile::BOM_UTF16LE) {
+				pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF16LE, ID_ITEM_BOM_UTF16LE, MF_BYCOMMAND);
+			}
+			else {
+				pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF16LE, ID_ITEM_BOM_NONE, MF_BYCOMMAND);
+			}
+			m_pEdit->SetWindowText(m_pTextFile->m_tstrText.c_str());	// m_tstrTextをm_pEditにセット.
+		}
 	}
 
 	// 0を返す.
