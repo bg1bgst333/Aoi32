@@ -109,6 +109,9 @@ int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 			AddCommandHandler(ID_ITEM_ENOCDE_UTF16LE, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnEncodeUtf16LE);	// AddCommandHandlerでID_ITEM_ENOCDE_UTF16LEに対するハンドラCMainWindow::OnEncodeUtf16LEを登録.
 			AddCommandHandler(ID_ITEM_BOM_NONE, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnBomNone);	// AddCommandHandlerでID_ITEM_BOM_NONEに対するハンドラCMainWindow::OnBomNoneを登録.
 			AddCommandHandler(ID_ITEM_BOM_UTF16LE, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnBomUtf16LE);	// AddCommandHandlerでID_ITEM_BOM_UTF16LEに対するハンドラCMainWindow::OnBomUtf16LEを登録.
+			AddCommandHandler(ID_ITEM_NEW_LINE_CRLF, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnNewLineCRLF);	// AddCommandHandlerでID_ITEM_NEW_LINE_CRLFに対するハンドラCMainWindow::OnNewLineCRLFを登録.
+			AddCommandHandler(ID_ITEM_NEW_LINE_LF, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnNewLineLF);	// AddCommandHandlerでID_ITEM_NEW_LINE_LFに対するハンドラCMainWindow::OnNewLineLFを登録.
+			AddCommandHandler(ID_ITEM_NEW_LINE_CR, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnNewLineCR);	// AddCommandHandlerでID_ITEM_NEW_LINE_CRに対するハンドラCMainWindow::OnNewLineCRを登録.
 		}
 	}
 
@@ -129,11 +132,12 @@ int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 	m_pTextFile->m_Encoding = CTextFile::ENCODING_SHIFT_JIS;	// 文字コードはShift_JISとする.
 	m_pTextFile->m_NewLine = CTextFile::NEW_LINE_CRLF;	// 改行コードはCRLFとする.
 
-	// "BOM無し", "Shift_JIS"にラジオチェックを付ける.
+	// "BOM無し", "Shift_JIS", "CRLF"にラジオチェックを付ける.
 	CMenu* pSubMenu0 = m_pMainMenu->GetSubMenu(0);
 	pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF16LE, ID_ITEM_BOM_NONE, MF_BYCOMMAND);
 	pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENOCDE_UTF16LE, ID_ITEM_ENCODE_SHIFTJIS, MF_BYCOMMAND);
-
+	pSubMenu0->CheckMenuRadioItem(ID_ITEM_NEW_LINE_CRLF, ID_ITEM_NEW_LINE_CR, ID_ITEM_NEW_LINE_CRLF, MF_BYCOMMAND);
+	
 	// 戻り値を返す.
 	return iRet;	// iRetを返す.
 
@@ -149,6 +153,9 @@ void CMainWindow::OnDestroy() {
 	DeleteCommandHandler(ID_ITEM_ENOCDE_UTF16LE, 0);	// DeleteCommandHandlerでID_ITEM_ENOCDE_UTF16LEのハンドラを削除.
 	DeleteCommandHandler(ID_ITEM_BOM_NONE, 0);	// DeleteCommandHandlerでID_ITEM_BOM_NONEのハンドラを削除.
 	DeleteCommandHandler(ID_ITEM_BOM_UTF16LE, 0);	// DeleteCommandHandlerでID_ITEM_BOM_UTF16LEのハンドラを削除.
+	DeleteCommandHandler(ID_ITEM_NEW_LINE_CRLF, 0);	// DeleteCommandHandlerでID_ITEM_NEW_LINE_CRLFのハンドラを削除.
+	DeleteCommandHandler(ID_ITEM_NEW_LINE_LF, 0);	// DeleteCommandHandlerでID_ITEM_NEW_LINE_LFのハンドラを削除.
+	DeleteCommandHandler(ID_ITEM_NEW_LINE_CR, 0);	// DeleteCommandHandlerでID_ITEM_NEW_LINE_CRのハンドラを削除.
 
 	// メニューの終了処理.
 	CMenu::DeleteMenuHandleMap();
@@ -210,6 +217,16 @@ int CMainWindow::OnFileOpen(WPARAM wParam, LPARAM lParam) {
 			}
 			else {
 				pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENOCDE_UTF16LE, ID_ITEM_ENCODE_SHIFTJIS, MF_BYCOMMAND);
+			}
+			// 改行コード.
+			if (m_pTextFile->m_NewLine == CTextFile::NEW_LINE_CR) {
+				pSubMenu0->CheckMenuRadioItem(ID_ITEM_NEW_LINE_CRLF, ID_ITEM_NEW_LINE_CR, ID_ITEM_NEW_LINE_CR, MF_BYCOMMAND);
+			}
+			else if (m_pTextFile->m_NewLine == CTextFile::NEW_LINE_LF) {
+				pSubMenu0->CheckMenuRadioItem(ID_ITEM_NEW_LINE_CRLF, ID_ITEM_NEW_LINE_CR, ID_ITEM_NEW_LINE_LF, MF_BYCOMMAND);
+			}
+			else {
+				pSubMenu0->CheckMenuRadioItem(ID_ITEM_NEW_LINE_CRLF, ID_ITEM_NEW_LINE_CR, ID_ITEM_NEW_LINE_CRLF, MF_BYCOMMAND);
 			}
 			m_pEdit->SetWindowText(m_pTextFile->m_tstrText.c_str());	// m_tstrTextをm_pEditにセット.
 		}
@@ -282,6 +299,39 @@ int CMainWindow::OnBomUtf16LE(WPARAM wParam, LPARAM lParam) {
 	m_pTextFile->m_Bom = CTextFile::BOM_UTF16LE;	// BOM_UTF16LEとする.
 	pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENOCDE_UTF16LE, ID_ITEM_ENOCDE_UTF16LE, MF_BYCOMMAND);
 	m_pTextFile->m_Encoding = CTextFile::ENCODING_UTF_16LE;	// ENCODEはUTF-16LEとする.
+	return 0;	// 処理したので0.
+
+}
+
+// "CRLF"が選択された時.
+int CMainWindow::OnNewLineCRLF(WPARAM wParam, LPARAM lParam) {
+
+	// "CRLF"にラジオチェックを付ける.
+	CMenu* pSubMenu0 = m_pMainMenu->GetSubMenu(0);
+	pSubMenu0->CheckMenuRadioItem(ID_ITEM_NEW_LINE_CRLF, ID_ITEM_NEW_LINE_CR, ID_ITEM_NEW_LINE_CRLF, MF_BYCOMMAND);
+	m_pTextFile->m_NewLine = CTextFile::NEW_LINE_CRLF;	// CRLFとする.
+	return 0;	// 処理したので0.
+
+}
+
+// "LF"が選択された時.
+int CMainWindow::OnNewLineLF(WPARAM wParam, LPARAM lParam) {
+
+	// "LF"にラジオチェックを付ける.
+	CMenu* pSubMenu0 = m_pMainMenu->GetSubMenu(0);
+	pSubMenu0->CheckMenuRadioItem(ID_ITEM_NEW_LINE_CRLF, ID_ITEM_NEW_LINE_CR, ID_ITEM_NEW_LINE_LF, MF_BYCOMMAND);
+	m_pTextFile->m_NewLine = CTextFile::NEW_LINE_LF;	// LFとする.
+	return 0;	// 処理したので0.
+
+}
+
+// "CR"が選択された時.
+int CMainWindow::OnNewLineCR(WPARAM wParam, LPARAM lParam) {
+
+	// "CR"にラジオチェックを付ける.
+	CMenu* pSubMenu0 = m_pMainMenu->GetSubMenu(0);
+	pSubMenu0->CheckMenuRadioItem(ID_ITEM_NEW_LINE_CRLF, ID_ITEM_NEW_LINE_CR, ID_ITEM_NEW_LINE_CR, MF_BYCOMMAND);
+	m_pTextFile->m_NewLine = CTextFile::NEW_LINE_CR;	// CRとする.
 	return 0;	// 処理したので0.
 
 }
