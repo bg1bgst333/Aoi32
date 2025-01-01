@@ -57,6 +57,9 @@
     <ClCompile Include="string_utility_cstring.c">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="file_utility_cstdio.c">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -102,6 +105,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="string_utility_cstring.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="file_utility_cstdio.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

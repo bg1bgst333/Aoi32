@@ -2,6 +2,7 @@
 // 独自のヘッダ
 #include "TextFile.h"	// CTextFile
 #include "string_utility_cppstring.h"	// 文字列ユーティリティ(C++文字列処理)
+#include "file_utility_cstdio.h"	// ファイルユーティリティ(Cファイル処理)
 
 // テキストのセット.
 void CTextFile::SetText(tstring tstrText) {
@@ -16,6 +17,17 @@ void CTextFile::EncodeUtf16LE() {
 
 	// UTF-16LEバイト列をバッファにセット.
 	Set((BYTE*)m_tstrText.c_str(), m_tstrText.length() * 2);	// CBinaryFile::Setで文字列をバッファにセット(UTF-16LEなので長さは2倍.)
+
+}
+
+// テキストをUTF-16BEバイト列に変換してバッファにセット.
+void CTextFile::EncodeUtf16BE() {
+
+	// バイト列を入れ替える.
+	BYTE* pByte = new BYTE[m_tstrText.length() * 2];
+	convert_endian_16bit_byte_array((char*)m_tstrText.c_str(), (char*)pByte, m_tstrText.length() * 2);
+	Set(pByte, m_tstrText.length() * 2);
+	delete[] pByte;
 
 }
 
@@ -104,6 +116,9 @@ BOOL CTextFile::Write(LPCTSTR lpctszFileName) {
 			EncodeUtf16LE();	// EncodeUtf16LEでm_tstrTextをBOM無しUTF-16LEバイト列に変換してバッファにセット.
 		}
 	}
+	else if (m_Encoding == CTextFile::ENCODING_UTF_16BE) {	// UTF-16BEなら.
+		EncodeUtf16BE();	// EncodeUtf16BEでm_tstrTextをBOM無しUTF-16BEバイト列に変換してバッファにセット.
+	}	
 	else {	// それ以外.
 		// 最終的にShift_JISにする.
 		BOOL bRet = EncodeShiftJis();	// EncodeShiftJisでm_tstrTextをShift_JISバイト列に変換してバッファにセット.

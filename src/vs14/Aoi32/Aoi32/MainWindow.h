@@ -38,6 +38,7 @@ class CMainWindow : public CWindow {
 		int OnFileSaveAs(WPARAM wParam, LPARAM lParam);	// "名前を付けて保存"が選択された時.
 		int OnEncodeShiftJis(WPARAM wParam, LPARAM lParam);	// "Shift_JIS"が選択された時.
 		int OnEncodeUtf16LE(WPARAM wParam, LPARAM lParam);	// "UTF-16LE"が選択された時.
+		int OnEncodeUtf16BE(WPARAM wParam, LPARAM lParam);	// "UTF-16BE"が選択された時.
 		int OnBomNone(WPARAM wParam, LPARAM lParam);	// "BOM無し"が選択された時.
 		int OnBomUtf16LE(WPARAM wParam, LPARAM lParam);	// "UTF-16LE BOM"が選択された時.
 		int OnNewLineCRLF(WPARAM wParam, LPARAM lParam);	// "CRLF"が選択された時.

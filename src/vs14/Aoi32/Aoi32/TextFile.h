@@ -17,7 +17,8 @@ class CTextFile : public CBinaryFile {
 		typedef enum TAG_ENCODING {
 			ENCODING_NONE,
 			ENCODING_SHIFT_JIS,
-			ENCODING_UTF_16LE
+			ENCODING_UTF_16LE,
+			ENCODING_UTF_16BE
 		} ENCODING;
 		// BOM
 		typedef enum TAG_BOM {
@@ -41,6 +42,7 @@ class CTextFile : public CBinaryFile {
 		// publicメンバ関数
 		void SetText(tstring tstrText);	// テキストのセット.
 		void EncodeUtf16LE();	// テキストをUTF-16LEバイト列に変換してバッファにセット.
+		void EncodeUtf16BE();	// テキストをUTF-16BEバイト列に変換してバッファにセット.
 		void EncodeUtf16LEWithBom();	// テキストをBOM付きUTF-16LEバイト列に変換してバッファにセット.
 		BOOL EncodeShiftJis();	// テキストをShift_JISバイト列に変換に変換してバッファにセット.
 		void ConvertNewLine(NEW_LINE dest, NEW_LINE src);	// 改行コードの変換.
