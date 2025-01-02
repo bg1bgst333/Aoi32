@@ -41,6 +41,7 @@ class CMainWindow : public CWindow {
 		int OnEncodeUtf16BE(WPARAM wParam, LPARAM lParam);	// "UTF-16BE"が選択された時.
 		int OnBomNone(WPARAM wParam, LPARAM lParam);	// "BOM無し"が選択された時.
 		int OnBomUtf16LE(WPARAM wParam, LPARAM lParam);	// "UTF-16LE BOM"が選択された時.
+		int OnBomUtf16BE(WPARAM wParam, LPARAM lParam);	// "UTF-16BE BOM"が選択された時.
 		int OnNewLineCRLF(WPARAM wParam, LPARAM lParam);	// "CRLF"が選択された時.
 		int OnNewLineLF(WPARAM wParam, LPARAM lParam);	// "LF"が選択された時.
 		int OnNewLineCR(WPARAM wParam, LPARAM lParam);	// "CR"が選択された時.

@@ -44,6 +44,19 @@ void CTextFile::EncodeUtf16LEWithBom() {
 
 }
 
+// テキストをBOM付きUTF-16BEバイト列に変換してバッファにセット.
+void CTextFile::EncodeUtf16BEWithBom() {
+
+	// BOM付きUTF-16BEバイト列をバッファにセット.
+	BYTE* pByteWithBOM = new BYTE[m_tstrText.length() * 2 + 2];	// ワイド文字なので2倍 + BOMが2バイト.
+	pByteWithBOM[0] = 0xfe;	// 0番目は0xfe.
+	pByteWithBOM[1] = 0xff;	// 1番目は0xff.
+	convert_endian_16bit_byte_array((char*)m_tstrText.c_str(), (char*)pByteWithBOM + 2, m_tstrText.length() * 2);
+	Set(pByteWithBOM, m_tstrText.length() * 2 + 2);
+	delete[] pByteWithBOM;
+
+}
+
 // テキストをShift_JISバイト列に変換に変換してバッファにセット.
 BOOL CTextFile::EncodeShiftJis() {
 
@@ -117,7 +130,13 @@ BOOL CTextFile::Write(LPCTSTR lpctszFileName) {
 		}
 	}
 	else if (m_Encoding == CTextFile::ENCODING_UTF_16BE) {	// UTF-16BEなら.
-		EncodeUtf16BE();	// EncodeUtf16BEでm_tstrTextをBOM無しUTF-16BEバイト列に変換してバッファにセット.
+		// BOMの有無を判断して書き込み.
+		if (m_Bom == CTextFile::BOM_UTF16BE) {	// UTF-16BEのBOMなら.
+			EncodeUtf16BEWithBom();	// EncodeUtf16BEWithBomでm_tstrTextをBOM付きUTF-16BEバイト列に変換してバッファにセット.
+		}
+		else {
+			EncodeUtf16BE();	// EncodeUtf16BEでm_tstrTextをBOM無しUTF-16BEバイト列に変換してバッファにセット.
+		}
 	}	
 	else {	// それ以外.
 		// 最終的にShift_JISにする.
