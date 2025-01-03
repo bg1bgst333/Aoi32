@@ -154,6 +154,7 @@
     <ClCompile Include="EditCore.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="FileDialog.cpp" />
+    <ClCompile Include="file_utility_cstdio.c" />
     <ClCompile Include="MainApplication.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="Menu.cpp" />
@@ -170,6 +171,7 @@
     <ClInclude Include="EditCore.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="FileDialog.h" />
+    <ClInclude Include="file_utility_cstdio.h" />
     <ClInclude Include="HandlerConditions.h" />
     <ClInclude Include="MainApplication.h" />
     <ClInclude Include="MainWindow.h" />

@@ -2,6 +2,7 @@
 // 独自のヘッダ
 #include "TextFile.h"	// CTextFile
 #include "string_utility_cppstring.h"	// 文字列ユーティリティ(C++文字列処理)
+#include "file_utility_cstdio.h"	// ファイルユーティリティ(Cファイル処理)
 
 // テキストのセット.
 void CTextFile::SetText(tstring tstrText) {
@@ -19,6 +20,17 @@ void CTextFile::EncodeUtf16LE() {
 
 }
 
+// テキストをUTF-16BEバイト列に変換してバッファにセット.
+void CTextFile::EncodeUtf16BE() {
+
+	// バイト列を入れ替える.
+	BYTE* pByte = new BYTE[m_tstrText.length() * 2];
+	convert_endian_16bit_byte_array((char*)m_tstrText.c_str(), (char*)pByte, m_tstrText.length() * 2);
+	Set(pByte, m_tstrText.length() * 2);
+	delete[] pByte;
+
+}
+
 // テキストをBOM付きUTF-16LEバイト列に変換してバッファにセット.
 void CTextFile::EncodeUtf16LEWithBom() {
 
@@ -29,6 +41,19 @@ void CTextFile::EncodeUtf16LEWithBom() {
 	memcpy(pByteWithBOM + 2, (BYTE*)m_tstrText.c_str(), m_tstrText.length() * 2);	// pByteWithBOM + 2以降にコピー.
 	Set(pByteWithBOM, (m_tstrText.length() + 1) * 2);	// pByteWithBOMをセット.(サロゲートペアなど非対応.)
 	delete[] pByteWithBOM;	// deleteでpByteWithBOMを解放.
+
+}
+
+// テキストをBOM付きUTF-16BEバイト列に変換してバッファにセット.
+void CTextFile::EncodeUtf16BEWithBom() {
+
+	// BOM付きUTF-16BEバイト列をバッファにセット.
+	BYTE* pByteWithBOM = new BYTE[m_tstrText.length() * 2 + 2];	// ワイド文字なので2倍 + BOMが2バイト.
+	pByteWithBOM[0] = 0xfe;	// 0番目は0xfe.
+	pByteWithBOM[1] = 0xff;	// 1番目は0xff.
+	convert_endian_16bit_byte_array((char*)m_tstrText.c_str(), (char*)pByteWithBOM + 2, m_tstrText.length() * 2);
+	Set(pByteWithBOM, m_tstrText.length() * 2 + 2);
+	delete[] pByteWithBOM;
 
 }
 
@@ -104,6 +129,15 @@ BOOL CTextFile::Write(LPCTSTR lpctszFileName) {
 			EncodeUtf16LE();	// EncodeUtf16LEでm_tstrTextをBOM無しUTF-16LEバイト列に変換してバッファにセット.
 		}
 	}
+	else if (m_Encoding == CTextFile::ENCODING_UTF_16BE) {	// UTF-16BEなら.
+		// BOMの有無を判断して書き込み.
+		if (m_Bom == CTextFile::BOM_UTF16BE) {	// UTF-16BEのBOMなら.
+			EncodeUtf16BEWithBom();	// EncodeUtf16BEWithBomでm_tstrTextをBOM付きUTF-16BEバイト列に変換してバッファにセット.
+		}
+		else {
+			EncodeUtf16BE();	// EncodeUtf16BEでm_tstrTextをBOM無しUTF-16BEバイト列に変換してバッファにセット.
+		}
+	}	
 	else {	// それ以外.
 		// 最終的にShift_JISにする.
 		BOOL bRet = EncodeShiftJis();	// EncodeShiftJisでm_tstrTextをShift_JISバイト列に変換してバッファにセット.
@@ -127,6 +161,9 @@ CTextFile::BOM CTextFile::CheckBom() {
 	if (m_dwSize >= 2 && m_pBytes[0] == 0xff && m_pBytes[1] == 0xfe) {	// UTF-16LEの場合.
 		m_Bom = BOM_UTF16LE;	// BOM_UTF16LEをセット.
 	}
+	else if (m_dwSize >= 2 && m_pBytes[0] == 0xfe && m_pBytes[1] == 0xff) {	// UTF-16BEの場合.
+		m_Bom = BOM_UTF16BE;	// BOM_UTF16BEをセット.
+	}
 	else {	// それ以外はBOMなし.
 		m_Bom = BOM_NONE;	// BOM_NONEをセット.
 	}
@@ -148,6 +185,27 @@ void CTextFile::DecodeUtf16LEWithBom() {
 		wmemcpy(ptszText, ((wchar_t*)m_pBytes) + 1, iWithOutBom / 2);	// 1文字(2バイト分)後ろから(iWithOutBom / 2)の分コピー.
 		m_tstrText = ptszText;	// m_tstrTextにptszTextをセット.
 		delete[] ptszText;	// delete[]でptsztextを解放.
+	}
+
+}
+
+// BOM付きUTF-16BEのバイト列をテキストにデコード.
+void  CTextFile::DecodeUtf16BEWithBom() {
+
+	// BOM付きUTF-16BE形式のバイト列をtstringに変換.
+	int iWithOutBom = m_dwSize - 2;	// BOM2バイト分を引く.
+	if (iWithOutBom <= 0) {	// 0バイト以下.
+		m_tstrText = _T("");	// 空文字列になる.
+	}
+	else {	// 1文字以上(2バイト以上で必ず偶数バイト.)はある.
+		BYTE* pReversed = new BYTE[m_dwSize];	// 入れ替えたバイト列用メモリ確保.
+		convert_endian_16bit_byte_array((const char*)m_pBytes, (char*)pReversed, m_dwSize);	// エンディアン入れ替え.
+		TCHAR* ptszText = new TCHAR[iWithOutBom / 2 + 1];	// iWithOutBomは0以上の偶数になる.
+		wmemset(ptszText, _T('\0'), iWithOutBom / 2 + 1);	// wmemsetでptszTextを_T('\0')で埋める.
+		wmemcpy(ptszText, ((wchar_t*)pReversed) + 1, iWithOutBom / 2);	// 1文字(2バイト分)後ろから(iWithOutBom / 2)の分コピー.
+		m_tstrText = ptszText;	// m_tstrTextにptszTextをセット.
+		delete[] ptszText;	// delete[]でptsztextを解放.
+		delete[] pReversed;	// delete[]でpReversedを解放.
 	}
 
 }
@@ -227,6 +285,10 @@ BOOL CTextFile::Read(LPCTSTR lpctszFileName) {
 		if (m_Bom == BOM_UTF16LE) {	// UTF-16LEのBOMの場合.
 			m_Encoding = ENCODING_UTF_16LE;
 			DecodeUtf16LEWithBom();	// BOM付きUTF-16LEをテキストにデコード.
+		}
+		else if (m_Bom == BOM_UTF16BE) {	// UTF-16BEのBOMの場合.
+			m_Encoding = ENCODING_UTF_16BE;
+			DecodeUtf16BEWithBom();	// BOM付きUTF-16BEをテキストにデコード.
 		}
 		else {	// それ以外.
 			m_Encoding = ENCODING_SHIFT_JIS;
