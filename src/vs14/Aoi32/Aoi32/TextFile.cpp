@@ -161,6 +161,9 @@ CTextFile::BOM CTextFile::CheckBom() {
 	if (m_dwSize >= 2 && m_pBytes[0] == 0xff && m_pBytes[1] == 0xfe) {	// UTF-16LEの場合.
 		m_Bom = BOM_UTF16LE;	// BOM_UTF16LEをセット.
 	}
+	else if (m_dwSize >= 2 && m_pBytes[0] == 0xfe && m_pBytes[1] == 0xff) {	// UTF-16BEの場合.
+		m_Bom = BOM_UTF16BE;	// BOM_UTF16BEをセット.
+	}
 	else {	// それ以外はBOMなし.
 		m_Bom = BOM_NONE;	// BOM_NONEをセット.
 	}
@@ -182,6 +185,27 @@ void CTextFile::DecodeUtf16LEWithBom() {
 		wmemcpy(ptszText, ((wchar_t*)m_pBytes) + 1, iWithOutBom / 2);	// 1文字(2バイト分)後ろから(iWithOutBom / 2)の分コピー.
 		m_tstrText = ptszText;	// m_tstrTextにptszTextをセット.
 		delete[] ptszText;	// delete[]でptsztextを解放.
+	}
+
+}
+
+// BOM付きUTF-16BEのバイト列をテキストにデコード.
+void  CTextFile::DecodeUtf16BEWithBom() {
+
+	// BOM付きUTF-16BE形式のバイト列をtstringに変換.
+	int iWithOutBom = m_dwSize - 2;	// BOM2バイト分を引く.
+	if (iWithOutBom <= 0) {	// 0バイト以下.
+		m_tstrText = _T("");	// 空文字列になる.
+	}
+	else {	// 1文字以上(2バイト以上で必ず偶数バイト.)はある.
+		BYTE* pReversed = new BYTE[m_dwSize];	// 入れ替えたバイト列用メモリ確保.
+		convert_endian_16bit_byte_array((const char*)m_pBytes, (char*)pReversed, m_dwSize);	// エンディアン入れ替え.
+		TCHAR* ptszText = new TCHAR[iWithOutBom / 2 + 1];	// iWithOutBomは0以上の偶数になる.
+		wmemset(ptszText, _T('\0'), iWithOutBom / 2 + 1);	// wmemsetでptszTextを_T('\0')で埋める.
+		wmemcpy(ptszText, ((wchar_t*)pReversed) + 1, iWithOutBom / 2);	// 1文字(2バイト分)後ろから(iWithOutBom / 2)の分コピー.
+		m_tstrText = ptszText;	// m_tstrTextにptszTextをセット.
+		delete[] ptszText;	// delete[]でptsztextを解放.
+		delete[] pReversed;	// delete[]でpReversedを解放.
 	}
 
 }
@@ -261,6 +285,10 @@ BOOL CTextFile::Read(LPCTSTR lpctszFileName) {
 		if (m_Bom == BOM_UTF16LE) {	// UTF-16LEのBOMの場合.
 			m_Encoding = ENCODING_UTF_16LE;
 			DecodeUtf16LEWithBom();	// BOM付きUTF-16LEをテキストにデコード.
+		}
+		else if (m_Bom == BOM_UTF16BE) {	// UTF-16BEのBOMの場合.
+			m_Encoding = ENCODING_UTF_16BE;
+			DecodeUtf16BEWithBom();	// BOM付きUTF-16BEをテキストにデコード.
 		}
 		else {	// それ以外.
 			m_Encoding = ENCODING_SHIFT_JIS;

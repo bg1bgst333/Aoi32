@@ -210,10 +210,13 @@ int CMainWindow::OnFileOpen(WPARAM wParam, LPARAM lParam) {
 			CMenu* pSubMenu0 = m_pMainMenu->GetSubMenu(0);
 			// BOM.
 			if (m_pTextFile->m_Bom == CTextFile::BOM_UTF16LE) {
-				pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF16LE, ID_ITEM_BOM_UTF16LE, MF_BYCOMMAND);
+				pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF16BE, ID_ITEM_BOM_UTF16LE, MF_BYCOMMAND);
+			}
+			else if (m_pTextFile->m_Bom == CTextFile::BOM_UTF16BE) {
+				pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF16BE, ID_ITEM_BOM_UTF16BE, MF_BYCOMMAND);
 			}
 			else {
-				pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF16LE, ID_ITEM_BOM_NONE, MF_BYCOMMAND);
+				pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF16BE, ID_ITEM_BOM_NONE, MF_BYCOMMAND);
 			}
 			// •¶ŽšƒR[ƒh.
 			if (m_pTextFile->m_Encoding == CTextFile::ENCODING_UTF_16LE) {

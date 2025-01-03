@@ -51,6 +51,7 @@ class CTextFile : public CBinaryFile {
 		virtual BOOL Write(LPCTSTR lpctszFileName);	// 指定のテキストファイルに全部一斉書き込み.
 		BOM CheckBom();	// BOMのチェック.
 		void DecodeUtf16LEWithBom();	// BOM付きUTF-16LEのバイト列をテキストにデコード.
+		void DecodeUtf16BEWithBom();	// BOM付きUTF-16BEのバイト列をテキストにデコード.
 		BOOL DecodeShiftJis();	// Shift_JISのバイト列をテキストにデコード.
 		NEW_LINE CheckNewLine();	// 改行のチェック.
 		virtual BOOL Read(LPCTSTR lpctszFileName);	// 指定のテキストファイルを全部一斉読み込み.
