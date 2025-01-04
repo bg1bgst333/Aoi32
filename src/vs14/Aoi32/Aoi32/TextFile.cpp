@@ -57,6 +57,27 @@ void CTextFile::EncodeUtf16BEWithBom() {
 
 }
 
+// テキストをUTF-8バイト列に変換してバッファにセット.
+BOOL CTextFile::EncodeUtf8() {
+
+	// UTF-8バイト列をバッファにセット.
+	int iLen = WideCharToMultiByte(CP_UTF8, 0, m_tstrText.c_str(), -1, NULL, 0, NULL, NULL);	// 変換に必要なバッファの長さを取得.
+	if (iLen <= 0) {	// 失敗.
+		return FALSE;
+	}
+	BYTE* pBytes = new BYTE[iLen];	// バイト列を格納する配列pBytes.
+	ZeroMemory(pBytes, sizeof(BYTE) * iLen);	// pBytesを0で埋める.
+	iLen = WideCharToMultiByte(CP_UTF8, 0, m_tstrText.c_str(), -1, (char*)pBytes, iLen, NULL, NULL);	// ワイド文字からマルチバイト文字への変換.
+	if (iLen <= 0) {	// 失敗.
+		delete[] pBytes;	// delete [] でpBytesを解放.
+		return FALSE;
+	}
+	Set(pBytes, iLen - 1);	// pBytesをiLen - 1分セット.
+	delete[] pBytes;	// delete [] でpBytesを解放.
+	return TRUE;
+
+}
+
 // テキストをShift_JISバイト列に変換に変換してバッファにセット.
 BOOL CTextFile::EncodeShiftJis() {
 
@@ -137,7 +158,15 @@ BOOL CTextFile::Write(LPCTSTR lpctszFileName) {
 		else {
 			EncodeUtf16BE();	// EncodeUtf16BEでm_tstrTextをBOM無しUTF-16BEバイト列に変換してバッファにセット.
 		}
-	}	
+	}
+	else if (m_Encoding == CTextFile::ENCODING_UTF_8) {	// UTF-8なら.
+		BOOL bRet = EncodeUtf8();	// EncodeUtf8でm_tstrTextをUTF-8バイト列に変換してバッファにセット.
+		if (!bRet) {	// 失敗
+			Close();	// 閉じる.
+			Clear();	// バッファもクリア.
+			return FALSE;	// FALSEを返す.
+		}
+	}
 	else {	// それ以外.
 		// 最終的にShift_JISにする.
 		BOOL bRet = EncodeShiftJis();	// EncodeShiftJisでm_tstrTextをShift_JISバイト列に変換してバッファにセット.
