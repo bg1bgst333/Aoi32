@@ -78,6 +78,30 @@ BOOL CTextFile::EncodeUtf8() {
 
 }
 
+// テキストをBOM付きUTF-8バイト列に変換してバッファにセット.
+BOOL CTextFile::EncodeUtf8WithBom() {
+
+	// BOM付きUTF-8バイト列をバッファにセット.
+	int iLen = WideCharToMultiByte(CP_UTF8, 0, m_tstrText.c_str(), -1, NULL, 0, NULL, NULL);	// 変換に必要なバッファの長さを取得.
+	if (iLen <= 0) {	// 失敗.
+		return FALSE;
+	}
+	BYTE* pBytes = new BYTE[iLen + 3];	// バイト列を格納する配列pBytes.
+	ZeroMemory(pBytes + 3, sizeof(BYTE) * iLen);	// pBytes + 3の位置から0で埋める.
+	iLen = WideCharToMultiByte(CP_UTF8, 0, m_tstrText.c_str(), -1, (char*)(pBytes + 3), iLen, NULL, NULL);	// ワイド文字からマルチバイト文字への変換.
+	if (iLen <= 0) {	// 失敗.
+		delete[] pBytes;	// delete [] でpBytesを解放.
+		return FALSE;
+	}
+	pBytes[0] = 0xef;	// BOM1文字目(0xEF)
+	pBytes[1] = 0xbb;	// BOM2文字目(0xBB)
+	pBytes[2] = 0xbf;	// BOM3文字目(0xBF)
+	Set(pBytes, iLen - 1 + 3);	// pBytesをiLen - 1 + 3分セット.
+	delete[] pBytes;	// delete [] でpBytesを解放.
+	return TRUE;
+
+}
+
 // テキストをShift_JISバイト列に変換に変換してバッファにセット.
 BOOL CTextFile::EncodeShiftJis() {
 
@@ -160,11 +184,22 @@ BOOL CTextFile::Write(LPCTSTR lpctszFileName) {
 		}
 	}
 	else if (m_Encoding == CTextFile::ENCODING_UTF_8) {	// UTF-8なら.
-		BOOL bRet = EncodeUtf8();	// EncodeUtf8でm_tstrTextをUTF-8バイト列に変換してバッファにセット.
-		if (!bRet) {	// 失敗
-			Close();	// 閉じる.
-			Clear();	// バッファもクリア.
-			return FALSE;	// FALSEを返す.
+		// BOMの有無を判断して書き込み.
+		if (m_Bom == CTextFile::BOM_UTF8) {	// UTF-8のBOMなら.
+			BOOL bRet = EncodeUtf8WithBom();	// EncodeUtf8WithBomでm_tstrTextをBOM付きUTF-8バイト列に変換してバッファにセット.
+			if (!bRet) {	// 失敗
+				Close();	// 閉じる.
+				Clear();	// バッファもクリア.
+				return FALSE;	// FALSEを返す.
+			}
+		}
+		else {	// BOM無しなら.
+			BOOL bRet = EncodeUtf8();	// EncodeUtf8でm_tstrTextをUTF-8バイト列に変換してバッファにセット.
+			if (!bRet) {	// 失敗
+				Close();	// 閉じる.
+				Clear();	// バッファもクリア.
+				return FALSE;	// FALSEを返す.
+			}
 		}
 	}
 	else {	// それ以外.
