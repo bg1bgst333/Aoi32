@@ -108,9 +108,11 @@ int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 			AddCommandHandler(ID_ITEM_ENCODE_SHIFTJIS, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnEncodeShiftJis);	// AddCommandHandlerでID_ITEM_ENCODE_SHIFTJISに対するハンドラCMainWindow::OnEncodeShiftJisを登録.
 			AddCommandHandler(ID_ITEM_ENCODE_UTF16LE, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnEncodeUtf16LE);	// AddCommandHandlerでID_ITEM_ENCODE_UTF16LEに対するハンドラCMainWindow::OnEncodeUtf16LEを登録.
 			AddCommandHandler(ID_ITEM_ENCODE_UTF16BE, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnEncodeUtf16BE);	// AddCommandHandlerでID_ITEM_ENCODE_UTF16BEに対するハンドラCMainWindow::OnEncodeUtf16BEを登録.
+			AddCommandHandler(ID_ITEM_ENCODE_UTF8, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnEncodeUtf8);	// AddCommandHandlerでID_ITEM_ENCODE_UTF8に対するハンドラCMainWindow::OnEncodeUtf8を登録.
 			AddCommandHandler(ID_ITEM_BOM_NONE, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnBomNone);	// AddCommandHandlerでID_ITEM_BOM_NONEに対するハンドラCMainWindow::OnBomNoneを登録.
 			AddCommandHandler(ID_ITEM_BOM_UTF16LE, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnBomUtf16LE);	// AddCommandHandlerでID_ITEM_BOM_UTF16LEに対するハンドラCMainWindow::OnBomUtf16LEを登録.
 			AddCommandHandler(ID_ITEM_BOM_UTF16BE, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnBomUtf16BE);	// AddCommandHandlerでID_ITEM_BOM_UTF16BEに対するハンドラCMainWindow::OnBomUtf16BEを登録.
+			AddCommandHandler(ID_ITEM_BOM_UTF8, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnBomUtf8);	// AddCommandHandlerでID_ITEM_BOM_UTF8に対するハンドラCMainWindow::OnBomUtf8を登録.
 			AddCommandHandler(ID_ITEM_NEW_LINE_CRLF, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnNewLineCRLF);	// AddCommandHandlerでID_ITEM_NEW_LINE_CRLFに対するハンドラCMainWindow::OnNewLineCRLFを登録.
 			AddCommandHandler(ID_ITEM_NEW_LINE_LF, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnNewLineLF);	// AddCommandHandlerでID_ITEM_NEW_LINE_LFに対するハンドラCMainWindow::OnNewLineLFを登録.
 			AddCommandHandler(ID_ITEM_NEW_LINE_CR, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnNewLineCR);	// AddCommandHandlerでID_ITEM_NEW_LINE_CRに対するハンドラCMainWindow::OnNewLineCRを登録.
@@ -136,8 +138,8 @@ int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 
 	// "BOM無し", "Shift_JIS", "CRLF"にラジオチェックを付ける.
 	CMenu* pSubMenu0 = m_pMainMenu->GetSubMenu(0);
-	pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF16BE, ID_ITEM_BOM_NONE, MF_BYCOMMAND);
-	pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF16BE, ID_ITEM_ENCODE_SHIFTJIS, MF_BYCOMMAND);
+	pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF8, ID_ITEM_BOM_NONE, MF_BYCOMMAND);
+	pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF8, ID_ITEM_ENCODE_SHIFTJIS, MF_BYCOMMAND);
 	pSubMenu0->CheckMenuRadioItem(ID_ITEM_NEW_LINE_CRLF, ID_ITEM_NEW_LINE_CR, ID_ITEM_NEW_LINE_CRLF, MF_BYCOMMAND);
 	
 	// 戻り値を返す.
@@ -154,9 +156,11 @@ void CMainWindow::OnDestroy() {
 	DeleteCommandHandler(ID_ITEM_ENCODE_SHIFTJIS, 0);	// DeleteCommandHandlerでID_ITEM_ENCODE_SHIFTJISのハンドラを削除.
 	DeleteCommandHandler(ID_ITEM_ENCODE_UTF16LE, 0);	// DeleteCommandHandlerでID_ITEM_ENCODE_UTF16LEのハンドラを削除.
 	DeleteCommandHandler(ID_ITEM_ENCODE_UTF16BE, 0);	// DeleteCommandHandlerでID_ITEM_ENCODE_UTF16BEのハンドラを削除.
+	DeleteCommandHandler(ID_ITEM_ENCODE_UTF8, 0);	// DeleteCommandHandlerでID_ITEM_ENCODE_UTF8のハンドラを削除.
 	DeleteCommandHandler(ID_ITEM_BOM_NONE, 0);	// DeleteCommandHandlerでID_ITEM_BOM_NONEのハンドラを削除.
 	DeleteCommandHandler(ID_ITEM_BOM_UTF16LE, 0);	// DeleteCommandHandlerでID_ITEM_BOM_UTF16LEのハンドラを削除.
 	DeleteCommandHandler(ID_ITEM_BOM_UTF16BE, 0);	// DeleteCommandHandlerでID_ITEM_BOM_UTF16BEのハンドラを削除.
+	DeleteCommandHandler(ID_ITEM_BOM_UTF8, 0);	// DeleteCommandHandlerでID_ITEM_BOM_UTF8のハンドラを削除.
 	DeleteCommandHandler(ID_ITEM_NEW_LINE_CRLF, 0);	// DeleteCommandHandlerでID_ITEM_NEW_LINE_CRLFのハンドラを削除.
 	DeleteCommandHandler(ID_ITEM_NEW_LINE_LF, 0);	// DeleteCommandHandlerでID_ITEM_NEW_LINE_LFのハンドラを削除.
 	DeleteCommandHandler(ID_ITEM_NEW_LINE_CR, 0);	// DeleteCommandHandlerでID_ITEM_NEW_LINE_CRのハンドラを削除.
@@ -210,23 +214,29 @@ int CMainWindow::OnFileOpen(WPARAM wParam, LPARAM lParam) {
 			CMenu* pSubMenu0 = m_pMainMenu->GetSubMenu(0);
 			// BOM.
 			if (m_pTextFile->m_Bom == CTextFile::BOM_UTF16LE) {
-				pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF16BE, ID_ITEM_BOM_UTF16LE, MF_BYCOMMAND);
+				pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF8, ID_ITEM_BOM_UTF16LE, MF_BYCOMMAND);
 			}
 			else if (m_pTextFile->m_Bom == CTextFile::BOM_UTF16BE) {
-				pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF16BE, ID_ITEM_BOM_UTF16BE, MF_BYCOMMAND);
+				pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF8, ID_ITEM_BOM_UTF16BE, MF_BYCOMMAND);
+			}
+			else if (m_pTextFile->m_Bom == CTextFile::BOM_UTF8) {
+				pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF8, ID_ITEM_BOM_UTF8, MF_BYCOMMAND);
 			}
 			else {
-				pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF16BE, ID_ITEM_BOM_NONE, MF_BYCOMMAND);
+				pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF8, ID_ITEM_BOM_NONE, MF_BYCOMMAND);
 			}
 			// 文字コード.
 			if (m_pTextFile->m_Encoding == CTextFile::ENCODING_UTF_16LE) {
-				pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF16BE, ID_ITEM_ENCODE_UTF16LE, MF_BYCOMMAND);
+				pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF8, ID_ITEM_ENCODE_UTF16LE, MF_BYCOMMAND);
 			}
 			else if (m_pTextFile->m_Encoding == CTextFile::ENCODING_UTF_16BE) {
-				pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF16BE, ID_ITEM_ENCODE_UTF16BE, MF_BYCOMMAND);
+				pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF8, ID_ITEM_ENCODE_UTF16BE, MF_BYCOMMAND);
+			}
+			else if (m_pTextFile->m_Encoding == CTextFile::ENCODING_UTF_8) {
+				pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF8, ID_ITEM_ENCODE_UTF8, MF_BYCOMMAND);
 			}
 			else {
-				pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF16BE, ID_ITEM_ENCODE_SHIFTJIS, MF_BYCOMMAND);
+				pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF8, ID_ITEM_ENCODE_SHIFTJIS, MF_BYCOMMAND);
 			}
 			// 改行コード.
 			if (m_pTextFile->m_NewLine == CTextFile::NEW_LINE_CR) {
@@ -270,9 +280,9 @@ int CMainWindow::OnEncodeShiftJis(WPARAM wParam, LPARAM lParam) {
 
 	// "Shift_JIS"にラジオチェックを付ける.
 	CMenu* pSubMenu0 = m_pMainMenu->GetSubMenu(0);
-	pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF16BE, ID_ITEM_ENCODE_SHIFTJIS, MF_BYCOMMAND);
+	pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF8, ID_ITEM_ENCODE_SHIFTJIS, MF_BYCOMMAND);
 	m_pTextFile->m_Encoding = CTextFile::ENCODING_SHIFT_JIS;	// ENCODEはShift_JISとする.
-	pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF16BE, ID_ITEM_BOM_NONE, MF_BYCOMMAND);
+	pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF8, ID_ITEM_BOM_NONE, MF_BYCOMMAND);
 	m_pTextFile->m_Bom = CTextFile::BOM_NONE;	// BOMはNONEとする.
 	return 0;	// 処理したので0.
 
@@ -283,7 +293,7 @@ int CMainWindow::OnEncodeUtf16LE(WPARAM wParam, LPARAM lParam) {
 
 	// "UTF-16LE"にラジオチェックを付ける.
 	CMenu* pSubMenu0 = m_pMainMenu->GetSubMenu(0);
-	pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF16BE, ID_ITEM_ENCODE_UTF16LE, MF_BYCOMMAND);
+	pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF8, ID_ITEM_ENCODE_UTF16LE, MF_BYCOMMAND);
 	m_pTextFile->m_Encoding = CTextFile::ENCODING_UTF_16LE;	// ENCODEはUTF-16LEとする.
 	return 0;	// 処理したので0.
 
@@ -294,8 +304,19 @@ int CMainWindow::OnEncodeUtf16BE(WPARAM wParam, LPARAM lParam) {
 
 	// "UTF-16BE"にラジオチェックを付ける.
 	CMenu* pSubMenu0 = m_pMainMenu->GetSubMenu(0);
-	pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF16BE, ID_ITEM_ENCODE_UTF16BE, MF_BYCOMMAND);
+	pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF8, ID_ITEM_ENCODE_UTF16BE, MF_BYCOMMAND);
 	m_pTextFile->m_Encoding = CTextFile::ENCODING_UTF_16BE;	// ENCODEはUTF-16BEとする.
+	return 0;	// 処理したので0.
+
+}
+
+// "UTF-8"が選択された時.
+int CMainWindow::OnEncodeUtf8(WPARAM wParam, LPARAM lParam) {
+
+	// "UTF-8"にラジオチェックを付ける.
+	CMenu* pSubMenu0 = m_pMainMenu->GetSubMenu(0);
+	pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF8, ID_ITEM_ENCODE_UTF8, MF_BYCOMMAND);
+	m_pTextFile->m_Encoding = CTextFile::ENCODING_UTF_8;	// ENCODEはUTF-8とする.
 	return 0;	// 処理したので0.
 
 }
@@ -305,7 +326,7 @@ int CMainWindow::OnBomNone(WPARAM wParam, LPARAM lParam) {
 
 	// "BOM無し"にラジオチェックを付ける.
 	CMenu* pSubMenu0 = m_pMainMenu->GetSubMenu(0);
-	pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF16BE, ID_ITEM_BOM_NONE, MF_BYCOMMAND);
+	pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF8, ID_ITEM_BOM_NONE, MF_BYCOMMAND);
 	m_pTextFile->m_Bom = CTextFile::BOM_NONE;	// BOMはNONEとする.
 	return 0;	// 処理したので0.
 
@@ -316,9 +337,9 @@ int CMainWindow::OnBomUtf16LE(WPARAM wParam, LPARAM lParam) {
 
 	// "UTF-16LE BOM"にラジオチェックを付ける.
 	CMenu* pSubMenu0 = m_pMainMenu->GetSubMenu(0);
-	pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF16BE, ID_ITEM_BOM_UTF16LE, MF_BYCOMMAND);
+	pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF8, ID_ITEM_BOM_UTF16LE, MF_BYCOMMAND);
 	m_pTextFile->m_Bom = CTextFile::BOM_UTF16LE;	// BOM_UTF16LEとする.
-	pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF16BE, ID_ITEM_ENCODE_UTF16LE, MF_BYCOMMAND);
+	pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF8, ID_ITEM_ENCODE_UTF16LE, MF_BYCOMMAND);
 	m_pTextFile->m_Encoding = CTextFile::ENCODING_UTF_16LE;	// ENCODEはUTF-16LEとする.
 	return 0;	// 処理したので0.
 
@@ -329,10 +350,23 @@ int CMainWindow::OnBomUtf16BE(WPARAM wParam, LPARAM lParam) {
 
 	// "UTF-16BE BOM"にラジオチェックを付ける.
 	CMenu* pSubMenu0 = m_pMainMenu->GetSubMenu(0);
-	pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF16BE, ID_ITEM_BOM_UTF16BE, MF_BYCOMMAND);
+	pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF8, ID_ITEM_BOM_UTF16BE, MF_BYCOMMAND);
 	m_pTextFile->m_Bom = CTextFile::BOM_UTF16BE;	// BOM_UTF16BEとする.
-	pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF16BE, ID_ITEM_ENCODE_UTF16BE, MF_BYCOMMAND);
+	pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF8, ID_ITEM_ENCODE_UTF16BE, MF_BYCOMMAND);
 	m_pTextFile->m_Encoding = CTextFile::ENCODING_UTF_16BE;	// ENCODEはUTF-16BEとする.
+	return 0;	// 処理したので0.
+
+}
+
+// "UTF-8 BOM"が選択された時.
+int CMainWindow::OnBomUtf8(WPARAM wParam, LPARAM lParam) {
+
+	// UTF-8 BOMにラジオチェックを付ける.
+	CMenu* pSubMenu0 = m_pMainMenu->GetSubMenu(0);
+	pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF8, ID_ITEM_BOM_UTF8, MF_BYCOMMAND);
+	m_pTextFile->m_Bom = CTextFile::BOM_UTF8;	// BOM_UTF8とする.
+	pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF8, ID_ITEM_ENCODE_UTF8, MF_BYCOMMAND);
+	m_pTextFile->m_Encoding = CTextFile::ENCODING_UTF_8;	// UTF-8とする.
 	return 0;	// 処理したので0.
 
 }
