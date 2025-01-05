@@ -222,7 +222,10 @@ BOOL CTextFile::Write(LPCTSTR lpctszFileName) {
 CTextFile::BOM CTextFile::CheckBom() {
 
 	// BOMの判定.
-	if (m_dwSize >= 2 && m_pBytes[0] == 0xff && m_pBytes[1] == 0xfe) {	// UTF-16LEの場合.
+	if (m_dwSize >= 3 && m_pBytes[0] == 0xef && m_pBytes[1] == 0xbb && m_pBytes[2] == 0xbf) {	// UTF-8の場合.
+		m_Bom = BOM_UTF8;	// BOM_UTF8をセット.
+	}
+	else if (m_dwSize >= 2 && m_pBytes[0] == 0xff && m_pBytes[1] == 0xfe) {	// UTF-16LEの場合.
 		m_Bom = BOM_UTF16LE;	// BOM_UTF16LEをセット.
 	}
 	else if (m_dwSize >= 2 && m_pBytes[0] == 0xfe && m_pBytes[1] == 0xff) {	// UTF-16BEの場合.
@@ -271,6 +274,27 @@ void  CTextFile::DecodeUtf16BEWithBom() {
 		delete[] ptszText;	// delete[]でptsztextを解放.
 		delete[] pReversed;	// delete[]でpReversedを解放.
 	}
+
+}
+
+// BOM付きUTF-8のバイト列をテキストにデコード.
+BOOL CTextFile::DecodeUtf8WithBom() {
+
+	// BOM付きUTF-8バイト列をテキストに変換.
+	int iLen = MultiByteToWideChar(CP_UTF8, 0, (char*)(m_pBytes + 3), -1, NULL, NULL);	// MultiByteToWideCharでバイト列の変換に必要なバッファの長さiLenを求める.
+	if (iLen <= 0) {	// 失敗.
+		return FALSE;
+	}
+	TCHAR* ptszText = new TCHAR[iLen];	// iLenの分のTCHAR動的配列を用意し, ポインタをptszTextに格納.
+	wmemset(ptszText, _T('\0'), iLen);	// wmemsetでptszTextを_T('0')で埋める.
+	iLen = MultiByteToWideChar(CP_UTF8, 0, (char*)(m_pBytes + 3), -1, ptszText, iLen);	// MultiByteToWideCharでマルチバイト文字からワイド文字への変換.
+	if (iLen <= 0) {	// 失敗.
+		delete[] ptszText;	// delete [] でptszTextを解放.
+		return FALSE;
+	}
+	m_tstrText = ptszText;	// m_tstrTextにptszTextをセット.
+	delete[] ptszText;	// delete [] でptszTextを解放.
+	return TRUE;
 
 }
 
@@ -353,6 +377,10 @@ BOOL CTextFile::Read(LPCTSTR lpctszFileName) {
 		else if (m_Bom == BOM_UTF16BE) {	// UTF-16BEのBOMの場合.
 			m_Encoding = ENCODING_UTF_16BE;
 			DecodeUtf16BEWithBom();	// BOM付きUTF-16BEをテキストにデコード.
+		}
+		else if (m_Bom == BOM_UTF8) {	// UTF-8のBOMの場合.
+			m_Encoding = ENCODING_UTF_8;
+			DecodeUtf8WithBom();	// BOM付きUTF-8をテキストにデコード.
 		}
 		else {	// それ以外.
 			m_Encoding = ENCODING_SHIFT_JIS;

@@ -214,23 +214,29 @@ int CMainWindow::OnFileOpen(WPARAM wParam, LPARAM lParam) {
 			CMenu* pSubMenu0 = m_pMainMenu->GetSubMenu(0);
 			// BOM.
 			if (m_pTextFile->m_Bom == CTextFile::BOM_UTF16LE) {
-				pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF16BE, ID_ITEM_BOM_UTF16LE, MF_BYCOMMAND);
+				pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF8, ID_ITEM_BOM_UTF16LE, MF_BYCOMMAND);
 			}
 			else if (m_pTextFile->m_Bom == CTextFile::BOM_UTF16BE) {
-				pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF16BE, ID_ITEM_BOM_UTF16BE, MF_BYCOMMAND);
+				pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF8, ID_ITEM_BOM_UTF16BE, MF_BYCOMMAND);
+			}
+			else if (m_pTextFile->m_Bom == CTextFile::BOM_UTF8) {
+				pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF8, ID_ITEM_BOM_UTF8, MF_BYCOMMAND);
 			}
 			else {
-				pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF16BE, ID_ITEM_BOM_NONE, MF_BYCOMMAND);
+				pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF8, ID_ITEM_BOM_NONE, MF_BYCOMMAND);
 			}
 			// 文字コード.
 			if (m_pTextFile->m_Encoding == CTextFile::ENCODING_UTF_16LE) {
-				pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF16BE, ID_ITEM_ENCODE_UTF16LE, MF_BYCOMMAND);
+				pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF8, ID_ITEM_ENCODE_UTF16LE, MF_BYCOMMAND);
 			}
 			else if (m_pTextFile->m_Encoding == CTextFile::ENCODING_UTF_16BE) {
-				pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF16BE, ID_ITEM_ENCODE_UTF16BE, MF_BYCOMMAND);
+				pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF8, ID_ITEM_ENCODE_UTF16BE, MF_BYCOMMAND);
+			}
+			else if (m_pTextFile->m_Encoding == CTextFile::ENCODING_UTF_8) {
+				pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF8, ID_ITEM_ENCODE_UTF8, MF_BYCOMMAND);
 			}
 			else {
-				pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF16BE, ID_ITEM_ENCODE_SHIFTJIS, MF_BYCOMMAND);
+				pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_UTF8, ID_ITEM_ENCODE_SHIFTJIS, MF_BYCOMMAND);
 			}
 			// 改行コード.
 			if (m_pTextFile->m_NewLine == CTextFile::NEW_LINE_CR) {
