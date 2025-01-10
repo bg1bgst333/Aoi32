@@ -319,6 +319,62 @@ BOOL CTextFile::DecodeShiftJis() {
 
 }
 
+// UTF-8のバイト列をテキストにデコード.
+BOOL CTextFile::DecodeUtf8() {
+
+	// UTF-8バイト列をテキストに変換.
+	int iLen = MultiByteToWideChar(CP_UTF8, 0, (char*)m_pBytes, -1, NULL, NULL);	// MultiByteToWideCharでバイト列の変換に必要なバッファの長さiLenを求める.
+	if (iLen <= 0) {	// 失敗.
+		return FALSE;
+	}
+	TCHAR* ptszText = new TCHAR[iLen];	// iLenの分のTCHAR動的配列を用意し, ポインタをptszTextに格納.
+	wmemset(ptszText, _T('\0'), iLen);	// wmemsetでptszTextを_T('0')で埋める.
+	iLen = MultiByteToWideChar(CP_UTF8, 0, (char*)m_pBytes, -1, ptszText, iLen);	// MultiByteToWideCharでマルチバイト文字からワイド文字への変換.
+	if (iLen <= 0) {	// 失敗.
+		delete[] ptszText;	// delete [] でptszTextを解放.
+		return FALSE;
+	}
+	m_tstrText = ptszText;	// m_tstrTextにptszTextをセット.
+	delete[] ptszText;	// delete [] でptszTextを解放.
+	return TRUE;
+
+}
+
+// UTF-8かどうか判定する.
+BOOL CTextFile::IsUtf8(const unsigned char* lpcszStr, size_t uiLen) {
+
+	// UTF-8の文字コード範囲に基づいて1文字ずつチェック.
+	size_t i = 0;
+	while (i < uiLen) {
+		if ((lpcszStr[i] & 0x80) == 0) {	// 1バイト文字.(ASCII)
+			i++;	// 1進む.
+		}
+		else if ((lpcszStr[i] & 0xe0) == 0xc0) {	// 2バイト文字.
+			if (i + 1 >= uiLen || (lpcszStr[i + 1] & 0xc0) != 0x80) {
+				return FALSE;	// 範囲外.
+			}
+			i += 2;	// 2進む.
+		}
+		else if ((lpcszStr[i] & 0xf0) == 0xe0) {	// 3バイト文字.
+			if (i + 2 >= uiLen || (lpcszStr[i + 1] & 0xc0) != 0x80 || (lpcszStr[i + 2] & 0xc0) != 0x80) {
+				return FALSE;	// 範囲外.
+			}
+			i += 3;	// 3進む.
+		}
+		else if ((lpcszStr[i] & 0xf8) == 0xf0) {	// 4バイト文字.
+			if (i + 3 >= uiLen || (lpcszStr[i + 1] & 0xc0) != 0x80 || (lpcszStr[i + 2] & 0xc0) != 0x80 || (lpcszStr[i + 3] & 0xc0) != 0x80) {
+				return FALSE;	// 範囲外.
+			}
+			i += 4;	// 4進む.
+		}
+		else {	// それ以外.
+			return FALSE;	// 範囲外.
+		}
+	}
+	return TRUE;	// 全て範囲内.
+
+}
+
 // 改行のチェック.
 CTextFile::NEW_LINE CTextFile::CheckNewLine() {
 
@@ -383,8 +439,18 @@ BOOL CTextFile::Read(LPCTSTR lpctszFileName) {
 			DecodeUtf8WithBom();	// BOM付きUTF-8をテキストにデコード.
 		}
 		else {	// それ以外.
-			m_Encoding = ENCODING_SHIFT_JIS;
-			DecodeShiftJis();	// Shift_JISをテキストにデコード.
+			// UTF-8かどうか判定.
+			BOOL bUtf8 = IsUtf8(m_pBytes, m_dwSize);	// IsUtf8でUTF-8かどうか判定.
+			if (bUtf8) {	// TRUE.
+				// UTF-8として変換.
+				m_Encoding = ENCODING_UTF_8;
+				DecodeUtf8();	// UTF-8をテキストにデコード.
+			}
+			else {	// FALSE.
+				// Shift_JISとして変換.
+				m_Encoding = ENCODING_SHIFT_JIS;
+				DecodeShiftJis();	// Shift_JISをテキストにデコード.
+			}
 		}
 		CheckNewLine();	// 改行コードのチェック.
 		if (m_NewLine != NEW_LINE_NONE || m_NewLine != NEW_LINE_CRLF) {	// 改行無しではない or CRLFではない場合.
