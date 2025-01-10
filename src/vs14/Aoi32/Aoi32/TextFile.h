@@ -58,6 +58,8 @@ class CTextFile : public CBinaryFile {
 		void DecodeUtf16BEWithBom();	// BOM付きUTF-16BEのバイト列をテキストにデコード.
 		BOOL DecodeUtf8WithBom();	// BOM付きUTF-8のバイト列をテキストにデコード.
 		BOOL DecodeShiftJis();	// Shift_JISのバイト列をテキストにデコード.
+		BOOL DecodeUtf8();	// UTF-8のバイト列をテキストにデコード.
+		BOOL IsUtf8(const unsigned char* lpcszStr, size_t uiLen);	// UTF-8かどうか判定する.
 		NEW_LINE CheckNewLine();	// 改行のチェック.
 		virtual BOOL Read(LPCTSTR lpctszFileName);	// 指定のテキストファイルを全部一斉読み込み.
 		virtual void Clear();	// バッファのクリア.
