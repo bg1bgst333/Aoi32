@@ -118,6 +118,7 @@ int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 			AddCommandHandler(ID_ITEM_NEW_LINE_CRLF, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnNewLineCRLF);	// AddCommandHandlerでID_ITEM_NEW_LINE_CRLFに対するハンドラCMainWindow::OnNewLineCRLFを登録.
 			AddCommandHandler(ID_ITEM_NEW_LINE_LF, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnNewLineLF);	// AddCommandHandlerでID_ITEM_NEW_LINE_LFに対するハンドラCMainWindow::OnNewLineLFを登録.
 			AddCommandHandler(ID_ITEM_NEW_LINE_CR, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnNewLineCR);	// AddCommandHandlerでID_ITEM_NEW_LINE_CRに対するハンドラCMainWindow::OnNewLineCRを登録.
+			AddCommandHandler(ID_ITEM_DETECT_ENCODING, 0, (int(CWindow::*)(WPARAM, LPARAM)) & CMainWindow::OnDetectEncoding);	// AddCommandHandlerでID_ITEM_DETECT_ENCODINGに対するハンドラCMainWindow::OnDetectEncodingを登録.
 		}
 	}
 
@@ -143,7 +144,10 @@ int CMainWindow::OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct) {
 	pSubMenu0->CheckMenuRadioItem(ID_ITEM_BOM_NONE, ID_ITEM_BOM_UTF8, ID_ITEM_BOM_NONE, MF_BYCOMMAND);
 	pSubMenu0->CheckMenuRadioItem(ID_ITEM_ENCODE_SHIFTJIS, ID_ITEM_ENCODE_JIS, ID_ITEM_ENCODE_SHIFTJIS, MF_BYCOMMAND);
 	pSubMenu0->CheckMenuRadioItem(ID_ITEM_NEW_LINE_CRLF, ID_ITEM_NEW_LINE_CR, ID_ITEM_NEW_LINE_CRLF, MF_BYCOMMAND);
-	
+	// "文字コード推測"にチェックを付けない.
+	pSubMenu0->CheckMenuItem(ID_ITEM_DETECT_ENCODING, MF_BYCOMMAND | MF_UNCHECKED);
+	m_pTextFile->m_bDetectEnc = FALSE;
+
 	// 戻り値を返す.
 	return iRet;	// iRetを返す.
 
@@ -168,6 +172,7 @@ void CMainWindow::OnDestroy() {
 	DeleteCommandHandler(ID_ITEM_NEW_LINE_CRLF, 0);	// DeleteCommandHandlerでID_ITEM_NEW_LINE_CRLFのハンドラを削除.
 	DeleteCommandHandler(ID_ITEM_NEW_LINE_LF, 0);	// DeleteCommandHandlerでID_ITEM_NEW_LINE_LFのハンドラを削除.
 	DeleteCommandHandler(ID_ITEM_NEW_LINE_CR, 0);	// DeleteCommandHandlerでID_ITEM_NEW_LINE_CRのハンドラを削除.
+	DeleteCommandHandler(ID_ITEM_DETECT_ENCODING, 0);	// DeleteCommandHandlerでID_ITEM_DETECT_ENCODINGのハンドラを削除.
 
 	// メニューの終了処理.
 	CMenu::DeleteMenuHandleMap();
@@ -432,6 +437,32 @@ int CMainWindow::OnNewLineCR(WPARAM wParam, LPARAM lParam) {
 	CMenu* pSubMenu0 = m_pMainMenu->GetSubMenu(0);
 	pSubMenu0->CheckMenuRadioItem(ID_ITEM_NEW_LINE_CRLF, ID_ITEM_NEW_LINE_CR, ID_ITEM_NEW_LINE_CR, MF_BYCOMMAND);
 	m_pTextFile->m_NewLine = CTextFile::NEW_LINE_CR;	// CRとする.
+	return 0;	// 処理したので0.
+
+}
+
+// "文字コード推測"が選択された時.
+int CMainWindow::OnDetectEncoding(WPARAM wParam, LPARAM lParam){
+
+	// 文字コード推測オフならオン.
+	if (!m_pTextFile->m_bDetectEnc) {
+
+		// "文字コード推測"にチェックを付ける.
+		CMenu* pSubMenu0 = m_pMainMenu->GetSubMenu(0);
+		pSubMenu0->CheckMenuItem(ID_ITEM_DETECT_ENCODING, MF_BYCOMMAND | MF_CHECKED);
+		m_pTextFile->m_bDetectEnc = TRUE;
+
+	}
+	else {	// オンならオフ.
+
+		// "文字コード推測"のチェックを外す..
+		CMenu* pSubMenu0 = m_pMainMenu->GetSubMenu(0);
+		pSubMenu0->CheckMenuItem(ID_ITEM_DETECT_ENCODING, MF_BYCOMMAND | MF_UNCHECKED);
+		m_pTextFile->m_bDetectEnc = FALSE;
+
+	}
+
+	// 0を返す.
 	return 0;	// 処理したので0.
 
 }
