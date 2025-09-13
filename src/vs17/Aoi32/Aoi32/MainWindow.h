@@ -49,6 +49,7 @@ class CMainWindow : public CWindow {
 		int OnNewLineCRLF(WPARAM wParam, LPARAM lParam);	// "CRLF"が選択された時.
 		int OnNewLineLF(WPARAM wParam, LPARAM lParam);	// "LF"が選択された時.
 		int OnNewLineCR(WPARAM wParam, LPARAM lParam);	// "CR"が選択された時.
+		int OnDetectEncoding(WPARAM wParam, LPARAM lParam);	// "文字コード推測"が選択された時.
 
 };
 
