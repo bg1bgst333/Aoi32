@@ -75,12 +75,6 @@ BOOL CMainWindow::DestroyChildren() {
 		m_pEdit = NULL;	// NULLをセット.
 	}
 
-	// メニューオブジェクトの破棄.
-	if (m_pMainMenu != NULL) {	// m_pMainMenuがNULLでなければ.
-		delete m_pTextFile;	// deleteでm_pMainMenuを解放.
-		m_pTextFile = NULL;	// m_pMainMenuにNULLをセット.
-	}
-
 	// 破棄したらTRUEを返す.
 	if (bRet) {	// TRUEなら.
 		return TRUE;	// TRUEを返す.
